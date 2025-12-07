@@ -1,3 +1,212 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Stat Card Animation */
+  .stat-card {
+    animation: fadeInUp 0.3s ease-out;
+  }
+
+  .stat-value {
+    animation: countUp 0.5s ease-out;
+  }
+
+  /* Card Animation */
+  .card {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Fade In Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Fade In Up Animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Count Up Animation */
+  @keyframes countUp {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Pulse Animation for buttons on hover */
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Shimmer effect for loading states */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+    background-size: 1000px 100%;
+  }
+
+  /* Slide in from right */
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  /* Dropdown Animations - Ant Design Style */
+  .dropdown-slide-down {
+    animation: dropdownSlideDown 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-origin: top;
+  }
+
+  .dropdown-slide-up {
+    animation: dropdownSlideUp 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-origin: bottom;
+  }
+
+  @keyframes dropdownSlideDown {
+    from {
+      opacity: 0;
+      transform: scaleY(0.8) translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: scaleY(1) translateY(0);
+    }
+  }
+
+  @keyframes dropdownSlideUp {
+    from {
+      opacity: 0;
+      transform: scaleY(0.8) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scaleY(1) translateY(0);
+    }
+  }
+
+  /* Dropdown Menu Item Hover Animation */
+  .dropdown-menu-item {
+    position: relative;
+  }
+
+  .dropdown-menu-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: #3b82f6;
+    transform: scaleY(0);
+    transition: transform 0.2s ease;
+  }
+
+  .dropdown-menu-item:hover::before {
+    transform: scaleY(1);
+  }
+
+  /* Select Animation */
+  .select-trigger {
+    position: relative;
+  }
+
+  .select-dropdown {
+    animation: dropdownSlideDown 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .select-option {
+    position: relative;
+    transition: all 0.15s ease;
+  }
+
+  .select-option:hover {
+    padding-left: 1.25rem;
+  }
+
+  /* Modal Animations */
+  .modal-mask {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .modal-content {
+    animation: modalSlideIn 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Progress Bar Active Animation */
+  @keyframes progressActive {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 40px 0;
+    }
+  }
+
+  .progress-active {
+    background-image: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 40px 40px;
+    animation: progressActive 1s linear infinite;
+  }
+}

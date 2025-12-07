@@ -1,7 +1,7 @@
 {
   "name": "shekel-fe-shared-lib",
   "version": "1.0.0",
-  "description": "Shared component library built with Ant Design and Tailwind CSS",
+  "description": "Shared component library built with React and Tailwind CSS",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -24,7 +24,6 @@
   "keywords": [
     "react",
     "components",
-    "antd",
     "tailwindcss",
     "ui"
   ],
@@ -44,7 +43,6 @@
     "vite-plugin-dts": "^4.5.4"
   },
   "peerDependencies": {
-    "antd": "^6.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   }
