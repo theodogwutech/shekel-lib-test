@@ -44,10 +44,10 @@ export const Progress: React.FC<ProgressProps> = ({
       case 'exception':
         return 'bg-red-500';
       case 'active':
-        return 'bg-blue-500';
+        return 'bg-[#EC615B]';
       default:
         if (clampedPercent === 100) return 'bg-green-500';
-        return 'bg-blue-500';
+        return 'bg-[#EC615B]';
     }
   };
 

@@ -209,4 +209,36 @@
     background-size: 40px 40px;
     animation: progressActive 1s linear infinite;
   }
+
+  /* StatCard Slide-In Active Effect */
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Selected Items List Animation */
+  @keyframes slideInItem {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in-item {
+    animation: slideInItem 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
 }

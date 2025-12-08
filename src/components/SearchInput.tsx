@@ -21,7 +21,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const containerBaseClasses = 'relative inline-flex items-center';
 
   const inputBaseClasses =
-    'border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out placeholder:text-gray-400';
+    'border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#EC615B] focus:border-[#EC615B] transition-all duration-200 ease-in-out placeholder:text-gray-400';
 
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',

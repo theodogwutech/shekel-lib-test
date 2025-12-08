@@ -33,3 +33,9 @@ export type { StepsProps, StepItem } from './Steps';
 
 export { Progress } from './Progress';
 export type { ProgressProps } from './Progress';
+
+export { Checkbox } from './Checkbox';
+export type { CheckboxProps } from './Checkbox';
+
+export { SelectedItemsList } from './SelectedItemsList';
+export type { SelectedItemsListProps, SelectedItem } from './SelectedItemsList';

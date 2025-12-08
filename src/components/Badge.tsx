@@ -5,6 +5,8 @@ export interface BadgeProps {
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
   size?: 'sm' | 'md' | 'lg';
   dot?: boolean;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
   className?: string;
 }
 
@@ -13,11 +15,13 @@ export const Badge: React.FC<BadgeProps> = ({
   variant = 'default',
   size = 'md',
   dot = false,
+  icon,
+  iconPosition = 'left',
   className = '',
 }) => {
   const variantClasses = {
-    default: 'bg-gray-100 text-gray-800',
-    primary: 'bg-blue-100 text-blue-800',
+    default: 'bg-gray-100 text-[#181918]',
+    primary: 'bg-[#FCEAE9] text-[#EC615B]',
     success: 'bg-green-100 text-green-800',
     warning: 'bg-yellow-100 text-yellow-800',
     danger: 'bg-red-100 text-red-800',
@@ -38,11 +42,17 @@ export const Badge: React.FC<BadgeProps> = ({
 
   const dotColorClasses = {
     default: 'bg-gray-600',
-    primary: 'bg-blue-600',
+    primary: 'bg-[#EC615B]',
     success: 'bg-green-600',
     warning: 'bg-yellow-600',
     danger: 'bg-red-600',
     info: 'bg-cyan-600',
+  };
+
+  const iconSizeClasses = {
+    sm: 'w-3 h-3',
+    md: 'w-3.5 h-3.5',
+    lg: 'w-4 h-4',
   };
 
   return (
@@ -52,7 +62,17 @@ export const Badge: React.FC<BadgeProps> = ({
       {dot && (
         <span className={`rounded-full ${dotSizeClasses[size]} ${dotColorClasses[variant]}`} />
       )}
+      {icon && iconPosition === 'left' && (
+        <span className={`inline-flex items-center ${iconSizeClasses[size]}`}>
+          {icon}
+        </span>
+      )}
       {children}
+      {icon && iconPosition === 'right' && (
+        <span className={`inline-flex items-center ${iconSizeClasses[size]}`}>
+          {icon}
+        </span>
+      )}
     </span>
   );
 };

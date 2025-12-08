@@ -88,16 +88,16 @@ export const Steps: React.FC<StepsProps> = ({
           icon: isOutline
             ? 'bg-white text-green-500 border-green-500'
             : 'bg-green-500 text-white border-green-500',
-          title: 'text-gray-900',
+          title: 'text-[#181918]',
           description: 'text-gray-600',
           line: 'bg-green-500',
         };
       case 'process':
         return {
           icon: isOutline
-            ? 'bg-white text-blue-500 border-blue-500'
-            : 'bg-blue-500 text-white border-blue-500',
-          title: 'text-gray-900 font-semibold',
+            ? 'bg-white text-[#EC615B] border-[#EC615B]'
+            : 'bg-[#EC615B] text-white border-[#EC615B]',
+          title: 'text-[#181918] font-semibold',
           description: 'text-gray-700',
           line: 'bg-gray-300',
         };
@@ -132,23 +132,29 @@ export const Steps: React.FC<StepsProps> = ({
             <div key={index} className="flex flex-1 items-start">
               <div className="flex flex-col items-center">
                 <div
-                  className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border-2 transition-all duration-300 ${statusClasses.icon}`}
+                  className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border transition-all duration-300 ${statusClasses.icon}`}
                 >
                   {renderIcon(status, item.icon)}
                 </div>
                 <div className="mt-2 text-center">
-                  <div className={`${textSizeClasses[size]} ${statusClasses.title} transition-colors duration-300`}>
+                  <div
+                    className={`${textSizeClasses[size]} ${statusClasses.title} transition-colors duration-300`}
+                  >
                     {item.title}
                   </div>
                   {item.description && (
-                    <div className={`${descriptionSizeClasses[size]} ${statusClasses.description} mt-1 transition-colors duration-300`}>
+                    <div
+                      className={`${descriptionSizeClasses[size]} ${statusClasses.description} mt-1 transition-colors duration-300`}
+                    >
                       {item.description}
                     </div>
                   )}
                 </div>
               </div>
               {!isLast && (
-                <div className={`flex-1 h-0.5 mt-4 mx-2 ${statusClasses.line} transition-colors duration-300`} />
+                <div
+                  className={`flex-1 h-0.5 mt-4 mx-2 ${statusClasses.line} transition-colors duration-300`}
+                />
               )}
             </div>
           );
@@ -168,20 +174,27 @@ export const Steps: React.FC<StepsProps> = ({
           <div key={index} className="flex">
             <div className="flex flex-col items-center mr-4">
               <div
-                className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border-2 transition-all duration-300 ${statusClasses.icon}`}
+                className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border transition-all duration-300 ${statusClasses.icon}`}
               >
                 {renderIcon(status, item.icon)}
               </div>
               {!isLast && (
-                <div className={`w-0.5 flex-1 my-1 ${statusClasses.line} transition-colors duration-300`} style={{ minHeight: '20px' }} />
+                <div
+                  className={`w-0.5 flex-1 my-1 ${statusClasses.line} transition-colors duration-300`}
+                  style={{ minHeight: '20px' }}
+                />
               )}
             </div>
             <div className="flex-1 pb-6">
-              <div className={`${textSizeClasses[size]} ${statusClasses.title} transition-colors duration-300`}>
+              <div
+                className={`${textSizeClasses[size]} ${statusClasses.title} transition-colors duration-300`}
+              >
                 {item.title}
               </div>
               {item.description && (
-                <div className={`${descriptionSizeClasses[size]} ${statusClasses.description} mt-1 transition-colors duration-300`}>
+                <div
+                  className={`${descriptionSizeClasses[size]} ${statusClasses.description} mt-1 transition-colors duration-300`}
+                >
                   {item.description}
                 </div>
               )}

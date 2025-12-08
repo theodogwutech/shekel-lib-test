@@ -127,7 +127,7 @@ export const Select: React.FC<SelectProps> = ({
           transition-all duration-200 ease-out
           ${sizeClasses[size]}
           ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'cursor-pointer hover:border-gray-400'}
-          ${isOpen ? 'border-blue-500 ring-2 ring-blue-500 ring-opacity-20' : ''}
+          ${isOpen ? 'border-[#EC615B] ring-2 ring-[#EC615B] ring-opacity-20' : ''}
         `}
       >
         <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
@@ -157,7 +157,7 @@ export const Select: React.FC<SelectProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={searchPlaceholder}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ease-out"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#EC615B] focus:border-[#EC615B] transition-all duration-200 ease-out"
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
@@ -175,7 +175,7 @@ export const Select: React.FC<SelectProps> = ({
                     select-option
                     px-4 py-2 text-sm cursor-pointer transition-all duration-200 ease-out
                     ${option.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
-                    ${option.value === value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}
+                    ${option.value === value ? 'bg-[#FCEAE9] text-[#EC615B] font-medium' : 'text-[#181918]'}
                   `}
                 >
                   {option.label}
