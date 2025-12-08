@@ -1,6 +1,6 @@
 {
   "name": "shekel-fe-shared-lib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared component library built with React and Tailwind CSS",
   "type": "module",
   "main": "./dist/index.cjs",
