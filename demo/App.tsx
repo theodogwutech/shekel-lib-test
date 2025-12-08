@@ -12,9 +12,12 @@ import {
   Badge,
   Steps,
   Progress,
+  Checkbox,
+  SelectedItemsList,
   type DropdownMenuItem,
   type SelectOption,
   type ColumnDef,
+  type SelectedItem,
 } from '../src/components';
 
 // Demo Icons
@@ -46,6 +49,20 @@ function App() {
   const [selectedStat, setSelectedStat] = useState('all');
   const [shippedFrom, setShippedFrom] = useState<string | number>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [checkbox1, setCheckbox1] = useState(false);
+  const [checkbox2, setCheckbox2] = useState(true);
+  const [checkbox3, setCheckbox3] = useState(false);
+
+  const [selectedVINs, setSelectedVINs] = useState<SelectedItem[]>([
+    { id: 1, label: '1FAFP404X1', sublabel: 'VIN' },
+    { id: 2, label: '1HGCM82633A123456', sublabel: 'VIN' },
+    { id: 3, label: '1N4AL3AP7EC123456', sublabel: 'VIN' },
+    { id: 4, label: '5NPE34AF3FH123456', sublabel: 'VIN' },
+  ]);
+
+  const handleRemoveVIN = (id: string | number) => {
+    setSelectedVINs(selectedVINs.filter(item => item.id !== id));
+  };
 
   const locationOptions: SelectOption[] = [
     { value: 'us', label: 'United States' },
@@ -143,66 +160,115 @@ function App() {
         {/* Table Section */}
         <Card>
           <h2 className="text-2xl font-semibold mb-4">Table with Pagination</h2>
-          <Table
-            columns={[
-              { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
-              { key: 'vin', title: 'VIN', dataIndex: 'vin', render: (val) => <span className="text-xs text-gray-500">{val}</span> },
-              { key: 'tracking', title: 'Tracking Number', dataIndex: 'trackingNumber', render: (val, rec: any) => (
-                <div>
-                  <div className="text-sm font-medium text-red-600">{val}</div>
-                  <div className="text-xs text-gray-500">{rec.shippingLine}</div>
-                </div>
-              )},
-              { key: 'portLoading', title: 'Port of loading', dataIndex: 'portOfLoading' },
-              { key: 'portDischarge', title: 'Port of Discharge', dataIndex: 'portOfDischarge' },
-              { key: 'eta', title: 'ETA', dataIndex: 'eta' },
-              { key: 'daysLeft', title: 'Days left', dataIndex: 'daysLeft' },
-              { key: 'lastEvent', title: 'Last Event', dataIndex: 'lastEvent' },
-              { key: 'status', title: 'Status', dataIndex: 'status', render: (val) => (
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  val === 'In Transit' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {val}
-                </span>
-              )},
-            ]}
-            dataSource={[
-              {
-                id: '1',
-                vehicle: 'Hyundai Sonata',
-                vin: '1N4AL3AP5EC123456',
-                trackingNumber: 'MSKU7654321',
-                shippingLine: 'Evergreen Marine',
-                portOfLoading: 'Port of Vancouver',
-                portOfDischarge: 'Apapa Port, Lagos',
-                eta: '14/04/2025',
-                daysLeft: '21 days',
-                lastEvent: 'Cleared from port',
-                status: 'In Transit',
-              },
-              {
-                id: '2',
-                vehicle: 'Toyota Camry',
-                vin: '1FAFP404X1F123456',
-                trackingNumber: 'HLCU1234567',
-                shippingLine: 'Maersk Line',
-                portOfLoading: 'Port of Halifax',
-                portOfDischarge: 'Apapa Port, Lagos',
-                eta: '24/06/2025',
-                daysLeft: '60 days',
-                lastEvent: '-',
-                status: 'Pending',
-              },
-            ]}
-            rowKey="id"
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50],
-              showTotal: true,
-            }}
-            bordered
-          />
+          <div className="space-y-8">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-4">Default Size (Medium)</p>
+              <Table
+                columns={[
+                  { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
+                  { key: 'vin', title: 'VIN', dataIndex: 'vin', render: (val) => <span className="text-xs text-gray-500">{val}</span> },
+                  { key: 'tracking', title: 'Tracking Number', dataIndex: 'trackingNumber', render: (val, rec: any) => (
+                    <div>
+                      <div className="text-sm font-medium text-red-600">{val}</div>
+                      <div className="text-xs text-gray-500">{rec.shippingLine}</div>
+                    </div>
+                  )},
+                  { key: 'portLoading', title: 'Port of loading', dataIndex: 'portOfLoading' },
+                  { key: 'portDischarge', title: 'Port of Discharge', dataIndex: 'portOfDischarge' },
+                  { key: 'eta', title: 'ETA', dataIndex: 'eta' },
+                  { key: 'daysLeft', title: 'Days left', dataIndex: 'daysLeft' },
+                  { key: 'lastEvent', title: 'Last Event', dataIndex: 'lastEvent' },
+                  { key: 'status', title: 'Status', dataIndex: 'status', render: (val) => (
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      val === 'In Transit' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {val}
+                    </span>
+                  )},
+                ]}
+                dataSource={[
+                  {
+                    id: '1',
+                    vehicle: 'Hyundai Sonata',
+                    vin: '1N4AL3AP5EC123456',
+                    trackingNumber: 'MSKU7654321',
+                    shippingLine: 'Evergreen Marine',
+                    portOfLoading: 'Port of Vancouver',
+                    portOfDischarge: 'Apapa Port, Lagos',
+                    eta: '14/04/2025',
+                    daysLeft: '21 days',
+                    lastEvent: 'Cleared from port',
+                    status: 'In Transit',
+                  },
+                  {
+                    id: '2',
+                    vehicle: 'Toyota Camry',
+                    vin: '1FAFP404X1F123456',
+                    trackingNumber: 'HLCU1234567',
+                    shippingLine: 'Maersk Line',
+                    portOfLoading: 'Port of Halifax',
+                    portOfDischarge: 'Apapa Port, Lagos',
+                    eta: '24/06/2025',
+                    daysLeft: '60 days',
+                    lastEvent: '-',
+                    status: 'Pending',
+                  },
+                ]}
+                rowKey="id"
+                pagination={{
+                  pageSize: 10,
+                  showSizeChanger: true,
+                  pageSizeOptions: [5, 10, 20, 50],
+                  showTotal: true,
+                }}
+                bordered
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-4">Small Pagination</p>
+              <Table
+                columns={[
+                  { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
+                  { key: 'status', title: 'Status', dataIndex: 'status' },
+                ]}
+                dataSource={[
+                  { id: '1', vehicle: 'Hyundai Sonata', status: 'In Transit' },
+                  { id: '2', vehicle: 'Toyota Camry', status: 'Pending' },
+                ]}
+                rowKey="id"
+                pagination={{
+                  pageSize: 5,
+                  showSizeChanger: true,
+                  pageSizeOptions: [5, 10, 20],
+                  showTotal: true,
+                  size: 'sm',
+                }}
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-4">Large Pagination</p>
+              <Table
+                columns={[
+                  { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
+                  { key: 'status', title: 'Status', dataIndex: 'status' },
+                ]}
+                dataSource={[
+                  { id: '1', vehicle: 'Hyundai Sonata', status: 'In Transit' },
+                  { id: '2', vehicle: 'Toyota Camry', status: 'Pending' },
+                ]}
+                rowKey="id"
+                pagination={{
+                  pageSize: 5,
+                  showSizeChanger: true,
+                  pageSizeOptions: [5, 10, 20],
+                  showTotal: true,
+                  size: 'lg',
+                }}
+              />
+            </div>
+          </div>
         </Card>
 
         {/* Badge Section */}
@@ -237,6 +303,53 @@ function App() {
                 <Badge variant="primary" size="sm">Small</Badge>
                 <Badge variant="primary" size="md">Medium</Badge>
                 <Badge variant="primary" size="lg">Large</Badge>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">With Icons</p>
+              <div className="flex gap-3 flex-wrap">
+                <Badge
+                  variant="success"
+                  icon={
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  }
+                >
+                  Completed
+                </Badge>
+                <Badge
+                  variant="warning"
+                  icon={
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  }
+                >
+                  Warning
+                </Badge>
+                <Badge
+                  variant="danger"
+                  icon={
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  }
+                >
+                  Error
+                </Badge>
+                <Badge
+                  variant="primary"
+                  icon={
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  }
+                  iconPosition="right"
+                >
+                  Info
+                </Badge>
               </div>
             </div>
           </div>
@@ -287,9 +400,10 @@ function App() {
           <h2 className="text-2xl font-semibold mb-4">Steps</h2>
           <div className="space-y-8">
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Vertical Steps</p>
+              <p className="text-sm font-medium text-gray-700 mb-4">Vertical Steps - Default (Filled)</p>
               <Steps
                 current={1}
+                variant="default"
                 items={[
                   {
                     title: 'Empty in Lot',
@@ -316,10 +430,41 @@ function App() {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Horizontal Steps</p>
+              <p className="text-sm font-medium text-gray-700 mb-4">Vertical Steps - Outline</p>
+              <Steps
+                current={1}
+                variant="outline"
+                items={[
+                  {
+                    title: 'Empty in Lot',
+                    description: 'Port of Vancouver, Canada',
+                  },
+                  {
+                    title: 'Full Out (Port)',
+                    description: 'Port of Vancouver, Canada',
+                  },
+                  {
+                    title: 'Vessel Arrived (port +1)',
+                    description: 'Huatulco',
+                  },
+                  {
+                    title: 'Transshipment Loaded (port +1)',
+                    description: 'Montreal',
+                  },
+                  {
+                    title: 'Vessel Departed',
+                    description: 'Montreal',
+                  },
+                ]}
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-4">Horizontal Steps - Default (Filled)</p>
               <Steps
                 current={2}
                 direction="horizontal"
+                variant="default"
                 items={[
                   { title: 'Ordered' },
                   { title: 'Processing' },
@@ -330,14 +475,261 @@ function App() {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">With Error Status</p>
+              <p className="text-sm font-medium text-gray-700 mb-4">Horizontal Steps - Outline</p>
               <Steps
+                current={2}
+                direction="horizontal"
+                variant="outline"
+                items={[
+                  { title: 'Ordered' },
+                  { title: 'Processing' },
+                  { title: 'Shipped' },
+                  { title: 'Delivered' },
+                ]}
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-4">With Error Status - Default (Filled)</p>
+              <Steps
+                variant="default"
                 items={[
                   { title: 'Step 1', status: 'finish' },
                   { title: 'Step 2', status: 'finish' },
                   { title: 'Step 3', status: 'error', description: 'Something went wrong' },
                   { title: 'Step 4', status: 'wait' },
                 ]}
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-4">With Error Status - Outline</p>
+              <Steps
+                variant="outline"
+                items={[
+                  { title: 'Step 1', status: 'finish' },
+                  { title: 'Step 2', status: 'finish' },
+                  { title: 'Step 3', status: 'error', description: 'Something went wrong' },
+                  { title: 'Step 4', status: 'wait' },
+                ]}
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Checkbox Section */}
+        <Card>
+          <h2 className="text-2xl font-semibold mb-4">Checkboxes</h2>
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Basic Checkboxes</p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox1"
+                    checked={checkbox1}
+                    onChange={setCheckbox1}
+                  />
+                  <label htmlFor="checkbox1" className="text-sm text-gray-700 cursor-pointer">
+                    Unchecked by default
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox2"
+                    checked={checkbox2}
+                    onChange={setCheckbox2}
+                  />
+                  <label htmlFor="checkbox2" className="text-sm text-gray-700 cursor-pointer">
+                    Checked by default
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox3"
+                    disabled
+                  />
+                  <label htmlFor="checkbox3" className="text-sm text-gray-400 cursor-not-allowed">
+                    Disabled checkbox
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox4"
+                    checked={true}
+                    disabled
+                  />
+                  <label htmlFor="checkbox4" className="text-sm text-gray-400 cursor-not-allowed">
+                    Disabled and checked
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Sizes</p>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox-sm"
+                    size="sm"
+                    defaultChecked
+                  />
+                  <label htmlFor="checkbox-sm" className="text-sm text-gray-700 cursor-pointer">
+                    Small
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox-md"
+                    size="md"
+                    defaultChecked
+                  />
+                  <label htmlFor="checkbox-md" className="text-sm text-gray-700 cursor-pointer">
+                    Medium
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox-lg"
+                    size="lg"
+                    defaultChecked
+                  />
+                  <label htmlFor="checkbox-lg" className="text-sm text-gray-700 cursor-pointer">
+                    Large
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Indeterminate State</p>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="checkbox-indeterminate"
+                  indeterminate={true}
+                  checked={checkbox3}
+                  onChange={setCheckbox3}
+                />
+                <label htmlFor="checkbox-indeterminate" className="text-sm text-gray-700 cursor-pointer">
+                  Partially selected (indeterminate)
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Variants</p>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Filled (Default)</p>
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="filled-unchecked" variant="filled" />
+                      <label htmlFor="filled-unchecked" className="text-sm text-gray-700 cursor-pointer">
+                        Unchecked
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="filled-checked" variant="filled" defaultChecked />
+                      <label htmlFor="filled-checked" className="text-sm text-gray-700 cursor-pointer">
+                        Checked
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Outline</p>
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="outline-unchecked" variant="outline" />
+                      <label htmlFor="outline-unchecked" className="text-sm text-gray-700 cursor-pointer">
+                        Unchecked
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="outline-checked" variant="outline" defaultChecked />
+                      <label htmlFor="outline-checked" className="text-sm text-gray-700 cursor-pointer">
+                        Checked
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Use Case Example - Select Vehicles (Outline)</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="vehicle1" variant="outline" defaultChecked />
+                  <label htmlFor="vehicle1" className="text-sm text-gray-700 cursor-pointer">
+                    Toyota Camry - 1FAFP404X1F123456
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="vehicle2" variant="outline" defaultChecked />
+                  <label htmlFor="vehicle2" className="text-sm text-gray-700 cursor-pointer">
+                    Honda Accord - 1HGCM82633A123456
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="vehicle3" variant="outline" />
+                  <label htmlFor="vehicle3" className="text-sm text-gray-700 cursor-pointer">
+                    Nissan Altima - 1N4AL3AP7EC123456
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Selected Items List Section */}
+        <Card>
+          <h2 className="text-2xl font-semibold mb-4">Selected Items List</h2>
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Selected VINs</p>
+              <SelectedItemsList
+                items={selectedVINs}
+                onRemove={handleRemoveVIN}
+                emptyMessage="No VINs selected"
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">With Custom Max Height</p>
+              <SelectedItemsList
+                items={[
+                  { id: 1, label: 'Item 1', sublabel: 'Category A' },
+                  { id: 2, label: 'Item 2', sublabel: 'Category B' },
+                  { id: 3, label: 'Item 3', sublabel: 'Category A' },
+                  { id: 4, label: 'Item 4', sublabel: 'Category C' },
+                  { id: 5, label: 'Item 5', sublabel: 'Category B' },
+                  { id: 6, label: 'Item 6', sublabel: 'Category A' },
+                ]}
+                onRemove={(id) => console.log('Remove', id)}
+                maxHeight="200px"
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Without Sublabels</p>
+              <SelectedItemsList
+                items={[
+                  { id: 1, label: 'Container MSKU7654321' },
+                  { id: 2, label: 'Container HLCU1234567' },
+                  { id: 3, label: 'Container TEMU9876543' },
+                ]}
+                onRemove={(id) => console.log('Remove', id)}
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Empty State</p>
+              <SelectedItemsList
+                items={[]}
+                onRemove={(id) => console.log('Remove', id)}
+                emptyMessage="No containers assigned yet"
               />
             </div>
           </div>
