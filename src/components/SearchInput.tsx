@@ -1,38 +1,64 @@
-import React from 'react';
+import type { FC, ReactNode, InputHTMLAttributes, CSSProperties } from 'react';
 
 export interface SearchInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  icon?: React.ReactNode;
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  icon?: ReactNode;
   iconPosition?: 'left' | 'right';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'responsive';
   fullWidth?: boolean;
   onIconClick?: () => void;
+  bgColor?: string;
+  borderColor?: string;
+  focusBorderColor?: string;
+  iconColor?: string;
+  textColor?: string;
+  placeholderColor?: string;
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  style?: CSSProperties;
 }
 
-export const SearchInput: React.FC<SearchInputProps> = ({
+export const SearchInput: FC<SearchInputProps> = ({
   icon,
   iconPosition = 'left',
   size = 'md',
   fullWidth = false,
   className = '',
   onIconClick,
+  bgColor,
+  borderColor,
+  focusBorderColor,
+  iconColor,
+  textColor,
+  placeholderColor,
+  rounded = 'md',
+  style,
   ...props
 }) => {
   const containerBaseClasses = 'relative inline-flex items-center';
 
   const inputBaseClasses =
-    'border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#EC615B] focus:border-[#EC615B] transition-all duration-200 ease-in-out placeholder:text-gray-400';
+    'border focus:outline-none focus:ring-1 transition-all duration-200 ease-in-out';
 
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-base',
     lg: 'px-5 py-3 text-lg',
+    responsive: 'px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-3 text-sm sm:text-base md:text-lg',
   };
 
   const iconSizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-5 h-5',
     lg: 'w-6 h-6',
+    responsive: 'w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6',
+  };
+
+  const roundedClasses = {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded-lg',
+    lg: 'rounded-xl',
+    full: 'rounded-full',
   };
 
   const paddingWithIcon =
@@ -41,24 +67,50 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         ? 'pl-9'
         : size === 'md'
         ? 'pl-10'
-        : 'pl-12'
+        : size === 'lg'
+        ? 'pl-12'
+        : 'pl-9 sm:pl-10 md:pl-12'
       : size === 'sm'
       ? 'pr-9'
       : size === 'md'
       ? 'pr-10'
-      : 'pr-12';
+      : size === 'lg'
+      ? 'pr-12'
+      : 'pr-9 sm:pr-10 md:pr-12';
 
   const widthClass = fullWidth ? 'w-full' : '';
 
-  const inputClassName = `${inputBaseClasses} ${sizeClasses[size]} ${
+  // Build custom styles for colors
+  const customStyles: CSSProperties = {
+    backgroundColor: bgColor,
+    borderColor: borderColor || '#D1D5DB',
+    color: textColor,
+    ...style,
+  };
+
+  // Determine placeholder color class
+  const placeholderClass = placeholderColor
+    ? ''
+    : 'placeholder:text-gray-400';
+
+  // Build border and default colors
+  const defaultBorderClass = borderColor ? '' : 'border-gray-300';
+  const defaultTextClass = textColor ? '' : 'text-gray-900';
+  const defaultFocusClass = focusBorderColor
+    ? ''
+    : 'focus:ring-[#EC615B] focus:border-[#EC615B]';
+
+  const inputClassName = `${inputBaseClasses} ${!className.includes('px-') && !className.includes('py-') ? sizeClasses[size] : ''} ${
     icon ? paddingWithIcon : ''
-  } ${widthClass} ${className}`;
+  } ${widthClass} ${!className.includes('rounded') ? roundedClasses[rounded] : ''} ${!className.includes('border-') ? defaultBorderClass : ''} ${defaultTextClass} ${defaultFocusClass} ${placeholderClass} ${className}`;
 
   const iconPositionClasses = iconPosition === 'left' ? 'left-3' : 'right-3';
+  const defaultIconColor = iconColor || 'text-gray-400';
+  const hoverIconColor = iconColor ? '' : 'hover:text-gray-600';
 
   const defaultSearchIcon = (
     <svg
-      className={iconSizeClasses[size]}
+      className={`${iconSizeClasses[size]} ${defaultIconColor}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -77,15 +129,28 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     <div className={`${containerBaseClasses} ${widthClass}`}>
       {icon && (
         <div
-          className={`absolute ${iconPositionClasses} text-gray-400 ${
-            onIconClick ? 'cursor-pointer hover:text-gray-600' : ''
-          }`}
+          className={`absolute ${iconPositionClasses} ${defaultIconColor} ${
+            onIconClick ? 'cursor-pointer' : ''
+          } ${hoverIconColor}`}
           onClick={onIconClick}
         >
           {icon === true ? defaultSearchIcon : icon}
         </div>
       )}
-      <input type="text" className={inputClassName} {...props} />
+      <input
+        type="text"
+        className={inputClassName}
+        style={{
+          ...customStyles,
+          ...(focusBorderColor && {
+            '--focus-border-color': focusBorderColor,
+          } as CSSProperties),
+          ...(placeholderColor && {
+            '--placeholder-color': placeholderColor,
+          } as CSSProperties),
+        }}
+        {...props}
+      />
     </div>
   );
 };

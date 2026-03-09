@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC, ReactNode } from 'react';
 
 export interface ProgressProps {
   percent?: number;
@@ -6,12 +6,17 @@ export interface ProgressProps {
   showInfo?: boolean;
   strokeColor?: string;
   strokeWidth?: number;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'responsive';
   className?: string;
-  format?: (percent: number) => React.ReactNode;
+  format?: (percent: number) => ReactNode;
+  bgColor?: string;
+  successColor?: string;
+  exceptionColor?: string;
+  trackColor?: string;
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
 }
 
-export const Progress: React.FC<ProgressProps> = ({
+export const Progress: FC<ProgressProps> = ({
   percent = 0,
   status = 'normal',
   showInfo = true,
@@ -20,6 +25,11 @@ export const Progress: React.FC<ProgressProps> = ({
   size = 'md',
   className = '',
   format,
+  bgColor,
+  successColor,
+  exceptionColor,
+  trackColor,
+  rounded = 'full',
 }) => {
   const clampedPercent = Math.min(100, Math.max(0, percent));
 
@@ -27,12 +37,22 @@ export const Progress: React.FC<ProgressProps> = ({
     sm: 'h-1.5',
     md: 'h-2',
     lg: 'h-3',
+    responsive: 'h-1.5 sm:h-2 md:h-3 lg:h-4',
   };
 
   const textSizeClasses = {
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base',
+    responsive: 'text-xs sm:text-sm md:text-base lg:text-lg',
+  };
+
+  const roundedClasses = {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    full: 'rounded-full',
   };
 
   const getStatusColor = () => {
@@ -40,15 +60,19 @@ export const Progress: React.FC<ProgressProps> = ({
 
     switch (status) {
       case 'success':
-        return 'bg-green-500';
+        return successColor || 'bg-green-500';
       case 'exception':
-        return 'bg-red-500';
+        return exceptionColor || 'bg-red-500';
       case 'active':
-        return 'bg-[#EC615B]';
+        return bgColor || 'bg-[#EC615B]';
       default:
-        if (clampedPercent === 100) return 'bg-green-500';
-        return 'bg-[#EC615B]';
+        if (clampedPercent === 100) return successColor || 'bg-green-500';
+        return bgColor || 'bg-[#EC615B]';
     }
+  };
+
+  const getTrackColor = () => {
+    return trackColor || 'bg-gray-200';
   };
 
   const getStatusIcon = () => {
@@ -90,11 +114,11 @@ export const Progress: React.FC<ProgressProps> = ({
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="flex-1">
         <div
-          className={`w-full bg-gray-200 rounded-full overflow-hidden ${heightClasses[size]}`}
+          className={`w-full overflow-hidden ${heightClasses[size]} ${roundedClasses[rounded]} ${getTrackColor()}`}
           style={{ height }}
         >
           <div
-            className={`${getStatusColor()} ${heightClasses[size]} rounded-full transition-all duration-300 ease-out ${
+            className={`${getStatusColor()} ${heightClasses[size]} ${roundedClasses[rounded]} transition-all duration-300 ease-out ${
               status === 'active' ? 'progress-active' : ''
             }`}
             style={{

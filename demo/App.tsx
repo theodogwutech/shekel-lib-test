@@ -23,25 +23,45 @@ import {
 // Demo Icons
 const SearchIconSvg = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+    />
   </svg>
 );
 
 const MapIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+    />
   </svg>
 );
 
 const DownloadIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+    />
   </svg>
 );
 
 const FilterIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+    />
   </svg>
 );
 
@@ -61,8 +81,11 @@ function App() {
   ]);
 
   const handleRemoveVIN = (id: string | number) => {
-    setSelectedVINs(selectedVINs.filter(item => item.id !== id));
+    setSelectedVINs(selectedVINs.filter((item) => item.id !== id));
   };
+
+  // State for conditional actions demo
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const locationOptions: SelectOption[] = [
     { value: 'us', label: 'United States' },
@@ -70,14 +93,83 @@ function App() {
     { value: 'ca', label: 'Canada' },
   ];
 
+  // Sample shipment data for conditional actions demo
+  interface Shipment {
+    id: string;
+    vehicle: string;
+    vin: string;
+    trackingNumber: string;
+    status: string;
+  }
+
+  const shipmentData: Shipment[] = [
+    { id: '1', vehicle: 'Toyota Camry', vin: '1FAFP404X1F123456', trackingNumber: 'MSKU7654321', status: 'In Transit' },
+    { id: '2', vehicle: 'Honda Accord', vin: '1HGCM82633A123456', trackingNumber: 'HLCUI234567', status: 'Pending' },
+    { id: '3', vehicle: 'Nissan Altima', vin: '1N4AL3AP7EC123456', trackingNumber: 'NALT7890123', status: 'Arrived' },
+    { id: '4', vehicle: 'Hyundai Sonata', vin: '5NPE34AF3FH123456', trackingNumber: 'HSNT4561234', status: 'In Transit' },
+  ];
+
+  const shipmentColumns: ColumnDef<Shipment>[] = [
+    {
+      key: 'checkbox',
+      title: '',
+      width: 50,
+      render: (_, record) => (
+        <Checkbox
+          checked={selectedRowKeys.includes(record.id)}
+          onChange={() => handleToggleRow(record.id)}
+          size="sm"
+        />
+      ),
+    },
+    {
+      key: 'vehicle',
+      title: 'Vehicle',
+      dataIndex: 'vehicle',
+      render: (vehicle, record) => (
+        <div>
+          <div className="font-medium text-gray-900">{vehicle}</div>
+          <div className="text-sm text-gray-500">{record.vin}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'trackingNumber',
+      title: 'Tracking Number',
+      dataIndex: 'trackingNumber',
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      dataIndex: 'status',
+      render: (status) => (
+        <Badge
+          variant={status === 'In Transit' ? 'primary' : status === 'Pending' ? 'warning' : 'success'}
+          size="sm"
+        >
+          {status}
+        </Badge>
+      ),
+    },
+  ];
+
+  const handleToggleRow = (id: string) => {
+    setSelectedRowKeys(prev =>
+      prev.includes(id) ? prev.filter(key => key !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkAssign = () => {
+    alert(`Assigning ${selectedRowKeys.length} shipment(s) to container`);
+    setSelectedRowKeys([]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Component Library Demo
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Component Library Demo</h1>
           <p className="text-gray-600">Testing all components</p>
         </div>
 
@@ -110,50 +202,311 @@ function App() {
                 </Button>
               </div>
             </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Sizes (sm, md, lg, responsive)
+              </p>
+              <div className="flex gap-3 flex-wrap items-center">
+                <Button variant="primary" size="sm">
+                  Small
+                </Button>
+                <Button variant="primary" size="md">
+                  Medium
+                </Button>
+                <Button variant="primary" size="lg">
+                  Large
+                </Button>
+                <Button variant="primary" size="responsive">
+                  Responsive
+                </Button>
+              </div>
+            </div>
+
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Custom Border Radius</p>
+              <div className="flex gap-3 flex-wrap">
+                <Button variant="primary" rounded="none">
+                  No Radius
+                </Button>
+                <Button variant="primary" rounded="sm">
+                  Small Radius
+                </Button>
+                <Button variant="primary" rounded="md">
+                  Medium Radius
+                </Button>
+                <Button variant="primary" rounded="lg">
+                  Large Radius
+                </Button>
+                <Button variant="primary" rounded="full">
+                  Full Radius
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Combined Customization</p>
+              <div className="flex gap-3 flex-wrap">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  rounded="full"
+                  icon={<MapIcon />}
+                >
+                  Large Pill Button
+                </Button>
+                <Button variant="outlined" size="sm" rounded="none">
+                  Small Square
+                </Button>
+                <Button variant="primary" size="responsive" rounded="lg">
+                  Responsive Rounded
+                </Button>
+              </div>
+            </div>
           </div>
         </Card>
 
         {/* Stat Cards Section */}
         <Card>
           <h2 className="text-2xl font-semibold mb-4">Stat Cards (Click to Select)</h2>
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: 'All Shipment', value: 0, key: 'all' },
-              { label: 'Queued', value: 12, key: 'queued' },
-              { label: 'Planned', value: 8, key: 'planned' },
-              { label: 'On ship', value: 24, key: 'onship' },
-            ].map((stat) => (
-              <StatCard
-                key={stat.key}
-                label={stat.label}
-                value={stat.value}
-                selected={selectedStat === stat.key}
-                onClick={() => setSelectedStat(stat.key)}
-              />
-            ))}
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Default StatCards</p>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: 'All Shipment', value: 0, key: 'all' },
+                  { label: 'Queued', value: 12, key: 'queued' },
+                  { label: 'Planned', value: 8, key: 'planned' },
+                  { label: 'On ship', value: 24, key: 'onship' },
+                ].map((stat) => (
+                  <StatCard
+                    key={stat.key}
+                    label={stat.label}
+                    value={stat.value}
+                    selected={selectedStat === stat.key}
+                    onClick={() => setSelectedStat(stat.key)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Responsive Size</p>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: 'Total', value: 150 },
+                  { label: 'Active', value: 89 },
+                  { label: 'Pending', value: 45 },
+                  { label: 'Completed', value: 16 },
+                ].map((stat, idx) => (
+                  <StatCard key={idx} label={stat.label} value={stat.value} size="responsive" />
+                ))}
+              </div>
+            </div>
+
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Custom Border Radius</p>
+              <div className="grid grid-cols-4 gap-3">
+                <StatCard label="Square" value={100} rounded="none" selected />
+                <StatCard label="Small" value={200} rounded="sm" selected />
+                <StatCard label="Medium" value={300} rounded="md" selected />
+                <StatCard label="Large" value={400} rounded="lg" selected />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Combined Customization</p>
+              <div className="grid grid-cols-3 gap-3">
+                <StatCard
+                  label="Premium Orders"
+                  value={456}
+                  size="lg"
+                  rounded="full"
+                  selected
+                />
+                <StatCard
+                  label="Standard Orders"
+                  value={1234}
+                  size="responsive"
+                  rounded="lg"
+                  selected
+                />
+                <StatCard
+                  label="Basic Orders"
+                  value={789}
+                  size="md"
+                  rounded="md"
+                  selected
+                />
+              </div>
+            </div>
           </div>
         </Card>
 
         {/* Search Input Section */}
         <Card>
           <h2 className="text-2xl font-semibold mb-4">Search Input</h2>
-          <SearchInput icon={<SearchIconSvg />} placeholder="Search a shipment" />
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Default Search Input</p>
+              <SearchInput icon={<SearchIconSvg />} placeholder="Search a shipment" />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Sizes</p>
+              <div className="space-y-3">
+                <SearchInput icon={<SearchIconSvg />} placeholder="Small search" size="sm" />
+                <SearchInput icon={<SearchIconSvg />} placeholder="Medium search" size="md" />
+                <SearchInput icon={<SearchIconSvg />} placeholder="Large search" size="lg" />
+                <SearchInput
+                  icon={<SearchIconSvg />}
+                  placeholder="Responsive search"
+                  size="responsive"
+                />
+              </div>
+            </div>
+
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Custom Border Radius</p>
+              <div className="space-y-3">
+                <SearchInput icon={<SearchIconSvg />} placeholder="No radius" rounded="none" />
+                <SearchInput icon={<SearchIconSvg />} placeholder="Small radius" rounded="sm" />
+                <SearchInput icon={<SearchIconSvg />} placeholder="Medium radius" rounded="md" />
+                <SearchInput icon={<SearchIconSvg />} placeholder="Large radius" rounded="lg" />
+                <SearchInput icon={<SearchIconSvg />} placeholder="Full radius" rounded="full" />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Combined Customization</p>
+              <div className="space-y-3">
+                <SearchInput
+                  icon={<SearchIconSvg />}
+                  placeholder="Large pill search"
+                  size="lg"
+                  rounded="full"
+                />
+                <SearchInput
+                  icon={<SearchIconSvg />}
+                  placeholder="Responsive square search"
+                  size="responsive"
+                  rounded="none"
+                />
+              </div>
+            </div>
+          </div>
         </Card>
 
         {/* Select Section */}
         <Card>
           <h2 className="text-2xl font-semibold mb-4">Select Dropdown</h2>
-          <div className="max-w-xs">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Shipped from
-            </label>
-            <Select
-              placeholder="Select location"
-              options={locationOptions}
-              value={shippedFrom}
-              onChange={setShippedFrom}
-              fullWidth
-            />
+          <div className="space-y-6">
+            <div className="max-w-xs">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Default Select</label>
+              <Select
+                placeholder="Select location"
+                options={locationOptions}
+                value={shippedFrom}
+                onChange={setShippedFrom}
+                fullWidth
+              />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Sizes</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Small</label>
+                  <Select
+                    placeholder="Select option"
+                    options={locationOptions}
+                    size="sm"
+                    fullWidth
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Medium</label>
+                  <Select
+                    placeholder="Select option"
+                    options={locationOptions}
+                    size="md"
+                    fullWidth
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Large</label>
+                  <Select
+                    placeholder="Select option"
+                    options={locationOptions}
+                    size="lg"
+                    fullWidth
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Responsive</label>
+                  <Select
+                    placeholder="Select option"
+                    options={locationOptions}
+                    size="responsive"
+                    fullWidth
+                  />
+                </div>
+              </div>
+            </div>
+
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Custom Border Radius</p>
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  placeholder="No radius"
+                  options={locationOptions}
+                  rounded="none"
+                  fullWidth
+                />
+                <Select
+                  placeholder="Small radius"
+                  options={locationOptions}
+                  rounded="sm"
+                  fullWidth
+                />
+                <Select
+                  placeholder="Medium radius"
+                  options={locationOptions}
+                  rounded="md"
+                  fullWidth
+                />
+                <Select
+                  placeholder="Large radius"
+                  options={locationOptions}
+                  rounded="lg"
+                  fullWidth
+                />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-3">Combined Customization</p>
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  placeholder="Large square"
+                  options={locationOptions}
+                  size="lg"
+                  rounded="none"
+                  fullWidth
+                />
+                <Select
+                  placeholder="Responsive rounded"
+                  options={locationOptions}
+                  size="responsive"
+                  rounded="lg"
+                  fullWidth
+                />
+              </div>
+            </div>
           </div>
         </Card>
 
@@ -166,25 +519,48 @@ function App() {
               <Table
                 columns={[
                   { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
-                  { key: 'vin', title: 'VIN', dataIndex: 'vin', render: (val) => <span className="text-xs text-gray-500">{val}</span> },
-                  { key: 'tracking', title: 'Tracking Number', dataIndex: 'trackingNumber', render: (val, rec: any) => (
-                    <div>
-                      <div className="text-sm font-medium text-red-600">{val}</div>
-                      <div className="text-xs text-gray-500">{rec.shippingLine}</div>
-                    </div>
-                  )},
+                  {
+                    key: 'vin',
+                    title: 'VIN',
+                    dataIndex: 'vin',
+                    render: (val) => <span className="text-xs text-gray-500">{val}</span>,
+                  },
+                  {
+                    key: 'tracking',
+                    title: 'Tracking Number',
+                    dataIndex: 'trackingNumber',
+                    render: (val, rec: any) => (
+                      <div>
+                        <div className="text-sm font-medium text-red-600">{val}</div>
+                        <div className="text-xs text-gray-500">{rec.shippingLine}</div>
+                      </div>
+                    ),
+                  },
                   { key: 'portLoading', title: 'Port of loading', dataIndex: 'portOfLoading' },
-                  { key: 'portDischarge', title: 'Port of Discharge', dataIndex: 'portOfDischarge' },
+                  {
+                    key: 'portDischarge',
+                    title: 'Port of Discharge',
+                    dataIndex: 'portOfDischarge',
+                  },
                   { key: 'eta', title: 'ETA', dataIndex: 'eta' },
                   { key: 'daysLeft', title: 'Days left', dataIndex: 'daysLeft' },
                   { key: 'lastEvent', title: 'Last Event', dataIndex: 'lastEvent' },
-                  { key: 'status', title: 'Status', dataIndex: 'status', render: (val) => (
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      val === 'In Transit' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {val}
-                    </span>
-                  )},
+                  {
+                    key: 'status',
+                    title: 'Status',
+                    dataIndex: 'status',
+                    render: (val) => (
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          val === 'In Transit'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
+                        {val}
+                      </span>
+                    ),
+                  },
                 ]}
                 dataSource={[
                   {
@@ -290,19 +666,75 @@ function App() {
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">With Dots</p>
               <div className="flex gap-3 flex-wrap">
-                <Badge variant="success" dot>In Transit</Badge>
-                <Badge variant="warning" dot>Pending</Badge>
-                <Badge variant="danger" dot>Delayed</Badge>
-                <Badge variant="primary" dot>Processing</Badge>
+                <Badge variant="success" dot>
+                  In Transit
+                </Badge>
+                <Badge variant="warning" dot>
+                  Pending
+                </Badge>
+                <Badge variant="danger" dot>
+                  Delayed
+                </Badge>
+                <Badge variant="primary" dot>
+                  Processing
+                </Badge>
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Sizes</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Sizes (sm, md, lg, responsive)
+              </p>
               <div className="flex gap-3 flex-wrap items-center">
-                <Badge variant="primary" size="sm">Small</Badge>
-                <Badge variant="primary" size="md">Medium</Badge>
-                <Badge variant="primary" size="lg">Large</Badge>
+                <Badge variant="primary" size="sm">
+                  Small
+                </Badge>
+                <Badge variant="primary" size="md">
+                  Medium
+                </Badge>
+                <Badge variant="primary" size="lg">
+                  Large
+                </Badge>
+                <Badge variant="primary" size="responsive">
+                  Responsive
+                </Badge>
+              </div>
+            </div>
+
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Custom Border Radius</p>
+              <div className="flex gap-3 flex-wrap">
+                <Badge variant="primary" rounded="none">
+                  Square
+                </Badge>
+                <Badge variant="primary" rounded="sm">
+                  Small
+                </Badge>
+                <Badge variant="primary" rounded="md">
+                  Medium
+                </Badge>
+                <Badge variant="primary" rounded="lg">
+                  Large
+                </Badge>
+                <Badge variant="primary" rounded="full">
+                  Pill
+                </Badge>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Combined Customization</p>
+              <div className="flex gap-3 flex-wrap">
+                <Badge variant="primary" size="lg" rounded="full" dot>
+                  Large Pill
+                </Badge>
+                <Badge variant="primary" size="sm" rounded="none">
+                  Small Square
+                </Badge>
+                <Badge variant="primary" size="responsive" rounded="lg" dot>
+                  Responsive Rounded
+                </Badge>
               </div>
             </div>
 
@@ -313,7 +745,12 @@ function App() {
                   variant="success"
                   icon={
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   }
                 >
@@ -323,7 +760,12 @@ function App() {
                   variant="warning"
                   icon={
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   }
                 >
@@ -333,7 +775,12 @@ function App() {
                   variant="danger"
                   icon={
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   }
                 >
@@ -343,7 +790,12 @@ function App() {
                   variant="primary"
                   icon={
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   }
                   iconPosition="right"
@@ -385,11 +837,35 @@ function App() {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Custom Sizes</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Sizes (sm, md, lg, responsive)
+              </p>
               <div className="space-y-3">
                 <Progress percent={45} size="sm" />
                 <Progress percent={65} size="md" />
                 <Progress percent={85} size="lg" />
+                <Progress percent={75} size="responsive" />
+              </div>
+            </div>
+
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Custom Border Radius</p>
+              <div className="space-y-3">
+                <Progress percent={50} rounded="none" showInfo={false} />
+                <Progress percent={60} rounded="sm" showInfo={false} />
+                <Progress percent={70} rounded="md" showInfo={false} />
+                <Progress percent={80} rounded="lg" showInfo={false} />
+                <Progress percent={90} rounded="full" showInfo={false} />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Combined Customization</p>
+              <div className="space-y-3">
+                <Progress percent={75} size="lg" rounded="full" />
+                <Progress percent={55} size="responsive" rounded="lg" />
+                <Progress percent={85} size="md" rounded="none" showInfo={false} />
               </div>
             </div>
           </div>
@@ -400,7 +876,9 @@ function App() {
           <h2 className="text-2xl font-semibold mb-4">Steps</h2>
           <div className="space-y-8">
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Vertical Steps - Default (Filled)</p>
+              <p className="text-sm font-medium text-gray-700 mb-4">
+                Vertical Steps - Default (Filled)
+              </p>
               <Steps
                 current={1}
                 variant="default"
@@ -460,7 +938,9 @@ function App() {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Horizontal Steps - Default (Filled)</p>
+              <p className="text-sm font-medium text-gray-700 mb-4">
+                Horizontal Steps - Default (Filled)
+              </p>
               <Steps
                 current={2}
                 direction="horizontal"
@@ -490,7 +970,9 @@ function App() {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">With Error Status - Default (Filled)</p>
+              <p className="text-sm font-medium text-gray-700 mb-4">
+                With Error Status - Default (Filled)
+              </p>
               <Steps
                 variant="default"
                 items={[
@@ -525,40 +1007,25 @@ function App() {
               <p className="text-sm font-medium text-gray-700 mb-3">Basic Checkboxes</p>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="checkbox1"
-                    checked={checkbox1}
-                    onChange={setCheckbox1}
-                  />
+                  <Checkbox id="checkbox1" checked={checkbox1} onChange={setCheckbox1} />
                   <label htmlFor="checkbox1" className="text-sm text-gray-700 cursor-pointer">
                     Unchecked by default
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="checkbox2"
-                    checked={checkbox2}
-                    onChange={setCheckbox2}
-                  />
+                  <Checkbox id="checkbox2" checked={checkbox2} onChange={setCheckbox2} />
                   <label htmlFor="checkbox2" className="text-sm text-gray-700 cursor-pointer">
                     Checked by default
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="checkbox3"
-                    disabled
-                  />
+                  <Checkbox id="checkbox3" disabled />
                   <label htmlFor="checkbox3" className="text-sm text-gray-400 cursor-not-allowed">
                     Disabled checkbox
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="checkbox4"
-                    checked={true}
-                    disabled
-                  />
+                  <Checkbox id="checkbox4" checked={true} disabled />
                   <label htmlFor="checkbox4" className="text-sm text-gray-400 cursor-not-allowed">
                     Disabled and checked
                   </label>
@@ -567,40 +1034,42 @@ function App() {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Sizes</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">
+                Sizes (sm, md, lg, responsive)
+              </p>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="checkbox-sm"
-                    size="sm"
-                    defaultChecked
-                  />
+                  <Checkbox id="checkbox-sm" size="sm" defaultChecked />
                   <label htmlFor="checkbox-sm" className="text-sm text-gray-700 cursor-pointer">
                     Small
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="checkbox-md"
-                    size="md"
-                    defaultChecked
-                  />
+                  <Checkbox id="checkbox-md" size="md" defaultChecked />
                   <label htmlFor="checkbox-md" className="text-sm text-gray-700 cursor-pointer">
                     Medium
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="checkbox-lg"
-                    size="lg"
-                    defaultChecked
-                  />
+                  <Checkbox id="checkbox-lg" size="lg" defaultChecked />
                   <label htmlFor="checkbox-lg" className="text-sm text-gray-700 cursor-pointer">
                     Large
                   </label>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="checkbox-responsive" size="responsive" defaultChecked />
+                  <label
+                    htmlFor="checkbox-responsive"
+                    className="text-sm text-gray-700 cursor-pointer"
+                  >
+                    Responsive
+                  </label>
+                </div>
               </div>
             </div>
+
+
+
 
             <div>
               <p className="text-sm font-medium text-gray-700 mb-3">Indeterminate State</p>
@@ -611,7 +1080,10 @@ function App() {
                   checked={checkbox3}
                   onChange={setCheckbox3}
                 />
-                <label htmlFor="checkbox-indeterminate" className="text-sm text-gray-700 cursor-pointer">
+                <label
+                  htmlFor="checkbox-indeterminate"
+                  className="text-sm text-gray-700 cursor-pointer"
+                >
                   Partially selected (indeterminate)
                 </label>
               </div>
@@ -625,13 +1097,19 @@ function App() {
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       <Checkbox id="filled-unchecked" variant="filled" />
-                      <label htmlFor="filled-unchecked" className="text-sm text-gray-700 cursor-pointer">
+                      <label
+                        htmlFor="filled-unchecked"
+                        className="text-sm text-gray-700 cursor-pointer"
+                      >
                         Unchecked
                       </label>
                     </div>
                     <div className="flex items-center gap-2">
                       <Checkbox id="filled-checked" variant="filled" defaultChecked />
-                      <label htmlFor="filled-checked" className="text-sm text-gray-700 cursor-pointer">
+                      <label
+                        htmlFor="filled-checked"
+                        className="text-sm text-gray-700 cursor-pointer"
+                      >
                         Checked
                       </label>
                     </div>
@@ -642,13 +1120,19 @@ function App() {
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       <Checkbox id="outline-unchecked" variant="outline" />
-                      <label htmlFor="outline-unchecked" className="text-sm text-gray-700 cursor-pointer">
+                      <label
+                        htmlFor="outline-unchecked"
+                        className="text-sm text-gray-700 cursor-pointer"
+                      >
                         Unchecked
                       </label>
                     </div>
                     <div className="flex items-center gap-2">
                       <Checkbox id="outline-checked" variant="outline" defaultChecked />
-                      <label htmlFor="outline-checked" className="text-sm text-gray-700 cursor-pointer">
+                      <label
+                        htmlFor="outline-checked"
+                        className="text-sm text-gray-700 cursor-pointer"
+                      >
                         Checked
                       </label>
                     </div>
@@ -658,7 +1142,9 @@ function App() {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Use Case Example - Select Vehicles (Outline)</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">
+                Use Case Example - Select Vehicles (Outline)
+              </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Checkbox id="vehicle1" variant="outline" defaultChecked />
@@ -749,7 +1235,8 @@ function App() {
           >
             <div className="space-y-4">
               <p className="text-gray-600">
-                This is a modal dialog. You can add any content here including forms, tables, or other components.
+                This is a modal dialog. You can add any content here including forms, tables, or
+                other components.
               </p>
 
               <div className="space-y-3">
@@ -765,9 +1252,7 @@ function App() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Status
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <Select
                     placeholder="Select status"
                     options={[
@@ -812,6 +1297,83 @@ function App() {
           />
         </Card>
 
+        {/* Conditional Action Buttons Demo */}
+        <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold mb-2 text-green-900">
+              🎯 NEW: Conditional Action Buttons
+            </h2>
+            <p className="text-green-700 text-sm">
+              TableTop now supports dynamic action buttons based on selection state.
+              Perfect for bulk operations!
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg p-6">
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="font-semibold text-blue-900 mb-2">How it works:</h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>✓ Select rows using checkboxes</li>
+                <li>✓ Filter and Download buttons disappear</li>
+                <li>✓ "Assign to Shipment" button appears in their place</li>
+                <li>✓ Search bar remains visible throughout</li>
+                <li>✓ Deselect all rows to return to normal view</li>
+              </ul>
+            </div>
+
+            <div className="mb-4">
+              <Badge variant={selectedRowKeys.length > 0 ? 'success' : 'default'} size="md">
+                {selectedRowKeys.length > 0
+                  ? `${selectedRowKeys.length} item(s) selected`
+                  : 'No items selected'}
+              </Badge>
+            </div>
+
+            <TableTop
+              searchPlaceholder="Search a shipment"
+              onSearch={(value) => console.log('Search:', value)}
+              actions={
+                <>
+                  <Button variant="outlined" icon={<FilterIcon />} size="sm">
+                    Filter
+                  </Button>
+                  <Button variant="outlined" icon={<DownloadIcon />} size="sm">
+                    Download report
+                  </Button>
+                </>
+              }
+              hideActionButtons={selectedRowKeys.length > 0}
+              selectedActionButton={
+                <Button
+                  variant="primary"
+                  onClick={handleBulkAssign}
+                  size="sm"
+                >
+                  Assign to Shipment ({selectedRowKeys.length})
+                </Button>
+              }
+            />
+
+            <Table
+              columns={shipmentColumns}
+              dataSource={shipmentData}
+              pagination={false}
+              size="md"
+              striped
+              className="mt-4"
+            />
+
+            <div className="mt-4 p-3 bg-gray-50 rounded border">
+              <p className="text-xs text-gray-600 font-mono">
+                <strong>Code:</strong> hideActionButtons={`{selectedRowKeys.length > 0}`}
+              </p>
+              <p className="text-xs text-gray-600 font-mono mt-1">
+                <strong>Selected IDs:</strong> [{selectedRowKeys.join(', ') || 'none'}]
+              </p>
+            </div>
+          </div>
+        </Card>
+
         {/* Dashboard Example */}
         <Card>
           <h2 className="text-2xl font-semibold mb-4">Full Dashboard Example</h2>
@@ -827,13 +1389,17 @@ function App() {
             </div>
 
             <div className="grid grid-cols-8 gap-3 mb-6">
-              {['All Shipment', 'Queued', 'Planned', 'On ship', 'Delayed', 'Arrived', 'Released', 'Demurrage'].map((label, idx) => (
-                <StatCard
-                  key={idx}
-                  label={label}
-                  value={0}
-                  selected={idx === 0}
-                />
+              {[
+                'All Shipment',
+                'Queued',
+                'Planned',
+                'On ship',
+                'Delayed',
+                'Arrived',
+                'Released',
+                'Demurrage',
+              ].map((label, idx) => (
+                <StatCard key={idx} label={label} value={0} selected={idx === 0} />
               ))}
             </div>
 
@@ -858,6 +1424,243 @@ function App() {
                 <p className="text-gray-500">Your gateway to seamless shipment tracking</p>
               </div>
             </Card>
+          </div>
+        </Card>
+
+        {/* FEATURES SHOWCASE */}
+        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
+          <h2 className="text-3xl font-bold mb-2 text-purple-900">Customization Features</h2>
+          <p className="text-purple-700 mb-6">
+            Explore the responsive and customization options available across all components
+          </p>
+
+          <div className="space-y-8">
+            {/* Responsive Components Section */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-xl font-bold mb-4 text-gray-900">1. Responsive Size Prop</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                All components now support size="responsive" which adapts to screen size
+                automatically
+              </p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 mb-2">Button</p>
+                    <Button variant="primary" size="responsive" icon={<MapIcon />}>
+                      Responsive Button
+                    </Button>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 mb-2">Badge</p>
+                    <Badge variant="primary" size="responsive" dot>
+                      Responsive Badge
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-2">Search Input</p>
+                  <SearchInput
+                    icon={<SearchIconSvg />}
+                    placeholder="Responsive search adapts to screen size"
+                    size="responsive"
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-2">Progress Bar</p>
+                  <Progress percent={65} size="responsive" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-2">StatCards</p>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { label: 'Total', value: 1000 },
+                      { label: 'Active', value: 750 },
+                      { label: 'Pending', value: 200 },
+                      { label: 'Done', value: 50 },
+                    ].map((stat, idx) => (
+                      <StatCard
+                        key={idx}
+                        label={stat.label}
+                        value={stat.value}
+                        size="responsive"
+                        selected
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Custom Border Radius Section */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-xl font-bold mb-4 text-gray-900">2. Custom Border Radius Prop</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Control border radius with rounded prop: none, sm, md, lg, full
+              </p>
+              <div className="space-y-4">
+                <div className="flex gap-3 flex-wrap items-center">
+                  <Button variant="primary" rounded="none">
+                    Square
+                  </Button>
+                  <Button variant="primary" rounded="sm">
+                    Small
+                  </Button>
+                  <Button variant="primary" rounded="md">
+                    Medium
+                  </Button>
+                  <Button variant="primary" rounded="lg">
+                    Large
+                  </Button>
+                  <Button variant="primary" rounded="full">
+                    Pill Shape
+                  </Button>
+                </div>
+                <div className="flex gap-3 flex-wrap items-center">
+                  <Badge variant="primary" rounded="none">
+                    Square
+                  </Badge>
+                  <Badge variant="primary" rounded="sm">
+                    Small
+                  </Badge>
+                  <Badge variant="primary" rounded="md">
+                    Medium
+                  </Badge>
+                  <Badge variant="primary" rounded="lg">
+                    Large
+                  </Badge>
+                  <Badge variant="primary" rounded="full">
+                    Pill
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <SearchInput icon={<SearchIconSvg />} placeholder="No radius" rounded="none" />
+                  <SearchInput icon={<SearchIconSvg />} placeholder="Small radius" rounded="sm" />
+                  <SearchInput icon={<SearchIconSvg />} placeholder="Large radius" rounded="lg" />
+                  <SearchInput
+                    icon={<SearchIconSvg />}
+                    placeholder="Full radius (pill)"
+                    rounded="full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Size Comparison Section */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-xl font-bold mb-4 text-gray-900">
+                3. Size Variations Side-by-Side
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">Compare sm, md, lg, and responsive sizes</p>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-2">Buttons</p>
+                  <div className="flex gap-3 items-center flex-wrap">
+                    <Button variant="primary" size="sm">
+                      Small
+                    </Button>
+                    <Button variant="primary" size="md">
+                      Medium
+                    </Button>
+                    <Button variant="primary" size="lg">
+                      Large
+                    </Button>
+                    <Button variant="primary" size="responsive">
+                      Responsive
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-2">Badges</p>
+                  <div className="flex gap-3 items-center flex-wrap">
+                    <Badge variant="success" size="sm">
+                      Small
+                    </Badge>
+                    <Badge variant="success" size="md">
+                      Medium
+                    </Badge>
+                    <Badge variant="success" size="lg">
+                      Large
+                    </Badge>
+                    <Badge variant="success" size="responsive">
+                      Responsive
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-2">Checkboxes</p>
+                  <div className="flex gap-6 items-center">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="size-sm" size="sm" defaultChecked />
+                      <label htmlFor="size-sm" className="text-xs">
+                        Small
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="size-md" size="md" defaultChecked />
+                      <label htmlFor="size-md" className="text-sm">
+                        Medium
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="size-lg" size="lg" defaultChecked />
+                      <label htmlFor="size-lg" className="text-base">
+                        Large
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="size-resp" size="responsive" defaultChecked />
+                      <label htmlFor="size-resp" className="text-sm">
+                        Responsive
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card Component Customization */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-xl font-bold mb-4 text-gray-900">
+                4. Card Component Customization
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Cards also support custom padding, border radius, and shadows
+              </p>
+              <div className="grid grid-cols-3 gap-4">
+                <Card rounded="none" className="border-2 border-purple-200">
+                  <p className="text-sm font-medium">Square Card</p>
+                  <p className="text-xs text-gray-500 mt-1">rounded="none"</p>
+                </Card>
+                <Card rounded="md" className="border-2 border-blue-200">
+                  <p className="text-sm font-medium">Medium Card</p>
+                  <p className="text-xs text-gray-500 mt-1">rounded="md"</p>
+                </Card>
+                <Card rounded="lg" className="border-2 border-green-200">
+                  <p className="text-sm font-medium">Large Card</p>
+                  <p className="text-xs text-gray-500 mt-1">rounded="lg"</p>
+                </Card>
+              </div>
+            </div>
+
+            {/* Modal Customization */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-xl font-bold mb-4 text-gray-900">
+                5. Modal Component Customization
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Modals support custom sizes and rounded corners
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="primary"
+                  size="responsive"
+                  rounded="lg"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Try Customized Modal
+                </Button>
+              </div>
+            </div>
           </div>
         </Card>
       </div>

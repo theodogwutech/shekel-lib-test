@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { FC, ReactNode, CSSProperties } from 'react';
 
 export interface DropdownMenuItem {
   key: string;
-  label: React.ReactNode;
-  icon?: React.ReactNode;
+  label: ReactNode;
+  icon?: ReactNode;
   disabled?: boolean;
   danger?: boolean;
   onClick?: () => void;
@@ -13,13 +14,19 @@ export interface DropdownProps {
   items: DropdownMenuItem[];
   trigger?: 'click' | 'hover';
   placement?: 'bottomLeft' | 'bottomRight' | 'topLeft' | 'topRight';
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   overlayClassName?: string;
   disabled?: boolean;
+  size?: 'sm' | 'md' | 'lg' | 'responsive';
+  menuBgColor?: string;
+  menuItemHoverColor?: string;
+  dangerColor?: string;
+  borderColor?: string;
+  style?: CSSProperties;
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({
+export const Dropdown: FC<DropdownProps> = ({
   items,
   trigger = 'click',
   placement = 'bottomLeft',
@@ -27,12 +34,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
   className = '',
   overlayClassName = '',
   disabled = false,
+  size = 'md',
+  menuBgColor,
+  menuItemHoverColor,
+  dangerColor,
+  borderColor,
+  style,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -83,12 +96,43 @@ export const Dropdown: React.FC<DropdownProps> = ({
     ? 'dropdown-slide-down'
     : 'dropdown-slide-up';
 
+  const sizeClasses = {
+    sm: 'min-w-[120px] text-xs',
+    md: 'min-w-[160px] text-sm',
+    lg: 'min-w-[220px] text-base',
+    responsive: 'min-w-[120px] sm:min-w-[160px] md:min-w-[200px] lg:min-w-[240px] text-xs sm:text-sm md:text-base',
+  };
+
+  const itemSizeClasses = {
+    sm: 'px-3 py-1.5 text-xs gap-1.5',
+    md: 'px-4 py-2 text-sm gap-2',
+    lg: 'px-5 py-3 text-base gap-2.5',
+    responsive: 'px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-3 text-xs sm:text-sm md:text-base gap-1.5 sm:gap-2 md:gap-2.5',
+  };
+
+  // Color styling helpers
+  const defaultHoverColor = 'hover:bg-gray-50';
+  const defaultBorderColor = 'border-gray-200';
+  const defaultDangerColor = 'text-red-600';
+
+  // Hover color handling
+  const hoverColorStyle = menuItemHoverColor ? { backgroundColor: menuItemHoverColor } : {};
+  const customHoverClass = menuItemHoverColor ? '' : defaultHoverColor;
+
+  // Danger color handling
+  const customDangerStyle = dangerColor ? { color: dangerColor } : {};
+  const dangerHoverBgStyle = dangerColor ? { backgroundColor: dangerColor + '15' } : {};
+
+  // Border color handling
+  const finalBorderColor = borderColor || defaultBorderColor;
+
   return (
     <div
       ref={dropdownRef}
       className={`relative inline-block ${className}`}
       onMouseEnter={handleTriggerMouseEnter}
       onMouseLeave={handleTriggerMouseLeave}
+      style={style}
     >
       <div
         onClick={handleTriggerClick}
@@ -99,24 +143,47 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
       {isOpen && !disabled && (
         <div
-          className={`absolute ${placementClasses[placement]} ${animationClasses} z-50 min-w-[160px] ${overlayClassName}`}
+          className={`absolute ${placementClasses[placement]} ${animationClasses} z-50 ${sizeClasses[size]} ${overlayClassName}`}
         >
-          <div className="dropdown-menu bg-white rounded-lg shadow-lg border border-gray-200 py-1 overflow-hidden">
-            {items.map((item) => (
-              <div
-                key={item.key}
-                onClick={() => handleMenuItemClick(item)}
-                className={`
-                  dropdown-menu-item
-                  flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-all duration-200 ease-out
-                  ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
-                  ${item.danger ? 'text-red-600 hover:bg-red-50' : 'text-gray-700'}
-                `}
-              >
-                {item.icon && <span className="flex-shrink-0">{item.icon}</span>}
-                <span>{item.label}</span>
-              </div>
-            ))}
+          <div
+            className={`dropdown-menu rounded-lg shadow-lg border py-1 overflow-hidden ${finalBorderColor}`}
+            style={{ backgroundColor: menuBgColor || '#ffffff' }}
+          >
+            {items.map((item) => {
+              // Determine item-specific styles
+              let itemStyle: React.CSSProperties = {};
+
+              if (!item.disabled) {
+                if (item.danger) {
+                  // Danger items use custom danger color if provided
+                  itemStyle = {
+                    ...customDangerStyle,
+                    ...dangerHoverBgStyle,
+                  };
+                } else if (menuItemHoverColor) {
+                  // Custom hover color applied inline
+                  itemStyle = hoverColorStyle;
+                }
+              }
+
+              return (
+                <div
+                  key={item.key}
+                  onClick={() => handleMenuItemClick(item)}
+                  className={`
+                    dropdown-menu-item
+                    flex items-center cursor-pointer transition-all duration-200 ease-out
+                    ${!overlayClassName.includes('px-') && !overlayClassName.includes('py-') ? itemSizeClasses[size] : ''}
+                    ${item.disabled ? 'opacity-50 cursor-not-allowed' : customHoverClass}
+                    ${item.danger ? (dangerColor ? '' : defaultDangerColor) : 'text-gray-700'}
+                  `}
+                  style={itemStyle}
+                >
+                  {item.icon && <span className="flex-shrink-0">{item.icon}</span>}
+                  <span>{item.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

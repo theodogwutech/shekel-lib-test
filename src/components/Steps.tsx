@@ -1,28 +1,40 @@
-import React from 'react';
+import type { FC, ReactNode, CSSProperties } from 'react';
 
 export interface StepItem {
   title: string;
   description?: string;
   status?: 'wait' | 'process' | 'finish' | 'error';
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 }
 
 export interface StepsProps {
   items: StepItem[];
   current?: number;
   direction?: 'horizontal' | 'vertical';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'responsive';
   variant?: 'default' | 'outline';
   className?: string;
+  style?: CSSProperties;
+  finishColor?: string;
+  processColor?: string;
+  waitColor?: string;
+  errorColor?: string;
+  lineColor?: string;
 }
 
-export const Steps: React.FC<StepsProps> = ({
+export const Steps: FC<StepsProps> = ({
   items,
   current = 0,
   direction = 'vertical',
   size = 'md',
   variant = 'default',
   className = '',
+  style,
+  finishColor,
+  processColor,
+  waitColor,
+  errorColor,
+  lineColor,
 }) => {
   const getStepStatus = (index: number, item: StepItem): StepItem['status'] => {
     if (item.status) return item.status;
@@ -35,21 +47,24 @@ export const Steps: React.FC<StepsProps> = ({
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
     lg: 'w-10 h-10',
+    responsive: 'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10',
   };
 
   const textSizeClasses = {
     sm: 'text-sm',
     md: 'text-base',
     lg: 'text-lg',
+    responsive: 'text-xs sm:text-sm md:text-base lg:text-lg',
   };
 
   const descriptionSizeClasses = {
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base',
+    responsive: 'text-xs sm:text-xs md:text-sm lg:text-base',
   };
 
-  const renderIcon = (status: StepItem['status'], icon?: React.ReactNode) => {
+  const renderIcon = (status: StepItem['status'], icon?: ReactNode) => {
     if (icon) return icon;
 
     if (status === 'finish') {
@@ -86,53 +101,62 @@ export const Steps: React.FC<StepsProps> = ({
       case 'finish':
         return {
           icon: isOutline
-            ? 'bg-white text-green-500 border-green-500'
-            : 'bg-green-500 text-white border-green-500',
+            ? `bg-white text-white border ${finishColor ? `border-[${finishColor}]` : 'border-green-500'}`
+            : `${finishColor ? `bg-[${finishColor}]` : 'bg-green-500'} text-white ${finishColor ? `border-[${finishColor}]` : 'border-green-500'}`,
           title: 'text-[#181918]',
           description: 'text-gray-600',
-          line: 'bg-green-500',
+          line: lineColor ? `bg-[${lineColor}]` : 'bg-green-500',
+          iconColor: finishColor,
         };
       case 'process':
         return {
           icon: isOutline
-            ? 'bg-white text-[#EC615B] border-[#EC615B]'
-            : 'bg-[#EC615B] text-white border-[#EC615B]',
+            ? `bg-white text-white border ${processColor ? `border-[${processColor}]` : 'border-[#EC615B]'}`
+            : `${processColor ? `bg-[${processColor}]` : 'bg-[#EC615B]'} text-white ${processColor ? `border-[${processColor}]` : 'border-[#EC615B]'}`,
           title: 'text-[#181918] font-semibold',
           description: 'text-gray-700',
-          line: 'bg-gray-300',
+          line: lineColor ? `bg-[${lineColor}]` : 'bg-gray-300',
+          iconColor: processColor,
         };
       case 'error':
         return {
           icon: isOutline
-            ? 'bg-white text-red-500 border-red-500'
-            : 'bg-red-500 text-white border-red-500',
+            ? `bg-white text-white border ${errorColor ? `border-[${errorColor}]` : 'border-red-500'}`
+            : `${errorColor ? `bg-[${errorColor}]` : 'bg-red-500'} text-white ${errorColor ? `border-[${errorColor}]` : 'border-red-500'}`,
           title: 'text-red-600',
           description: 'text-red-500',
-          line: 'bg-gray-300',
+          line: lineColor ? `bg-[${lineColor}]` : 'bg-gray-300',
+          iconColor: errorColor,
         };
       default:
         return {
           icon: 'bg-white text-gray-400 border-gray-300',
           title: 'text-gray-500',
           description: 'text-gray-400',
-          line: 'bg-gray-300',
+          line: lineColor ? `bg-[${lineColor}]` : 'bg-gray-300',
+          iconColor: waitColor,
         };
     }
   };
 
   if (direction === 'horizontal') {
     return (
-      <div className={`flex items-start ${className}`}>
+      <div className={`flex items-start ${className}`} style={style}>
         {items.map((item, index) => {
           const status = getStepStatus(index, item);
           const statusClasses = getStatusClasses(status);
           const isLast = index === items.length - 1;
+          const iconStyle: CSSProperties = {};
+          if (statusClasses.iconColor) {
+            iconStyle.color = statusClasses.iconColor;
+          }
 
           return (
             <div key={index} className="flex flex-1 items-start">
               <div className="flex flex-col items-center">
                 <div
                   className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border transition-all duration-300 ${statusClasses.icon}`}
+                  style={iconStyle}
                 >
                   {renderIcon(status, item.icon)}
                 </div>
@@ -164,17 +188,22 @@ export const Steps: React.FC<StepsProps> = ({
   }
 
   return (
-    <div className={`flex flex-col ${className}`}>
+    <div className={`flex flex-col ${className}`} style={style}>
       {items.map((item, index) => {
         const status = getStepStatus(index, item);
         const statusClasses = getStatusClasses(status);
         const isLast = index === items.length - 1;
+        const iconStyle: CSSProperties = {};
+        if (statusClasses.iconColor) {
+          iconStyle.color = statusClasses.iconColor;
+        }
 
         return (
           <div key={index} className="flex">
             <div className="flex flex-col items-center mr-4">
               <div
                 className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border transition-all duration-300 ${statusClasses.icon}`}
+                style={iconStyle}
               >
                 {renderIcon(status, item.icon)}
               </div>

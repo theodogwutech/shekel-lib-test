@@ -107,7 +107,7 @@
   @keyframes dropdownSlideDown {
     from {
       opacity: 0;
-      transform: scaleY(0.8) translateY(-8px);
+      transform: scaleY(0) translateY(0);
     }
     to {
       opacity: 1;

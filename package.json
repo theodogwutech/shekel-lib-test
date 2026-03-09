@@ -1,6 +1,6 @@
 {
   "name": "shekel-fe-shared-lib",
-  "version": "1.0.2",
+  "version": "1.0.10",
   "description": "Shared component library built with React and Tailwind CSS",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -12,12 +12,14 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-    "./styles.css": "./dist/shekel-fe-shared-lib.css"
+    "./styles.css": "./dist/shekel-fe-shared-lib.css",
+    "./dist/shekel-fe-shared-lib.css": "./dist/shekel-fe-shared-lib.css"
   },
   "files": [
     "dist"
   ],
   "scripts": {
+    "dev": "vite demo",
     "build": "vite build",
     "prepublishOnly": "npm run build"
   },
@@ -32,8 +34,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
@@ -43,7 +45,7 @@
     "vite-plugin-dts": "^4.5.4"
   },
   "peerDependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   }
 }

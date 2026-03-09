@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { FC, MouseEvent, CSSProperties } from 'react';
 
 export interface SelectOption {
   value: string | number;
@@ -13,15 +14,23 @@ export interface SelectProps {
   placeholder?: string;
   onChange?: (value: string | number) => void;
   disabled?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'responsive';
   fullWidth?: boolean;
   className?: string;
   allowClear?: boolean;
   showSearch?: boolean;
   searchPlaceholder?: string;
+  bgColor?: string;
+  borderColor?: string;
+  focusBorderColor?: string;
+  selectedBgColor?: string;
+  selectedTextColor?: string;
+  hoverBgColor?: string;
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  style?: CSSProperties;
 }
 
-export const Select: React.FC<SelectProps> = ({
+export const Select: FC<SelectProps> = ({
   options,
   value: controlledValue,
   defaultValue,
@@ -34,6 +43,14 @@ export const Select: React.FC<SelectProps> = ({
   allowClear = false,
   showSearch = false,
   searchPlaceholder = 'Search...',
+  bgColor,
+  borderColor,
+  focusBorderColor = '#EC615B',
+  selectedBgColor,
+  selectedTextColor,
+  hoverBgColor,
+  rounded = 'lg',
+  style,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [internalValue, setInternalValue] = useState<string | number | undefined>(
@@ -46,7 +63,7 @@ export const Select: React.FC<SelectProps> = ({
   const value = controlledValue !== undefined ? controlledValue : internalValue;
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setSearchQuery('');
@@ -74,7 +91,7 @@ export const Select: React.FC<SelectProps> = ({
     setSearchQuery('');
   };
 
-  const handleClear = (e: React.MouseEvent) => {
+  const handleClear = (e: MouseEvent) => {
     e.stopPropagation();
     if (controlledValue === undefined) {
       setInternalValue(undefined);
@@ -94,9 +111,33 @@ export const Select: React.FC<SelectProps> = ({
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-base',
     lg: 'px-5 py-3 text-lg',
+    responsive: 'px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-3 text-sm sm:text-base md:text-lg',
+  };
+
+  const roundedClasses = {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    full: 'rounded-full',
   };
 
   const widthClass = fullWidth ? 'w-full' : 'min-w-[200px]';
+
+  // Helper function to apply custom colors to inline styles
+  const getTriggerStyles = (): CSSProperties => {
+    const styles: CSSProperties = {};
+    if (bgColor) styles.backgroundColor = bgColor;
+    if (borderColor) styles.borderColor = borderColor;
+    return styles;
+  };
+
+  const getSelectedOptionStyles = (): CSSProperties => {
+    const styles: CSSProperties = {};
+    if (selectedBgColor) styles.backgroundColor = selectedBgColor;
+    if (selectedTextColor) styles.color = selectedTextColor;
+    return styles;
+  };
 
   const ChevronIcon = (
     <svg
@@ -116,19 +157,43 @@ export const Select: React.FC<SelectProps> = ({
   );
 
   return (
-    <div ref={selectRef} className={`relative ${widthClass} ${className}`}>
+    <div ref={selectRef} className={`relative inline-block ${widthClass}`} style={style}>
       <div
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={`
           select-trigger
           flex items-center justify-between gap-2
-          border border-gray-300 rounded-lg
-          bg-white
-          transition-all duration-200 ease-out
-          ${sizeClasses[size]}
-          ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'cursor-pointer hover:border-gray-400'}
-          ${isOpen ? 'border-[#EC615B] ring-2 ring-[#EC615B] ring-opacity-20' : ''}
+          border transition-all duration-200 ease-out
+          ${!className.includes('px-') && !className.includes('py-') && !className.includes('h-') ? sizeClasses[size] : ''}
+          ${!className.includes('rounded') ? roundedClasses[rounded] : ''}
+          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+          ${isOpen ? 'ring-2 ring-opacity-20' : ''}
+          ${className}
         `}
+        style={{
+          ...getTriggerStyles(),
+          backgroundColor: bgColor || getTriggerStyles().backgroundColor || '#FFFFFF',
+          borderColor: borderColor || getTriggerStyles().borderColor || '#D1D5DB',
+          ...(isOpen && {
+            borderColor: focusBorderColor,
+            boxShadow: `0 0 0 2px ${focusBorderColor}20`,
+          }),
+          ...(!disabled && !isOpen && hoverBgColor && {
+            cursor: 'pointer',
+          }),
+        }}
+        onMouseEnter={(e) => {
+          if (!disabled && hoverBgColor) {
+            e.currentTarget.style.backgroundColor = hoverBgColor;
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (bgColor) {
+            e.currentTarget.style.backgroundColor = bgColor;
+          } else {
+            e.currentTarget.style.backgroundColor = '#FFFFFF';
+          }
+        }}
       >
         <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
           {selectedOption ? selectedOption.label : placeholder}
@@ -148,7 +213,7 @@ export const Select: React.FC<SelectProps> = ({
 
       {isOpen && !disabled && (
         <div className="absolute top-full left-0 right-0 mt-1 z-50 dropdown-slide-down">
-          <div className="select-dropdown bg-white rounded-lg shadow-lg border border-gray-200 py-1 max-h-[300px] overflow-auto">
+          <div className={`select-dropdown bg-white shadow-lg border border-gray-200 py-1 max-h-[300px] overflow-auto ${roundedClasses[rounded]}`}>
             {showSearch && (
               <div className="px-2 py-2 border-b border-gray-200">
                 <input
@@ -157,7 +222,11 @@ export const Select: React.FC<SelectProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={searchPlaceholder}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#EC615B] focus:border-[#EC615B] transition-all duration-200 ease-out"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 transition-all duration-200 ease-out"
+                  style={{
+                    borderColor: borderColor,
+                    boxShadow: `0 0 0 2px ${focusBorderColor}20`,
+                  }}
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
@@ -173,10 +242,25 @@ export const Select: React.FC<SelectProps> = ({
                   onClick={() => !option.disabled && handleSelect(option.value)}
                   className={`
                     select-option
-                    px-4 py-2 text-sm cursor-pointer transition-all duration-200 ease-out
-                    ${option.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
-                    ${option.value === value ? 'bg-[#FCEAE9] text-[#EC615B] font-medium' : 'text-[#181918]'}
+                    px-4 py-2 text-sm transition-all duration-200 ease-out
+                    ${option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                   `}
+                  style={{
+                    ...(option.value === value ? getSelectedOptionStyles() : {}),
+                    backgroundColor: option.value === value ? (selectedBgColor || '#FCEAE9') : undefined,
+                    color: option.value === value ? (selectedTextColor || '#EC615B') : '#181918',
+                    fontWeight: option.value === value ? 'medium' : undefined,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!option.disabled && option.value !== value) {
+                      e.currentTarget.style.backgroundColor = hoverBgColor || '#F3F4F6';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (option.value !== value) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
                 >
                   {option.label}
                 </div>

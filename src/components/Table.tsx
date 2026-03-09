@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import type { FC, ReactNode, HTMLAttributes, CSSProperties } from 'react';
 import { Select } from './Select';
 
 export interface ColumnDef<T = any> {
   key: string;
   title: string;
   dataIndex?: string;
-  render?: (value: any, record: T, index: number) => React.ReactNode;
+  render?: (value: any, record: T, index: number) => ReactNode;
   width?: string | number;
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
@@ -17,10 +18,18 @@ export interface TableProps<T = any> {
   rowKey?: string | ((record: T) => string);
   pagination?: PaginationConfig | false;
   loading?: boolean;
-  onRow?: (record: T, index: number) => React.HTMLAttributes<HTMLTableRowElement>;
+  onRow?: (record: T, index: number) => HTMLAttributes<HTMLTableRowElement>;
   className?: string;
   bordered?: boolean;
   striped?: boolean;
+  size?: 'sm' | 'md' | 'lg' | 'responsive';
+  headerBgColor?: string;
+  headerTextColor?: string;
+  rowHoverColor?: string;
+  borderColor?: string;
+  stripedRowColor?: string;
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  style?: CSSProperties;
 }
 
 export interface PaginationConfig {
@@ -44,6 +53,14 @@ export const Table = <T extends Record<string, any>>({
   className = '',
   bordered = false,
   striped = false,
+  size = 'md',
+  headerBgColor,
+  headerTextColor,
+  rowHoverColor,
+  borderColor,
+  stripedRowColor,
+  rounded = 'md',
+  style,
 }: TableProps<T>) => {
   const [currentPage, setCurrentPage] = useState(
     pagination && typeof pagination === 'object' ? pagination.current || 1 : 1
@@ -51,6 +68,51 @@ export const Table = <T extends Record<string, any>>({
   const [pageSize, setPageSize] = useState(
     pagination && typeof pagination === 'object' ? pagination.pageSize || 10 : 10
   );
+
+  // Size configuration for responsive sizing
+  const sizeConfig = {
+    sm: {
+      headerPadding: 'px-3 py-2',
+      headerFontSize: 'text-xs',
+      rowPadding: 'px-3 py-2',
+      rowFontSize: 'text-xs',
+      containerRounded: 'rounded-md',
+    },
+    md: {
+      headerPadding: 'px-4 py-3',
+      headerFontSize: 'text-xs',
+      rowPadding: 'px-4 py-3',
+      rowFontSize: 'text-sm',
+      containerRounded: 'rounded-lg',
+    },
+    lg: {
+      headerPadding: 'px-6 py-4',
+      headerFontSize: 'text-sm',
+      rowPadding: 'px-6 py-4',
+      rowFontSize: 'text-base',
+      containerRounded: 'rounded-xl',
+    },
+    responsive: {
+      headerPadding: 'px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3',
+      headerFontSize: 'text-xs sm:text-xs md:text-sm',
+      rowPadding: 'px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3',
+      rowFontSize: 'text-xs sm:text-xs md:text-sm',
+      containerRounded: 'rounded-md sm:rounded-lg md:rounded-lg',
+    },
+  };
+
+  // Rounded configuration
+  const roundedClasses = {
+    none: '',
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    xl: 'rounded-xl',
+    '2xl': 'rounded-2xl',
+  };
+
+  const currentSizeConfig = sizeConfig[size];
+  const currentRoundedClass = roundedClasses[rounded];
 
   const getRowKey = (record: T, index: number): string => {
     if (typeof rowKey === 'function') {
@@ -86,16 +148,24 @@ export const Table = <T extends Record<string, any>>({
   };
 
   return (
-    <div className="w-full">
-      <div className="overflow-x-auto rounded-2xl border border-[#EEEEEE]">
+    <div className="w-full" style={style}>
+      <div
+        className={`overflow-x-auto ${currentRoundedClass || 'rounded-2xl'} border`}
+        style={{ borderColor: borderColor || '#EEEEEE' }}
+      >
         <table className={`w-full ${bordered ? 'border-collapse' : ''} ${className}`}>
-          <thead className="bg-[#F5F6F7]">
+          <thead
+            style={{
+              backgroundColor: headerBgColor || '#F5F6F7',
+              color: headerTextColor || '#333333',
+            }}
+          >
             <tr>
               {columns.map((column, idx) => (
                 <th
                   key={column.key}
-                  className={`px-4 py-3 text-left text-xs font-medium text-[#333333] uppercase tracking-wider ${
-                    bordered && idx !== columns.length - 1 ? 'border-r border-[#EEEEEE]' : ''
+                  className={`${currentSizeConfig.headerPadding} text-left ${currentSizeConfig.headerFontSize} font-medium uppercase tracking-wider ${
+                    bordered && idx !== columns.length - 1 ? 'border-r' : ''
                   } ${
                     column.align === 'center'
                       ? 'text-center'
@@ -103,17 +173,28 @@ export const Table = <T extends Record<string, any>>({
                       ? 'text-right'
                       : ''
                   }`}
-                  style={{ width: column.width }}
+                  style={{
+                    width: column.width,
+                    borderColor: borderColor || '#EEEEEE',
+                    color: headerTextColor || '#333333',
+                  }}
                 >
                   {column.title}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody
+            className="bg-white divide-y"
+            style={{ borderColor: borderColor || '#e5e5e5' }}
+          >
             {loading ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-[#333333]">
+                <td
+                  colSpan={columns.length}
+                  className={`${currentSizeConfig.rowPadding} py-8 text-center`}
+                  style={{ color: '#333333' }}
+                >
                   <div className="flex justify-center items-center">
                     <svg
                       className="animate-spin h-5 w-5 mr-2"
@@ -141,19 +222,34 @@ export const Table = <T extends Record<string, any>>({
               </tr>
             ) : paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-[#333333]">
+                <td
+                  colSpan={columns.length}
+                  className={`${currentSizeConfig.rowPadding} py-8 text-center`}
+                  style={{ color: '#333333' }}
+                >
                   No data
                 </td>
               </tr>
             ) : (
               paginatedData.map((record, index) => {
                 const rowProps = onRow ? onRow(record, index) : {};
+                const stripedBg = striped && index % 2 === 1 ? (stripedRowColor || '#F5F6F7') : 'transparent';
+                const hoverBg = rowHoverColor || '#f3f4f6';
                 return (
                   <tr
                     key={getRowKey(record, index)}
-                    className={`${
-                      striped && index % 2 === 1 ? 'bg-[#F5F6F7]' : ''
-                    } hover:bg-gray-50 transition-colors duration-200 ease-out`}
+                    className="transition-colors duration-200 ease-out"
+                    style={{
+                      backgroundColor: stripedBg,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (rowHoverColor || !striped || index % 2 === 0) {
+                        e.currentTarget.style.backgroundColor = hoverBg;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = stripedBg;
+                    }}
                     {...rowProps}
                   >
                     {columns.map((column, colIdx) => {
@@ -163,10 +259,8 @@ export const Table = <T extends Record<string, any>>({
                       return (
                         <td
                           key={column.key}
-                          className={`px-4 py-4 text-sm text-gray-900 ${
-                            bordered && colIdx !== columns.length - 1
-                              ? 'border-r border-[#EEEEEE]'
-                              : ''
+                          className={`${currentSizeConfig.rowPadding} ${currentSizeConfig.rowFontSize} text-gray-900 ${
+                            bordered && colIdx !== columns.length - 1 ? 'border-r' : ''
                           } ${
                             column.align === 'center'
                               ? 'text-center'
@@ -174,8 +268,11 @@ export const Table = <T extends Record<string, any>>({
                               ? 'text-right'
                               : ''
                           }`}
+                          style={{
+                            borderColor: borderColor || '#EEEEEE',
+                          }}
                         >
-                          {content as React.ReactNode}
+                          {content as ReactNode}
                         </td>
                       );
                     })}
@@ -204,7 +301,13 @@ export const Table = <T extends Record<string, any>>({
               : [10, 20, 50, 100]
           }
           showTotal={pagination && typeof pagination === 'object' ? pagination.showTotal : true}
-          size={pagination && typeof pagination === 'object' ? pagination.size : 'md'}
+          size={
+            pagination && typeof pagination === 'object' && pagination.size
+              ? pagination.size
+              : size === 'responsive'
+              ? 'md'
+              : size
+          }
         />
       )}
     </div>
@@ -223,7 +326,7 @@ interface PaginationProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const Pagination: React.FC<PaginationProps> = ({
+const Pagination: FC<PaginationProps> = ({
   current,
   pageSize,
   total,

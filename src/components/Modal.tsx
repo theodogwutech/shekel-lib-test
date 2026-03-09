@@ -1,32 +1,79 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, CSSProperties } from 'react';
+import type { FC, ReactNode, MouseEvent } from 'react';
+
+type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'responsive';
+
+const widthMap: Record<ModalSize, string> = {
+  sm: '384px',
+  md: '448px',
+  lg: '512px',
+  xl: '600px',
+  full: '100%',
+  responsive: '90vw',
+};
 
 export interface ModalProps {
   open: boolean;
   onClose: () => void;
   title?: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
   width?: string | number;
+  size?: ModalSize;
   closable?: boolean;
   maskClosable?: boolean;
   centered?: boolean;
   className?: string;
+  bgColor?: string;
+  headerBgColor?: string;
+  overlayColor?: string;
+  bodyClassName?: string;
+  headerClassName?: string;
+  maxHeight?: string | number;
 }
 
-export const Modal: React.FC<ModalProps> = ({
+export const Modal: FC<ModalProps> = ({
   open,
   onClose,
   title,
   children,
   footer,
-  width = '520px',
+  width,
+  size = 'md',
   closable = true,
   maskClosable = true,
   centered = true,
   className = '',
+  bgColor = '#ffffff',
+  headerBgColor = '#ffffff',
+  overlayColor = 'rgba(0, 0, 0, 0.5)',
+  bodyClassName = '',
+  headerClassName = '',
+  maxHeight = '70vh',
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Determine effective width
+  const effectiveWidth = width || widthMap[size];
+  const effectiveWidthNum = typeof effectiveWidth === 'number' ? `${effectiveWidth}px` : effectiveWidth;
+
+  // Prepare modal style
+  const modalStyle: CSSProperties = {
+    width: effectiveWidthNum,
+    maxWidth: '90vw',
+    backgroundColor: bgColor,
+  };
+
+  // Prepare header style
+  const headerStyle: CSSProperties = {
+    backgroundColor: headerBgColor,
+  };
+
+  // Prepare overlay style
+  const overlayStyle: CSSProperties = {
+    backgroundColor: overlayColor,
+  };
 
   useEffect(() => {
     if (open) {
@@ -70,7 +117,7 @@ export const Modal: React.FC<ModalProps> = ({
     }
   };
 
-  const handleModalClick = (e: React.MouseEvent) => {
+  const handleModalClick = (e: MouseEvent) => {
     e.stopPropagation();
   };
 
@@ -81,25 +128,29 @@ export const Modal: React.FC<ModalProps> = ({
     >
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black transition-opacity duration-200 ease-out ${
-          isAnimating ? 'opacity-50' : 'opacity-0'
+        className={`fixed inset-0 transition-opacity duration-200 ease-out ${
+          isAnimating ? 'opacity-100' : 'opacity-0'
         }`}
+        style={overlayStyle}
       />
 
       {/* Modal Container */}
       <div className={`flex min-h-full items-center justify-center p-4 ${centered ? 'items-center' : 'items-start pt-20'}`}>
         <div
-          className={`relative bg-white rounded-lg shadow-xl transition-all duration-200 ease-out ${
+          className={`relative rounded-lg shadow-xl transition-all duration-200 ease-out overflow-y-auto ${
             isAnimating
               ? 'opacity-100 scale-100 translate-y-0'
               : 'opacity-0 scale-95 -translate-y-4'
           } ${className}`}
-          style={{ width, maxWidth: '90vw' }}
+          style={{...modalStyle, maxHeight: typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight}}
           onClick={handleModalClick}
         >
           {/* Header */}
           {(title || closable) && (
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <div
+              className={`flex items-center justify-between px-6 py-4 border-b border-gray-200 ${headerClassName}`}
+              style={headerStyle}
+            >
               {title && <h3 className="text-lg font-semibold text-gray-900">{title}</h3>}
               {closable && (
                 <button
@@ -125,7 +176,9 @@ export const Modal: React.FC<ModalProps> = ({
           )}
 
           {/* Body */}
-          <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
+          <div
+            className={`px-6 py-4 ${bodyClassName}`}
+          >
             {children}
           </div>
 
