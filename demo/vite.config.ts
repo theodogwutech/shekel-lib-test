@@ -9,4 +9,9 @@ export default defineConfig({
       'shekel-fe-shared-lib': resolve(__dirname, '../src'),
     },
   },
+  server: {
+    fs: {
+      allow: ['..'],
+    },
+  },
 });

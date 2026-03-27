@@ -1,1671 +1,660 @@
 import React, { useState } from 'react';
+import { ConfigProvider } from 'antd';
 import {
-  Button,
+  Input,
+  PasswordInput,
+  OTPInput,
+  PhoneInput,
+  CurrencyInput,
+  UserPill,
+  UserCard,
+  CountrySelector,
+  UserProfileDropdown,
+  ActionCard,
+  DashboardCard,
   StatCard,
-  SearchInput,
+  NotificationDropdown,
+  TabsComponent,
+  Button,
   Card,
-  Dropdown,
-  Select,
-  Table,
-  TableTop,
-  Modal,
-  Badge,
-  Steps,
-  Progress,
-  Checkbox,
-  SelectedItemsList,
-  type DropdownMenuItem,
-  type SelectOption,
-  type ColumnDef,
-  type SelectedItem,
 } from '../src/components';
+import '../src/styles.css';
+import 'antd/dist/reset.css';
 
-// Demo Icons
-const SearchIconSvg = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-    />
-  </svg>
-);
-
-const MapIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-    />
-  </svg>
-);
-
-const DownloadIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-    />
-  </svg>
-);
-
-const FilterIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-    />
-  </svg>
-);
-
-function App() {
-  const [selectedStat, setSelectedStat] = useState('all');
-  const [shippedFrom, setShippedFrom] = useState<string | number>('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [checkbox1, setCheckbox1] = useState(false);
-  const [checkbox2, setCheckbox2] = useState(true);
-  const [checkbox3, setCheckbox3] = useState(false);
-
-  const [selectedVINs, setSelectedVINs] = useState<SelectedItem[]>([
-    { id: 1, label: '1FAFP404X1', sublabel: 'VIN' },
-    { id: 2, label: '1HGCM82633A123456', sublabel: 'VIN' },
-    { id: 3, label: '1N4AL3AP7EC123456', sublabel: 'VIN' },
-    { id: 4, label: '5NPE34AF3FH123456', sublabel: 'VIN' },
-  ]);
-
-  const handleRemoveVIN = (id: string | number) => {
-    setSelectedVINs(selectedVINs.filter((item) => item.id !== id));
-  };
-
-  // State for conditional actions demo
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-
-  const locationOptions: SelectOption[] = [
-    { value: 'us', label: 'United States' },
-    { value: 'uk', label: 'United Kingdom' },
-    { value: 'ca', label: 'Canada' },
-  ];
-
-  // Sample shipment data for conditional actions demo
-  interface Shipment {
-    id: string;
-    vehicle: string;
-    vin: string;
-    trackingNumber: string;
-    status: string;
-  }
-
-  const shipmentData: Shipment[] = [
-    { id: '1', vehicle: 'Toyota Camry', vin: '1FAFP404X1F123456', trackingNumber: 'MSKU7654321', status: 'In Transit' },
-    { id: '2', vehicle: 'Honda Accord', vin: '1HGCM82633A123456', trackingNumber: 'HLCUI234567', status: 'Pending' },
-    { id: '3', vehicle: 'Nissan Altima', vin: '1N4AL3AP7EC123456', trackingNumber: 'NALT7890123', status: 'Arrived' },
-    { id: '4', vehicle: 'Hyundai Sonata', vin: '5NPE34AF3FH123456', trackingNumber: 'HSNT4561234', status: 'In Transit' },
-  ];
-
-  const shipmentColumns: ColumnDef<Shipment>[] = [
-    {
-      key: 'checkbox',
-      title: '',
-      width: 50,
-      render: (_, record) => (
-        <Checkbox
-          checked={selectedRowKeys.includes(record.id)}
-          onChange={() => handleToggleRow(record.id)}
-          size="sm"
-        />
-      ),
-    },
-    {
-      key: 'vehicle',
-      title: 'Vehicle',
-      dataIndex: 'vehicle',
-      render: (vehicle, record) => (
-        <div>
-          <div className="font-medium text-gray-900">{vehicle}</div>
-          <div className="text-sm text-gray-500">{record.vin}</div>
-        </div>
-      ),
-    },
-    {
-      key: 'trackingNumber',
-      title: 'Tracking Number',
-      dataIndex: 'trackingNumber',
-    },
-    {
-      key: 'status',
-      title: 'Status',
-      dataIndex: 'status',
-      render: (status) => (
-        <Badge
-          variant={status === 'In Transit' ? 'primary' : status === 'Pending' ? 'warning' : 'success'}
-          size="sm"
-        >
-          {status}
-        </Badge>
-      ),
-    },
-  ];
-
-  const handleToggleRow = (id: string) => {
-    setSelectedRowKeys(prev =>
-      prev.includes(id) ? prev.filter(key => key !== id) : [...prev, id]
-    );
-  };
-
-  const handleBulkAssign = () => {
-    alert(`Assigning ${selectedRowKeys.length} shipment(s) to container`);
-    setSelectedRowKeys([]);
-  };
+const App: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [phone, setPhone] = useState('');
+  const [amount, setAmount] = useState('');
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Component Library Demo</h1>
-          <p className="text-gray-600">Testing all components</p>
-        </div>
-
-        {/* Buttons Section */}
-        <Card className="space-y-4">
-          <h2 className="text-2xl font-semibold mb-4">Buttons</h2>
-
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Variants</p>
-              <div className="flex gap-3 flex-wrap">
-                <Button variant="primary">Primary</Button>
-                <Button variant="outlined">Outlined</Button>
-                <Button variant="ghost">Ghost</Button>
-                <Button variant="text">Text</Button>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">With Icons</p>
-              <div className="flex gap-3 flex-wrap">
-                <Button variant="primary" icon={<MapIcon />}>
-                  Map Intelligence
-                </Button>
-                <Button variant="outlined" icon={<DownloadIcon />}>
-                  Download Report
-                </Button>
-                <Button variant="outlined" icon={<FilterIcon />}>
-                  Filter
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Sizes (sm, md, lg, responsive)
-              </p>
-              <div className="flex gap-3 flex-wrap items-center">
-                <Button variant="primary" size="sm">
-                  Small
-                </Button>
-                <Button variant="primary" size="md">
-                  Medium
-                </Button>
-                <Button variant="primary" size="lg">
-                  Large
-                </Button>
-                <Button variant="primary" size="responsive">
-                  Responsive
-                </Button>
-              </div>
-            </div>
-
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Custom Border Radius</p>
-              <div className="flex gap-3 flex-wrap">
-                <Button variant="primary" rounded="none">
-                  No Radius
-                </Button>
-                <Button variant="primary" rounded="sm">
-                  Small Radius
-                </Button>
-                <Button variant="primary" rounded="md">
-                  Medium Radius
-                </Button>
-                <Button variant="primary" rounded="lg">
-                  Large Radius
-                </Button>
-                <Button variant="primary" rounded="full">
-                  Full Radius
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Combined Customization</p>
-              <div className="flex gap-3 flex-wrap">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  rounded="full"
-                  icon={<MapIcon />}
-                >
-                  Large Pill Button
-                </Button>
-                <Button variant="outlined" size="sm" rounded="none">
-                  Small Square
-                </Button>
-                <Button variant="primary" size="responsive" rounded="lg">
-                  Responsive Rounded
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Stat Cards Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Stat Cards (Click to Select)</h2>
-          <div className="space-y-6">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Default StatCards</p>
-              <div className="grid grid-cols-4 gap-3">
-                {[
-                  { label: 'All Shipment', value: 0, key: 'all' },
-                  { label: 'Queued', value: 12, key: 'queued' },
-                  { label: 'Planned', value: 8, key: 'planned' },
-                  { label: 'On ship', value: 24, key: 'onship' },
-                ].map((stat) => (
-                  <StatCard
-                    key={stat.key}
-                    label={stat.label}
-                    value={stat.value}
-                    selected={selectedStat === stat.key}
-                    onClick={() => setSelectedStat(stat.key)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Responsive Size</p>
-              <div className="grid grid-cols-4 gap-3">
-                {[
-                  { label: 'Total', value: 150 },
-                  { label: 'Active', value: 89 },
-                  { label: 'Pending', value: 45 },
-                  { label: 'Completed', value: 16 },
-                ].map((stat, idx) => (
-                  <StatCard key={idx} label={stat.label} value={stat.value} size="responsive" />
-                ))}
-              </div>
-            </div>
-
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Custom Border Radius</p>
-              <div className="grid grid-cols-4 gap-3">
-                <StatCard label="Square" value={100} rounded="none" selected />
-                <StatCard label="Small" value={200} rounded="sm" selected />
-                <StatCard label="Medium" value={300} rounded="md" selected />
-                <StatCard label="Large" value={400} rounded="lg" selected />
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Combined Customization</p>
-              <div className="grid grid-cols-3 gap-3">
-                <StatCard
-                  label="Premium Orders"
-                  value={456}
-                  size="lg"
-                  rounded="full"
-                  selected
-                />
-                <StatCard
-                  label="Standard Orders"
-                  value={1234}
-                  size="responsive"
-                  rounded="lg"
-                  selected
-                />
-                <StatCard
-                  label="Basic Orders"
-                  value={789}
-                  size="md"
-                  rounded="md"
-                  selected
-                />
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Search Input Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Search Input</h2>
-          <div className="space-y-6">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Default Search Input</p>
-              <SearchInput icon={<SearchIconSvg />} placeholder="Search a shipment" />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Sizes</p>
-              <div className="space-y-3">
-                <SearchInput icon={<SearchIconSvg />} placeholder="Small search" size="sm" />
-                <SearchInput icon={<SearchIconSvg />} placeholder="Medium search" size="md" />
-                <SearchInput icon={<SearchIconSvg />} placeholder="Large search" size="lg" />
-                <SearchInput
-                  icon={<SearchIconSvg />}
-                  placeholder="Responsive search"
-                  size="responsive"
-                />
-              </div>
-            </div>
-
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Custom Border Radius</p>
-              <div className="space-y-3">
-                <SearchInput icon={<SearchIconSvg />} placeholder="No radius" rounded="none" />
-                <SearchInput icon={<SearchIconSvg />} placeholder="Small radius" rounded="sm" />
-                <SearchInput icon={<SearchIconSvg />} placeholder="Medium radius" rounded="md" />
-                <SearchInput icon={<SearchIconSvg />} placeholder="Large radius" rounded="lg" />
-                <SearchInput icon={<SearchIconSvg />} placeholder="Full radius" rounded="full" />
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Combined Customization</p>
-              <div className="space-y-3">
-                <SearchInput
-                  icon={<SearchIconSvg />}
-                  placeholder="Large pill search"
-                  size="lg"
-                  rounded="full"
-                />
-                <SearchInput
-                  icon={<SearchIconSvg />}
-                  placeholder="Responsive square search"
-                  size="responsive"
-                  rounded="none"
-                />
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Select Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Select Dropdown</h2>
-          <div className="space-y-6">
-            <div className="max-w-xs">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Default Select</label>
-              <Select
-                placeholder="Select location"
-                options={locationOptions}
-                value={shippedFrom}
-                onChange={setShippedFrom}
-                fullWidth
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Sizes</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Small</label>
-                  <Select
-                    placeholder="Select option"
-                    options={locationOptions}
-                    size="sm"
-                    fullWidth
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Medium</label>
-                  <Select
-                    placeholder="Select option"
-                    options={locationOptions}
-                    size="md"
-                    fullWidth
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Large</label>
-                  <Select
-                    placeholder="Select option"
-                    options={locationOptions}
-                    size="lg"
-                    fullWidth
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Responsive</label>
-                  <Select
-                    placeholder="Select option"
-                    options={locationOptions}
-                    size="responsive"
-                    fullWidth
-                  />
-                </div>
-              </div>
-            </div>
-
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Custom Border Radius</p>
-              <div className="grid grid-cols-2 gap-4">
-                <Select
-                  placeholder="No radius"
-                  options={locationOptions}
-                  rounded="none"
-                  fullWidth
-                />
-                <Select
-                  placeholder="Small radius"
-                  options={locationOptions}
-                  rounded="sm"
-                  fullWidth
-                />
-                <Select
-                  placeholder="Medium radius"
-                  options={locationOptions}
-                  rounded="md"
-                  fullWidth
-                />
-                <Select
-                  placeholder="Large radius"
-                  options={locationOptions}
-                  rounded="lg"
-                  fullWidth
-                />
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Combined Customization</p>
-              <div className="grid grid-cols-2 gap-4">
-                <Select
-                  placeholder="Large square"
-                  options={locationOptions}
-                  size="lg"
-                  rounded="none"
-                  fullWidth
-                />
-                <Select
-                  placeholder="Responsive rounded"
-                  options={locationOptions}
-                  size="responsive"
-                  rounded="lg"
-                  fullWidth
-                />
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Table Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Table with Pagination</h2>
-          <div className="space-y-8">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Default Size (Medium)</p>
-              <Table
-                columns={[
-                  { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
-                  {
-                    key: 'vin',
-                    title: 'VIN',
-                    dataIndex: 'vin',
-                    render: (val) => <span className="text-xs text-gray-500">{val}</span>,
-                  },
-                  {
-                    key: 'tracking',
-                    title: 'Tracking Number',
-                    dataIndex: 'trackingNumber',
-                    render: (val, rec: any) => (
-                      <div>
-                        <div className="text-sm font-medium text-red-600">{val}</div>
-                        <div className="text-xs text-gray-500">{rec.shippingLine}</div>
-                      </div>
-                    ),
-                  },
-                  { key: 'portLoading', title: 'Port of loading', dataIndex: 'portOfLoading' },
-                  {
-                    key: 'portDischarge',
-                    title: 'Port of Discharge',
-                    dataIndex: 'portOfDischarge',
-                  },
-                  { key: 'eta', title: 'ETA', dataIndex: 'eta' },
-                  { key: 'daysLeft', title: 'Days left', dataIndex: 'daysLeft' },
-                  { key: 'lastEvent', title: 'Last Event', dataIndex: 'lastEvent' },
-                  {
-                    key: 'status',
-                    title: 'Status',
-                    dataIndex: 'status',
-                    render: (val) => (
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          val === 'In Transit'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {val}
-                      </span>
-                    ),
-                  },
-                ]}
-                dataSource={[
-                  {
-                    id: '1',
-                    vehicle: 'Hyundai Sonata',
-                    vin: '1N4AL3AP5EC123456',
-                    trackingNumber: 'MSKU7654321',
-                    shippingLine: 'Evergreen Marine',
-                    portOfLoading: 'Port of Vancouver',
-                    portOfDischarge: 'Apapa Port, Lagos',
-                    eta: '14/04/2025',
-                    daysLeft: '21 days',
-                    lastEvent: 'Cleared from port',
-                    status: 'In Transit',
-                  },
-                  {
-                    id: '2',
-                    vehicle: 'Toyota Camry',
-                    vin: '1FAFP404X1F123456',
-                    trackingNumber: 'HLCU1234567',
-                    shippingLine: 'Maersk Line',
-                    portOfLoading: 'Port of Halifax',
-                    portOfDischarge: 'Apapa Port, Lagos',
-                    eta: '24/06/2025',
-                    daysLeft: '60 days',
-                    lastEvent: '-',
-                    status: 'Pending',
-                  },
-                ]}
-                rowKey="id"
-                pagination={{
-                  pageSize: 10,
-                  showSizeChanger: true,
-                  pageSizeOptions: [5, 10, 20, 50],
-                  showTotal: true,
-                }}
-                bordered
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Small Pagination</p>
-              <Table
-                columns={[
-                  { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
-                  { key: 'status', title: 'Status', dataIndex: 'status' },
-                ]}
-                dataSource={[
-                  { id: '1', vehicle: 'Hyundai Sonata', status: 'In Transit' },
-                  { id: '2', vehicle: 'Toyota Camry', status: 'Pending' },
-                ]}
-                rowKey="id"
-                pagination={{
-                  pageSize: 5,
-                  showSizeChanger: true,
-                  pageSizeOptions: [5, 10, 20],
-                  showTotal: true,
-                  size: 'sm',
-                }}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Large Pagination</p>
-              <Table
-                columns={[
-                  { key: 'vehicle', title: 'Vehicle', dataIndex: 'vehicle' },
-                  { key: 'status', title: 'Status', dataIndex: 'status' },
-                ]}
-                dataSource={[
-                  { id: '1', vehicle: 'Hyundai Sonata', status: 'In Transit' },
-                  { id: '2', vehicle: 'Toyota Camry', status: 'Pending' },
-                ]}
-                rowKey="id"
-                pagination={{
-                  pageSize: 5,
-                  showSizeChanger: true,
-                  pageSizeOptions: [5, 10, 20],
-                  showTotal: true,
-                  size: 'lg',
-                }}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Badge Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Badges</h2>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Variants</p>
-              <div className="flex gap-3 flex-wrap">
-                <Badge variant="default">Default</Badge>
-                <Badge variant="primary">Primary</Badge>
-                <Badge variant="success">Success</Badge>
-                <Badge variant="warning">Warning</Badge>
-                <Badge variant="danger">Danger</Badge>
-                <Badge variant="info">Info</Badge>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">With Dots</p>
-              <div className="flex gap-3 flex-wrap">
-                <Badge variant="success" dot>
-                  In Transit
-                </Badge>
-                <Badge variant="warning" dot>
-                  Pending
-                </Badge>
-                <Badge variant="danger" dot>
-                  Delayed
-                </Badge>
-                <Badge variant="primary" dot>
-                  Processing
-                </Badge>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Sizes (sm, md, lg, responsive)
-              </p>
-              <div className="flex gap-3 flex-wrap items-center">
-                <Badge variant="primary" size="sm">
-                  Small
-                </Badge>
-                <Badge variant="primary" size="md">
-                  Medium
-                </Badge>
-                <Badge variant="primary" size="lg">
-                  Large
-                </Badge>
-                <Badge variant="primary" size="responsive">
-                  Responsive
-                </Badge>
-              </div>
-            </div>
-
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Custom Border Radius</p>
-              <div className="flex gap-3 flex-wrap">
-                <Badge variant="primary" rounded="none">
-                  Square
-                </Badge>
-                <Badge variant="primary" rounded="sm">
-                  Small
-                </Badge>
-                <Badge variant="primary" rounded="md">
-                  Medium
-                </Badge>
-                <Badge variant="primary" rounded="lg">
-                  Large
-                </Badge>
-                <Badge variant="primary" rounded="full">
-                  Pill
-                </Badge>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Combined Customization</p>
-              <div className="flex gap-3 flex-wrap">
-                <Badge variant="primary" size="lg" rounded="full" dot>
-                  Large Pill
-                </Badge>
-                <Badge variant="primary" size="sm" rounded="none">
-                  Small Square
-                </Badge>
-                <Badge variant="primary" size="responsive" rounded="lg" dot>
-                  Responsive Rounded
-                </Badge>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">With Icons</p>
-              <div className="flex gap-3 flex-wrap">
-                <Badge
-                  variant="success"
-                  icon={
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  }
-                >
-                  Completed
-                </Badge>
-                <Badge
-                  variant="warning"
-                  icon={
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  }
-                >
-                  Warning
-                </Badge>
-                <Badge
-                  variant="danger"
-                  icon={
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  }
-                >
-                  Error
-                </Badge>
-                <Badge
-                  variant="primary"
-                  icon={
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  }
-                  iconPosition="right"
-                >
-                  Info
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Progress Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Progress Bars</h2>
-          <div className="space-y-6">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Normal Progress</p>
-              <Progress percent={30} />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Success Status</p>
-              <Progress percent={100} status="success" />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Active Progress</p>
-              <Progress percent={70} status="active" />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Exception Status</p>
-              <Progress percent={50} status="exception" />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Without Info</p>
-              <Progress percent={60} showInfo={false} />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Sizes (sm, md, lg, responsive)
-              </p>
-              <div className="space-y-3">
-                <Progress percent={45} size="sm" />
-                <Progress percent={65} size="md" />
-                <Progress percent={85} size="lg" />
-                <Progress percent={75} size="responsive" />
-              </div>
-            </div>
-
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Custom Border Radius</p>
-              <div className="space-y-3">
-                <Progress percent={50} rounded="none" showInfo={false} />
-                <Progress percent={60} rounded="sm" showInfo={false} />
-                <Progress percent={70} rounded="md" showInfo={false} />
-                <Progress percent={80} rounded="lg" showInfo={false} />
-                <Progress percent={90} rounded="full" showInfo={false} />
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Combined Customization</p>
-              <div className="space-y-3">
-                <Progress percent={75} size="lg" rounded="full" />
-                <Progress percent={55} size="responsive" rounded="lg" />
-                <Progress percent={85} size="md" rounded="none" showInfo={false} />
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Steps Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Steps</h2>
-          <div className="space-y-8">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">
-                Vertical Steps - Default (Filled)
-              </p>
-              <Steps
-                current={1}
-                variant="default"
-                items={[
-                  {
-                    title: 'Empty in Lot',
-                    description: 'Port of Vancouver, Canada',
-                  },
-                  {
-                    title: 'Full Out (Port)',
-                    description: 'Port of Vancouver, Canada',
-                  },
-                  {
-                    title: 'Vessel Arrived (port +1)',
-                    description: 'Huatulco',
-                  },
-                  {
-                    title: 'Transshipment Loaded (port +1)',
-                    description: 'Montreal',
-                  },
-                  {
-                    title: 'Vessel Departed',
-                    description: 'Montreal',
-                  },
-                ]}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Vertical Steps - Outline</p>
-              <Steps
-                current={1}
-                variant="outline"
-                items={[
-                  {
-                    title: 'Empty in Lot',
-                    description: 'Port of Vancouver, Canada',
-                  },
-                  {
-                    title: 'Full Out (Port)',
-                    description: 'Port of Vancouver, Canada',
-                  },
-                  {
-                    title: 'Vessel Arrived (port +1)',
-                    description: 'Huatulco',
-                  },
-                  {
-                    title: 'Transshipment Loaded (port +1)',
-                    description: 'Montreal',
-                  },
-                  {
-                    title: 'Vessel Departed',
-                    description: 'Montreal',
-                  },
-                ]}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">
-                Horizontal Steps - Default (Filled)
-              </p>
-              <Steps
-                current={2}
-                direction="horizontal"
-                variant="default"
-                items={[
-                  { title: 'Ordered' },
-                  { title: 'Processing' },
-                  { title: 'Shipped' },
-                  { title: 'Delivered' },
-                ]}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">Horizontal Steps - Outline</p>
-              <Steps
-                current={2}
-                direction="horizontal"
-                variant="outline"
-                items={[
-                  { title: 'Ordered' },
-                  { title: 'Processing' },
-                  { title: 'Shipped' },
-                  { title: 'Delivered' },
-                ]}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">
-                With Error Status - Default (Filled)
-              </p>
-              <Steps
-                variant="default"
-                items={[
-                  { title: 'Step 1', status: 'finish' },
-                  { title: 'Step 2', status: 'finish' },
-                  { title: 'Step 3', status: 'error', description: 'Something went wrong' },
-                  { title: 'Step 4', status: 'wait' },
-                ]}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-4">With Error Status - Outline</p>
-              <Steps
-                variant="outline"
-                items={[
-                  { title: 'Step 1', status: 'finish' },
-                  { title: 'Step 2', status: 'finish' },
-                  { title: 'Step 3', status: 'error', description: 'Something went wrong' },
-                  { title: 'Step 4', status: 'wait' },
-                ]}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Checkbox Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Checkboxes</h2>
-          <div className="space-y-6">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Basic Checkboxes</p>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox1" checked={checkbox1} onChange={setCheckbox1} />
-                  <label htmlFor="checkbox1" className="text-sm text-gray-700 cursor-pointer">
-                    Unchecked by default
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox2" checked={checkbox2} onChange={setCheckbox2} />
-                  <label htmlFor="checkbox2" className="text-sm text-gray-700 cursor-pointer">
-                    Checked by default
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox3" disabled />
-                  <label htmlFor="checkbox3" className="text-sm text-gray-400 cursor-not-allowed">
-                    Disabled checkbox
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox4" checked={true} disabled />
-                  <label htmlFor="checkbox4" className="text-sm text-gray-400 cursor-not-allowed">
-                    Disabled and checked
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">
-                Sizes (sm, md, lg, responsive)
-              </p>
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox-sm" size="sm" defaultChecked />
-                  <label htmlFor="checkbox-sm" className="text-sm text-gray-700 cursor-pointer">
-                    Small
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox-md" size="md" defaultChecked />
-                  <label htmlFor="checkbox-md" className="text-sm text-gray-700 cursor-pointer">
-                    Medium
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox-lg" size="lg" defaultChecked />
-                  <label htmlFor="checkbox-lg" className="text-sm text-gray-700 cursor-pointer">
-                    Large
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="checkbox-responsive" size="responsive" defaultChecked />
-                  <label
-                    htmlFor="checkbox-responsive"
-                    className="text-sm text-gray-700 cursor-pointer"
-                  >
-                    Responsive
-                  </label>
-                </div>
-              </div>
-            </div>
-
-
-
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Indeterminate State</p>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="checkbox-indeterminate"
-                  indeterminate={true}
-                  checked={checkbox3}
-                  onChange={setCheckbox3}
-                />
-                <label
-                  htmlFor="checkbox-indeterminate"
-                  className="text-sm text-gray-700 cursor-pointer"
-                >
-                  Partially selected (indeterminate)
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Variants</p>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs text-gray-500 mb-2">Filled (Default)</p>
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="filled-unchecked" variant="filled" />
-                      <label
-                        htmlFor="filled-unchecked"
-                        className="text-sm text-gray-700 cursor-pointer"
-                      >
-                        Unchecked
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="filled-checked" variant="filled" defaultChecked />
-                      <label
-                        htmlFor="filled-checked"
-                        className="text-sm text-gray-700 cursor-pointer"
-                      >
-                        Checked
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-2">Outline</p>
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="outline-unchecked" variant="outline" />
-                      <label
-                        htmlFor="outline-unchecked"
-                        className="text-sm text-gray-700 cursor-pointer"
-                      >
-                        Unchecked
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="outline-checked" variant="outline" defaultChecked />
-                      <label
-                        htmlFor="outline-checked"
-                        className="text-sm text-gray-700 cursor-pointer"
-                      >
-                        Checked
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">
-                Use Case Example - Select Vehicles (Outline)
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="vehicle1" variant="outline" defaultChecked />
-                  <label htmlFor="vehicle1" className="text-sm text-gray-700 cursor-pointer">
-                    Toyota Camry - 1FAFP404X1F123456
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="vehicle2" variant="outline" defaultChecked />
-                  <label htmlFor="vehicle2" className="text-sm text-gray-700 cursor-pointer">
-                    Honda Accord - 1HGCM82633A123456
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="vehicle3" variant="outline" />
-                  <label htmlFor="vehicle3" className="text-sm text-gray-700 cursor-pointer">
-                    Nissan Altima - 1N4AL3AP7EC123456
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Selected Items List Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Selected Items List</h2>
-          <div className="space-y-6">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Selected VINs</p>
-              <SelectedItemsList
-                items={selectedVINs}
-                onRemove={handleRemoveVIN}
-                emptyMessage="No VINs selected"
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">With Custom Max Height</p>
-              <SelectedItemsList
-                items={[
-                  { id: 1, label: 'Item 1', sublabel: 'Category A' },
-                  { id: 2, label: 'Item 2', sublabel: 'Category B' },
-                  { id: 3, label: 'Item 3', sublabel: 'Category A' },
-                  { id: 4, label: 'Item 4', sublabel: 'Category C' },
-                  { id: 5, label: 'Item 5', sublabel: 'Category B' },
-                  { id: 6, label: 'Item 6', sublabel: 'Category A' },
-                ]}
-                onRemove={(id) => console.log('Remove', id)}
-                maxHeight="200px"
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Without Sublabels</p>
-              <SelectedItemsList
-                items={[
-                  { id: 1, label: 'Container MSKU7654321' },
-                  { id: 2, label: 'Container HLCU1234567' },
-                  { id: 3, label: 'Container TEMU9876543' },
-                ]}
-                onRemove={(id) => console.log('Remove', id)}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">Empty State</p>
-              <SelectedItemsList
-                items={[]}
-                onRemove={(id) => console.log('Remove', id)}
-                emptyMessage="No containers assigned yet"
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Modal Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Modal</h2>
-          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-            Open Modal
-          </Button>
-
-          <Modal
-            open={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            title="Container Intelligence"
-          >
-            <div className="space-y-4">
-              <p className="text-gray-600">
-                This is a modal dialog. You can add any content here including forms, tables, or
-                other components.
-              </p>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tracking Number
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter tracking number"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <Select
-                    placeholder="Select status"
-                    options={[
-                      { value: 'in-transit', label: 'In Transit' },
-                      { value: 'pending', label: 'Pending' },
-                      { value: 'delivered', label: 'Delivered' },
-                    ]}
-                    fullWidth
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <Button variant="outlined" onClick={() => setIsModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button variant="primary" onClick={() => setIsModalOpen(false)}>
-                  Submit
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        </Card>
-
-        {/* TableTop Section */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">TableTop Component</h2>
-          <TableTop
-            title="Recent Shipments"
-            searchPlaceholder="Search shipments..."
-            onSearch={(value) => console.log('Search:', value)}
-            actions={
-              <div className="flex gap-2">
-                <Button variant="outlined" icon={<DownloadIcon />}>
-                  Export
-                </Button>
-                <Button variant="primary" icon={<FilterIcon />}>
-                  Filter
-                </Button>
-              </div>
-            }
-          />
-        </Card>
-
-        {/* Conditional Action Buttons Demo */}
-        <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-2 text-green-900">
-              🎯 NEW: Conditional Action Buttons
-            </h2>
-            <p className="text-green-700 text-sm">
-              TableTop now supports dynamic action buttons based on selection state.
-              Perfect for bulk operations!
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#EC615B',
+          borderRadius: 8,
+        },
+      }}
+    >
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Shekel Shared Components v1.0.11
+            </h1>
+            <p className="text-gray-600">
+              New components library built with React, TypeScript, Tailwind CSS, and Ant Design
             </p>
           </div>
 
-          <div className="bg-white rounded-lg p-6">
-            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h3 className="font-semibold text-blue-900 mb-2">How it works:</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>✓ Select rows using checkboxes</li>
-                <li>✓ Filter and Download buttons disappear</li>
-                <li>✓ "Assign to Shipment" button appears in their place</li>
-                <li>✓ Search bar remains visible throughout</li>
-                <li>✓ Deselect all rows to return to normal view</li>
-              </ul>
-            </div>
+          {/* Input Components */}
+          <Card title="Input Components" shadow="lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Text Input</h3>
+                <Input
+                  label="Email Address"
+                  placeholder="ben@shekel.africa"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  helperText="We'll never share your email"
+                />
+              </div>
 
-            <div className="mb-4">
-              <Badge variant={selectedRowKeys.length > 0 ? 'success' : 'default'} size="md">
-                {selectedRowKeys.length > 0
-                  ? `${selectedRowKeys.length} item(s) selected`
-                  : 'No items selected'}
-              </Badge>
-            </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Password Input</h3>
+                <PasswordInput
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
 
-            <TableTop
-              searchPlaceholder="Search a shipment"
-              onSearch={(value) => console.log('Search:', value)}
-              actions={
-                <>
-                  <Button variant="outlined" icon={<FilterIcon />} size="sm">
-                    Filter
-                  </Button>
-                  <Button variant="outlined" icon={<DownloadIcon />} size="sm">
-                    Download report
-                  </Button>
-                </>
-              }
-              hideActionButtons={selectedRowKeys.length > 0}
-              selectedActionButton={
-                <Button
-                  variant="primary"
-                  onClick={handleBulkAssign}
-                  size="sm"
-                >
-                  Assign to Shipment ({selectedRowKeys.length})
-                </Button>
-              }
-            />
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Phone Input</h3>
+                <PhoneInput
+                  label="Phone Number"
+                  placeholder="Phone number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  countryCode="+234"
+                />
+              </div>
 
-            <Table
-              columns={shipmentColumns}
-              dataSource={shipmentData}
-              pagination={false}
-              size="md"
-              striped
-              className="mt-4"
-            />
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Currency Input</h3>
+                <CurrencyInput
+                  label="Amount"
+                  placeholder="Enter amount"
+                  value={amount}
+                  onChange={(value) => setAmount(value)}
+                  currencySymbol="₦"
+                  formatAmount={true}
+                />
+              </div>
 
-            <div className="mt-4 p-3 bg-gray-50 rounded border">
-              <p className="text-xs text-gray-600 font-mono">
-                <strong>Code:</strong> hideActionButtons={`{selectedRowKeys.length > 0}`}
-              </p>
-              <p className="text-xs text-gray-600 font-mono mt-1">
-                <strong>Selected IDs:</strong> [{selectedRowKeys.join(', ') || 'none'}]
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        {/* Dashboard Example */}
-        <Card>
-          <h2 className="text-2xl font-semibold mb-4">Full Dashboard Example</h2>
-          <div className="border border-gray-200 rounded-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold">Tracking</h1>
-              <div className="flex gap-3">
-                <Button variant="outlined" icon={<MapIcon />}>
-                  Map Intelligence
-                </Button>
-                <Button variant="primary">Start Tracking</Button>
+              <div className="md:col-span-2">
+                <h3 className="text-lg font-semibold mb-4">OTP Input - Enter OTP Code</h3>
+                <OTPInput
+                  length={6}
+                  value={otp}
+                  onChange={(value) => setOtp(value)}
+                />
               </div>
             </div>
+          </Card>
 
-            <div className="grid grid-cols-8 gap-3 mb-6">
-              {[
-                'All Shipment',
-                'Queued',
-                'Planned',
-                'On ship',
-                'Delayed',
-                'Arrived',
-                'Released',
-                'Demurrage',
-              ].map((label, idx) => (
-                <StatCard key={idx} label={label} value={0} selected={idx === 0} />
-              ))}
-            </div>
-
-            <TableTop
-              title="Recent Activity"
-              searchPlaceholder="Search a shipment"
-              onSearch={(value) => console.log('Search:', value)}
-              actions={
-                <div className="flex gap-3">
-                  <Button variant="outlined" icon={<DownloadIcon />}>
-                    Download report
-                  </Button>
-                  <Button variant="outlined" icon={<FilterIcon />}>
-                    Filter
-                  </Button>
+          {/* User Components */}
+          <Card title="User Components" shadow="lg">
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">User Pill</h3>
+                <div className="flex flex-wrap gap-4">
+                  <UserPill name="Benjamin Oladokun" subtitle="Global Admin" />
+                  <UserPill name="Sarah Johnson" subtitle="Manager" />
+                  <UserPill name="John Doe" />
                 </div>
-              }
-            />
-
-            <Card className="mt-4">
-              <div className="text-center py-12">
-                <p className="text-gray-500">Your gateway to seamless shipment tracking</p>
               </div>
-            </Card>
-          </div>
-        </Card>
 
-        {/* FEATURES SHOWCASE */}
-        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
-          <h2 className="text-3xl font-bold mb-2 text-purple-900">Customization Features</h2>
-          <p className="text-purple-700 mb-6">
-            Explore the responsive and customization options available across all components
-          </p>
-
-          <div className="space-y-8">
-            {/* Responsive Components Section */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">1. Responsive Size Prop</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                All components now support size="responsive" which adapts to screen size
-                automatically
-              </p>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 mb-2">Button</p>
-                    <Button variant="primary" size="responsive" icon={<MapIcon />}>
-                      Responsive Button
-                    </Button>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 mb-2">Badge</p>
-                    <Badge variant="primary" size="responsive" dot>
-                      Responsive Badge
-                    </Badge>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-2">Search Input</p>
-                  <SearchInput
-                    icon={<SearchIconSvg />}
-                    placeholder="Responsive search adapts to screen size"
-                    size="responsive"
+              <div>
+                <h3 className="text-lg font-semibold mb-4">User Card</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <UserCard
+                    name="Benjamin Oladokun"
+                    role="Global Admin"
+                    email="benjamin@shekel.africa"
+                  />
+                  <UserCard
+                    name="Sarah Johnson"
+                    role="Manager"
+                    email="sarah@shekel.africa"
                   />
                 </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-2">Progress Bar</p>
-                  <Progress percent={65} size="responsive" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4">User Profile Dropdown</h3>
+                <UserProfileDropdown
+                  name="Benjamin Oladokun"
+                  role="Global Admin"
+                  menuItems={[
+                    {
+                      key: '1',
+                      label: 'Profile Settings',
+                      onClick: () => console.log('Profile clicked'),
+                    },
+                    {
+                      key: '2',
+                      label: 'Account Settings',
+                      onClick: () => console.log('Account clicked'),
+                    },
+                    {
+                      key: '3',
+                      label: 'Security',
+                      onClick: () => console.log('Security clicked'),
+                    },
+                    {
+                      key: 'divider-1',
+                      type: 'divider',
+                    },
+                    {
+                      key: '4',
+                      label: 'Logout',
+                      onClick: () => console.log('Logout clicked'),
+                      danger: true,
+                    },
+                  ]}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Dashboard Cards */}
+          <Card title="Dashboard Cards" shadow="lg">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Dashboard Card with Ledger Balance</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DashboardCard
+                    label="Total Balance"
+                    value="2,450,000"
+                    valuePrefix="₦"
+                    ledgerBalance="1,200,000"
+                    showVisibilityToggle
+                    icon={
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    }
+                  />
+                  <DashboardCard
+                    label="Wallet Balance"
+                    value="850,000"
+                    valuePrefix="₦"
+                    ledgerBalance="750,000"
+                    showVisibilityToggle
+                    backgroundPattern="wave"
+                    icon={
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M21 12V7H5a2 2 0 010-4h14v4M3 5v14a2 2 0 002 2h16v-5M18 12a2 2 0 100 4 2 2 0 000-4z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    }
+                  />
                 </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-2">StatCards</p>
-                  <div className="grid grid-cols-4 gap-3">
-                    {[
-                      { label: 'Total', value: 1000 },
-                      { label: 'Active', value: 750 },
-                      { label: 'Pending', value: 200 },
-                      { label: 'Done', value: 50 },
-                    ].map((stat, idx) => (
-                      <StatCard
-                        key={idx}
-                        label={stat.label}
-                        value={stat.value}
-                        size="responsive"
-                        selected
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4">
+                  Stat Cards with Badge & Custom Colors
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <StatCard
+                    label="Active Users"
+                    value="1,234"
+                    valuePrefix=""
+                    badge="New"
+                    iconBackgroundColor="#E8F8F0"
+                    iconColor="#5FB894"
+                    progressText="↑ 12% from last month"
+                    icon={
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    }
+                  />
+                  <StatCard
+                    label="Revenue"
+                    value="45,230"
+                    valuePrefix="₦"
+                    badge="Hot"
+                    iconBackgroundColor="#E8F4FD"
+                    iconColor="#4A9FD8"
+                    progressText="↑ 8% from last week"
+                    icon={
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M3 3v18h18M7 16l4-4 4 4 6-6"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    }
+                  />
+                  <StatCard
+                    label="Pending Tasks"
+                    value="23"
+                    valuePrefix=""
+                    iconBackgroundColor="#FFF3E8"
+                    iconColor="#F59E42"
+                    progressText="5 due today"
+                    icon={
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Custom Width</h3>
+                <div className="flex flex-wrap gap-4">
+                  <StatCard
+                    label="Default Width (347px)"
+                    value="25,000"
+                    valuePrefix="₦"
+                    iconBackgroundColor="#F3E8FD"
+                    iconColor="#9B59D8"
+                  />
+                  <StatCard
+                    label="Custom 250px"
+                    value="15,000"
+                    valuePrefix="₦"
+                    width={250}
+                    iconBackgroundColor="#E8F8F0"
+                    iconColor="#5FB894"
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Action Cards */}
+          <Card title="Action Cards" shadow="lg">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ActionCard
+                  label="Export Data"
+                  onClick={() => console.log('Export clicked')}
+                  icon={
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
-                    ))}
-                  </div>
-                </div>
+                    </svg>
+                  }
+                />
+                <ActionCard
+                  label="Import Data"
+                  onClick={() => console.log('Import clicked')}
+                  icon={
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  }
+                />
+                <ActionCard
+                  label="Create Report"
+                  onClick={() => console.log('Create clicked')}
+                  icon={
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  }
+                />
+                <ActionCard
+                  label="View Settings"
+                  onClick={() => console.log('Settings clicked')}
+                  icon={
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M12 15a3 3 0 100-6 3 3 0 000 6z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  }
+                />
               </div>
             </div>
+          </Card>
 
-            {/* Custom Border Radius Section */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">2. Custom Border Radius Prop</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Control border radius with rounded prop: none, sm, md, lg, full
-              </p>
-              <div className="space-y-4">
-                <div className="flex gap-3 flex-wrap items-center">
-                  <Button variant="primary" rounded="none">
-                    Square
-                  </Button>
-                  <Button variant="primary" rounded="sm">
-                    Small
-                  </Button>
-                  <Button variant="primary" rounded="md">
-                    Medium
-                  </Button>
-                  <Button variant="primary" rounded="lg">
-                    Large
-                  </Button>
-                  <Button variant="primary" rounded="full">
-                    Pill Shape
-                  </Button>
-                </div>
-                <div className="flex gap-3 flex-wrap items-center">
-                  <Badge variant="primary" rounded="none">
-                    Square
-                  </Badge>
-                  <Badge variant="primary" rounded="sm">
-                    Small
-                  </Badge>
-                  <Badge variant="primary" rounded="md">
-                    Medium
-                  </Badge>
-                  <Badge variant="primary" rounded="lg">
-                    Large
-                  </Badge>
-                  <Badge variant="primary" rounded="full">
-                    Pill
-                  </Badge>
-                </div>
-                <div className="space-y-2">
-                  <SearchInput icon={<SearchIconSvg />} placeholder="No radius" rounded="none" />
-                  <SearchInput icon={<SearchIconSvg />} placeholder="Small radius" rounded="sm" />
-                  <SearchInput icon={<SearchIconSvg />} placeholder="Large radius" rounded="lg" />
-                  <SearchInput
-                    icon={<SearchIconSvg />}
-                    placeholder="Full radius (pill)"
-                    rounded="full"
+          {/* Notification Dropdown */}
+          <Card title="Notification Dropdown" shadow="lg">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">With Notifications</h3>
+                <NotificationDropdown
+                  title="Notifications"
+                  count={5}
+                  notifications={[
+                    {
+                      id: '1',
+                      title: 'New Issue Reported',
+                      description: 'A pending issue has been raised and sent to the admin team',
+                      timestamp: '',
+                      isNew: true,
+                    },
+                    {
+                      id: '2',
+                      title: 'Payment Received',
+                      description: 'Payment of ₦50,000 has been credited to your account',
+                      timestamp: '2h ago',
+                      iconBackgroundColor: '#E8F8F0',
+                      iconColor: '#5FB894',
+                      icon: (
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <path
+                            d="M16 6L7.5 14.5L4 11"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ),
+                    },
+                    {
+                      id: '3',
+                      title: 'Security Alert',
+                      description: 'New login detected from a different device in Lagos',
+                      timestamp: '5h ago',
+                      iconBackgroundColor: '#FFF3E8',
+                      iconColor: '#F59E42',
+                      icon: (
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <path
+                            d="M10 6v4M10 14h.01M10 18a8 8 0 100-16 8 8 0 000 16z"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      ),
+                    },
+                    {
+                      id: '4',
+                      title: 'Document Uploaded',
+                      description: 'Your verification documents have been uploaded successfully',
+                      timestamp: '1d ago',
+                      iconBackgroundColor: '#E8F4FD',
+                      iconColor: '#4A9FD8',
+                    },
+                    {
+                      id: '5',
+                      title: 'System Update',
+                      description: 'A new version is available. Please update your system',
+                      timestamp: '2d ago',
+                    },
+                  ]}
+                  onViewMore={() => console.log('View more clicked')}
+                />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Empty State</h3>
+                <NotificationDropdown
+                  title="Notifications"
+                  count={0}
+                  notifications={[]}
+                  onViewMore={() => console.log('View more clicked')}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Tabs Component */}
+          <Card title="Tabs Component" shadow="lg">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Settings Tabs (Like Screenshot)</h3>
+                <TabsComponent
+                  defaultActiveKey="personal"
+                  items={[
+                    {
+                      key: 'personal',
+                      label: 'Personal Information',
+                      children: (
+                        <div className="p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-lg mb-4">Personal Information</h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-xs font-medium text-gray-700 block mb-1">
+                                First Name
+                              </label>
+                              <p className="text-sm">Benjamin</p>
+                            </div>
+                            <div>
+                              <label className="text-xs font-medium text-gray-700 block mb-1">
+                                Last Name
+                              </label>
+                              <p className="text-sm">Oladokun</p>
+                            </div>
+                            <div>
+                              <label className="text-xs font-medium text-gray-700 block mb-1">
+                                Email
+                              </label>
+                              <p className="text-sm">benjamin@shekel.africa</p>
+                            </div>
+                            <div>
+                              <label className="text-xs font-medium text-gray-700 block mb-1">
+                                Phone
+                              </label>
+                              <p className="text-sm">+234 812 039 9403</p>
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'team',
+                      label: 'Team Management',
+                      children: (
+                        <div className="p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-lg mb-2">Team Management</h4>
+                          <p className="text-sm text-gray-600">
+                            Manage your team members and their roles.
+                          </p>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'security',
+                      label: 'Security',
+                      children: (
+                        <div className="p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-lg mb-2">Security Settings</h4>
+                          <p className="text-sm text-gray-600">
+                            Configure your security preferences and password.
+                          </p>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'subscription',
+                      label: 'Subscription',
+                      children: (
+                        <div className="p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-lg mb-2">Subscription</h4>
+                          <p className="text-sm text-gray-600">
+                            View and manage your subscription plan.
+                          </p>
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Basic Tabs</h3>
+                <TabsComponent
+                  defaultActiveKey="1"
+                  items={[
+                    {
+                      key: '1',
+                      label: 'Overview',
+                      children: (
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-600">This is the overview tab content.</p>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: '2',
+                      label: 'Analytics',
+                      children: (
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-600">
+                            Analytics and metrics will appear here.
+                          </p>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: '3',
+                      label: 'Reports',
+                      children: (
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-600">Your reports and exports.</p>
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Country Selector */}
+          <Card title="Country Selector" shadow="lg">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Default Selector (No Search)</h3>
+                <div className="flex flex-wrap gap-4">
+                  <CountrySelector
+                    defaultCountry="NG"
+                    onCountryChange={(code) => console.log('Selected country:', code)}
+                  />
+                  <CountrySelector
+                    defaultCountry="US"
+                    onCountryChange={(code) => console.log('Selected country:', code)}
+                  />
+                  <CountrySelector
+                    defaultCountry="GB"
+                    onCountryChange={(code) => console.log('Selected country:', code)}
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Size Comparison Section */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                3. Size Variations Side-by-Side
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">Compare sm, md, lg, and responsive sizes</p>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-2">Buttons</p>
-                  <div className="flex gap-3 items-center flex-wrap">
-                    <Button variant="primary" size="sm">
-                      Small
-                    </Button>
-                    <Button variant="primary" size="md">
-                      Medium
-                    </Button>
-                    <Button variant="primary" size="lg">
-                      Large
-                    </Button>
-                    <Button variant="primary" size="responsive">
-                      Responsive
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-2">Badges</p>
-                  <div className="flex gap-3 items-center flex-wrap">
-                    <Badge variant="success" size="sm">
-                      Small
-                    </Badge>
-                    <Badge variant="success" size="md">
-                      Medium
-                    </Badge>
-                    <Badge variant="success" size="lg">
-                      Large
-                    </Badge>
-                    <Badge variant="success" size="responsive">
-                      Responsive
-                    </Badge>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-2">Checkboxes</p>
-                  <div className="flex gap-6 items-center">
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="size-sm" size="sm" defaultChecked />
-                      <label htmlFor="size-sm" className="text-xs">
-                        Small
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="size-md" size="md" defaultChecked />
-                      <label htmlFor="size-md" className="text-sm">
-                        Medium
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="size-lg" size="lg" defaultChecked />
-                      <label htmlFor="size-lg" className="text-base">
-                        Large
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="size-resp" size="responsive" defaultChecked />
-                      <label htmlFor="size-resp" className="text-sm">
-                        Responsive
-                      </label>
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">With Search Enabled</h3>
+                <CountrySelector
+                  defaultCountry="NG"
+                  showSearch
+                  onCountryChange={(code) => console.log('Selected country:', code)}
+                />
+                <p className="text-sm text-gray-600 mt-2">
+                  Try typing "Nigeria", "NG", or any country name
+                </p>
               </div>
             </div>
+          </Card>
 
-            {/* Card Component Customization */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                4. Card Component Customization
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Cards also support custom padding, border radius, and shadows
-              </p>
-              <div className="grid grid-cols-3 gap-4">
-                <Card rounded="none" className="border-2 border-purple-200">
-                  <p className="text-sm font-medium">Square Card</p>
-                  <p className="text-xs text-gray-500 mt-1">rounded="none"</p>
-                </Card>
-                <Card rounded="md" className="border-2 border-blue-200">
-                  <p className="text-sm font-medium">Medium Card</p>
-                  <p className="text-xs text-gray-500 mt-1">rounded="md"</p>
-                </Card>
-                <Card rounded="lg" className="border-2 border-green-200">
-                  <p className="text-sm font-medium">Large Card</p>
-                  <p className="text-xs text-gray-500 mt-1">rounded="lg"</p>
-                </Card>
+          {/* Login Form Example */}
+          <Card title="Complete Form Example" shadow="xl">
+            <div className="max-w-md mx-auto space-y-4">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold">Sign in to your account</h2>
+                <p className="text-gray-600 text-sm mt-2">
+                  Enter your credentials to access your profile
+                </p>
               </div>
-            </div>
 
-            {/* Modal Customization */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                5. Modal Component Customization
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Modals support custom sizes and rounded corners
-              </p>
-              <div className="flex gap-3">
-                <Button
-                  variant="primary"
-                  size="responsive"
-                  rounded="lg"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Try Customized Modal
-                </Button>
-              </div>
+              <Input label="Email Address" placeholder="ben@shekel.africa" type="email" />
+
+              <PasswordInput label="Password" placeholder="Enter password" />
+
+              <PhoneInput label="Phone Number" placeholder="Phone number" countryCode="+234" />
+
+              <Button
+                variant="primary"
+                block
+                size="large"
+                style={{ backgroundColor: '#EC615B', borderColor: '#EC615B' }}
+              >
+                Continue
+              </Button>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
-}
+};
 
 export default App;

@@ -1,6 +1,18 @@
 # Shekel FE Shared Lib
 
-A modern React component library built with **Tailwind CSS** and custom animations. Create beautiful, responsive UIs without the overhead of third-party component libraries.
+A modern React component library built with **React**, **TypeScript**, **Tailwind CSS**, and **Ant Design**. Create beautiful, responsive UIs with comprehensive input components, dashboard cards, and user interface elements.
+
+## 🚨 Version 1.0.11 Updates
+
+**New Components Added:**
+- Input components (Input, PasswordInput, PhoneInput, CurrencyInput, OTPInput)
+- User components (UserPill, UserCard, UserProfileDropdown)
+- Dashboard components (DashboardCard, StatCard, ActionCard)
+- NotificationDropdown, TabsComponent, CountrySelector
+
+**⚠️ Deprecation Notice:**
+- `SearchInput` is deprecated. Please use the new `Input` component instead.
+- See [DEPRECATION.md](./DEPRECATION.md) for migration guide.
 
 ## Installation
 
@@ -21,15 +33,39 @@ npm install react react-dom
 ### Import Components and Styles
 
 ```tsx
-import { Button, StatCard, SearchInput, Card, Table, Modal } from 'shekel-fe-shared-lib';
+import {
+  Button,
+  Input,
+  PasswordInput,
+  StatCard,
+  DashboardCard,
+  UserPill,
+  NotificationDropdown
+} from 'shekel-fe-shared-lib';
 import 'shekel-fe-shared-lib/styles.css';
+import 'antd/dist/reset.css'; // Required for Ant Design components
 
 function App() {
   return (
     <div>
       <Button variant="primary">Click me</Button>
-      <StatCard label="Total Shipments" value={42} />
-      <SearchInput icon={true} placeholder="Search..." />
+      <Input label="Email" placeholder="Enter your email" />
+      <PasswordInput label="Password" placeholder="Enter password" />
+      <StatCard
+        label="Active Users"
+        value={1234}
+        badge="New"
+        iconBackgroundColor="#E8F8F0"
+        iconColor="#5FB894"
+      />
+      <DashboardCard
+        label="Total Balance"
+        value="2,450,000"
+        valuePrefix="₦"
+        ledgerBalance="1,200,000"
+        showVisibilityToggle
+      />
+      <UserPill name="John Doe" subtitle="Admin" />
     </div>
   );
 }

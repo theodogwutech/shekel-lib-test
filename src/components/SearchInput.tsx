@@ -1,5 +1,9 @@
 import type { FC, ReactNode, InputHTMLAttributes, CSSProperties } from 'react';
 
+/**
+ * @deprecated SearchInput is deprecated as of v1.0.11. Please use the new Input component instead.
+ * The new Input component provides better functionality and consistent styling with Ant Design.
+ */
 export interface SearchInputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   icon?: ReactNode;
@@ -17,6 +21,9 @@ export interface SearchInputProps
   style?: CSSProperties;
 }
 
+/**
+ * @deprecated SearchInput is deprecated as of v1.0.11. Please use the new Input component instead.
+ */
 export const SearchInput: FC<SearchInputProps> = ({
   icon,
   iconPosition = 'left',
@@ -34,6 +41,12 @@ export const SearchInput: FC<SearchInputProps> = ({
   style,
   ...props
 }) => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(
+      '[Shekel Shared Lib] SearchInput is deprecated as of v1.0.11. Please use the new Input component instead for better functionality and consistent styling.'
+    );
+  }
+
   const containerBaseClasses = 'relative inline-flex items-center';
 
   const inputBaseClasses =

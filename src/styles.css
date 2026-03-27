@@ -1,6 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Input placeholder color */
+.ant-input::placeholder {
+  color: #7f7f7f !important;
+}
+
+/* Input with value (filled but not focused) */
+.ant-input:not(:focus):not(:placeholder-shown) {
+  border-color: #616161 !important;
+}
+
+.ant-input-affix-wrapper:not(.ant-input-affix-wrapper-focused):has(input:not(:placeholder-shown)) {
+  border-color: #616161 !important;
+}
+
+/* Input focused state - primary color #EC615B */
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #ec615b !important;
+  box-shadow: 0 0 0 2px rgba(236, 97, 91, 0.1) !important;
+}
+
+.ant-input-affix-wrapper:focus-within,
+.ant-input-affix-wrapper-focused {
+  border-color: #ec615b !important;
+  box-shadow: 0 0 0 2px rgba(236, 97, 91, 0.1) !important;
+}
+
+/* Custom styles for password input */
+.ant-input-affix-wrapper.password-input-custom,
+.ant-input-password.password-input-custom {
+  height: 44px !important;
+  padding: 0 11px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.ant-input-affix-wrapper.password-input-custom input,
+.ant-input-password.password-input-custom input {
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 14px !important;
+}
+
+/* Password dots - larger font */
+.ant-input-affix-wrapper.password-input-custom input[type='password'],
+.ant-input-password.password-input-custom input[type='password'] {
+  font-size: 30px !important;
+}
+
+/* When password is revealed - normal font */
+.ant-input-affix-wrapper.password-input-custom input[type='text'],
+.ant-input-password.password-input-custom input[type='text'] {
+  font-size: 14px !important;
+}
+
+/* Override placeholder to be small regardless of input type */
+.ant-input-affix-wrapper.password-input-custom input[type='password']::placeholder,
+.ant-input-password.password-input-custom input[type='password']::placeholder {
+  font-size: 14px !important;
+  color: #7f7f7f !important;
+  transform: translateY(-6px);
+  display: block;
+}
+
+.ant-input-affix-wrapper.password-input-custom input[type='text']::placeholder,
+.ant-input-password.password-input-custom input[type='text']::placeholder {
+  font-size: 14px !important;
+  color: #7f7f7f !important;
+}
 
 @layer components {
   /* Stat Card Animation */
