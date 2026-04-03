@@ -50,7 +50,7 @@ export const OTPInput: React.FC<OTPInputProps> = ({
     }
 
     // Call onComplete if all fields are filled
-    if (newOtp.every(digit => digit !== '')) {
+    if (newOtp.every((digit) => digit !== '')) {
       onComplete?.(otpString);
     }
   };
@@ -81,7 +81,7 @@ export const OTPInput: React.FC<OTPInputProps> = ({
     inputRefs.current[nextIndex]?.focus();
 
     // Call onComplete if all fields are filled
-    if (newOtp.every(digit => digit !== '')) {
+    if (newOtp.every((digit) => digit !== '')) {
       onComplete?.(otpString);
     }
   };
@@ -95,15 +95,14 @@ export const OTPInput: React.FC<OTPInputProps> = ({
               ref={(el) => {
                 inputRefs.current[index] = el;
               }}
+              placeholder=""
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={handlePaste}
               disabled={disabled}
               maxLength={1}
-              className={`text-center text-lg font-semibold ${
-                error ? 'border-[#C21919]' : 'border-[#D1D1D1]'
-              }`}
+              className="text-center text-lg font-semibold otp-input-field"
               style={{
                 width: '63px',
                 height: '44px',
@@ -113,7 +112,7 @@ export const OTPInput: React.FC<OTPInputProps> = ({
             />
             {index === Math.floor(length / 2) - 1 && (
               <div className="flex items-center justify-center px-1">
-                <span className="text-gray-400 text-xl">-</span>
+                <span className="text-gray-400 text-xl">—</span>
               </div>
             )}
           </React.Fragment>
@@ -121,11 +120,7 @@ export const OTPInput: React.FC<OTPInputProps> = ({
       </div>
       {error && errorMessage && (
         <div className="flex items-center justify-center mt-2 text-xs text-[#C21919]">
-          <svg
-            className="w-3 h-3 mr-1"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
+          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
