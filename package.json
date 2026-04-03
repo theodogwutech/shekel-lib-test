@@ -1,6 +1,6 @@
 {
   "name": "shekel-fe-shared-lib",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Shared component library built with React and Tailwind CSS",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -29,7 +29,7 @@
     "tailwindcss",
     "ui"
   ],
-  "author": "",
+  "author": "Shekel",
   "license": "ISC",
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
