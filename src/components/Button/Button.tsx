@@ -3,7 +3,7 @@ import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
 
 export interface ButtonProps extends Omit<AntButtonProps, 'variant' | 'size'> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -15,14 +15,16 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const getSizeHeight = () => {
     switch (size) {
+      case 'xsmall':
+        return '32px';
       case 'small':
         return '40px';
       case 'medium':
-        return '44px';
+        return '48px';
       case 'large':
-        return '48px';
+        return '52px';
       default:
-        return '48px';
+        return '52px';
     }
   };
 
@@ -49,8 +51,8 @@ export const Button: React.FC<ButtonProps> = ({
       case 'outline':
         return {
           backgroundColor: 'transparent',
-          borderColor: '#D1D1D1',
-          color: '#181918',
+          borderColor: '#EC615B',
+          color: '#EC615B',
           height,
           borderRadius: '8px',
         };

@@ -97,11 +97,7 @@ const App: React.FC = () => {
 
               <div className="md:col-span-2">
                 <h3 className="text-lg font-semibold mb-4">OTP Input - Enter OTP Code</h3>
-                <OTPInput
-                  length={6}
-                  value={otp}
-                  onChange={(value) => setOtp(value)}
-                />
+                <OTPInput length={6} value={otp} onChange={(value) => setOtp(value)} />
               </div>
             </div>
           </Card>
@@ -126,11 +122,7 @@ const App: React.FC = () => {
                     role="Global Admin"
                     email="benjamin@shekel.africa"
                   />
-                  <UserCard
-                    name="Sarah Johnson"
-                    role="Manager"
-                    email="sarah@shekel.africa"
-                  />
+                  <UserCard name="Sarah Johnson" role="Manager" email="sarah@shekel.africa" />
                 </div>
               </div>
 
@@ -648,6 +640,10 @@ const App: React.FC = () => {
                 style={{ backgroundColor: '#EC615B', borderColor: '#EC615B' }}
               >
                 Continue
+              </Button>
+
+              <Button variant="outline" size="small">
+                Log In
               </Button>
             </div>
           </Card>
