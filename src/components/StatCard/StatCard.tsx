@@ -15,6 +15,8 @@ export interface StatCardProps {
   onClick?: () => void;
   size?: 'sm' | 'md' | 'lg';
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+  detailed?: boolean;
+  minHeight?: number | string;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -26,12 +28,14 @@ export const StatCard: React.FC<StatCardProps> = ({
   valuePrefix = '₦',
   progressText,
   badge,
-  width = 347,
+  width = 200,
   className = '',
   selected = false,
   onClick,
   size = 'md',
   rounded = '2xl',
+  detailed = false,
+  minHeight = 120,
 }) => {
   const sizeClass = size === 'sm' ? 'p-3' : size === 'lg' ? 'p-6' : 'p-4';
 
@@ -52,45 +56,69 @@ export const StatCard: React.FC<StatCardProps> = ({
     </svg>
   );
 
+  const variantClasses = detailed
+    ? `bg-white justify-between hover:border-gray-300 ${selected ? 'border-[#EC615B]' : 'border-[#E6E6E6]'}`
+    : `bg-[#FDFDFD] hover:bg-[#F4F4F4] focus:bg-[#F4F4F4] hover:border-[#181918] focus:border-[#181918] ${selected ? 'bg-[#F4F4F4] border-[#181918]' : 'border-[#EEEEEE]'}`;
+
+  const activeShadow = detailed ? '0 0 0 1px #EC615B' : '0 0 0 1px #181918';
+
   return (
     <div
-      className={`bg-white border flex flex-col justify-between transition-all duration-300 ease-in-out hover:border-gray-300 hover:-translate-y-1 cursor-pointer ${sizeClass} ${roundedClass} ${selected ? 'border-[#EC615B]' : 'border-[#E6E6E6]'} ${className}`}
+      className={`border flex flex-col transition-all duration-300 ease-in-out hover:-translate-y-1 cursor-pointer ${variantClasses} ${sizeClass} ${roundedClass} ${className}`}
       style={{
-        width: typeof width === 'number' ? `${width}px` : width,
-        boxShadow: selected ? '0 0 0 1px #EC615B' : '0 0 0 0 rgba(0, 0, 0, 0)',
+        width: typeof width === 'number' ? `${width}px` : width || '96px',
+        minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
+        boxShadow: selected ? activeShadow : '0 0 0 0 rgba(0, 0, 0, 0)',
         transition: 'all 0.3s ease-in-out',
       }}
       onClick={onClick}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = selected ? '0 0 0 1px #EC615B' : '0 0 20px 0 rgba(0, 0, 0, 0.1)';
+        e.currentTarget.style.boxShadow = selected
+          ? activeShadow
+          : '0 0 20px 0 rgba(0, 0, 0, 0.1)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = selected ? '0 0 0 1px #EC615B' : '0 0 0 0 rgba(0, 0, 0, 0)';
+        e.currentTarget.style.boxShadow = selected
+          ? activeShadow
+          : '0 0 0 0 rgba(0, 0, 0, 0)';
       }}
     >
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 [&>svg]:w-5 [&>svg]:h-5 transition-transform duration-300 ease-in-out group-hover:scale-110"
-            style={{
-              backgroundColor: iconBackgroundColor,
-              color: iconColor,
-            }}
-          >
-            {icon || defaultIcon}
+      {detailed ? (
+        <>
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 [&>svg]:w-5 [&>svg]:h-5 transition-transform duration-300 ease-in-out group-hover:scale-110"
+                style={{
+                  backgroundColor: iconBackgroundColor,
+                  color: iconColor,
+                }}
+              >
+                {icon || defaultIcon}
+              </div>
+              {badge && badge}
+            </div>
+            <div className="text-sm text-[#181918] font-light transition-colors duration-200">
+              {label}
+            </div>
+            <div className="text-[20px] font-bold text-[#181918] transition-all duration-200">
+              {valuePrefix} {value}
+            </div>
           </div>
-          {badge && badge}
-        </div>
-        <div className="text-sm text-[#181918] font-light transition-colors duration-200">
-          {label}
-        </div>
-        <div className="text-[20px] font-bold text-[#181918] transition-all duration-200">
-          {valuePrefix} {value}
-        </div>
-      </div>
-      {progressText && (
-        <div className="text-xs text-gray-400 font-normal mt-4 transition-colors duration-200">
-          {progressText}
+          {progressText && (
+            <div className="text-xs text-gray-400 font-normal mt-4 transition-colors duration-200">
+              {progressText}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="mt-auto flex flex-col">
+          <div className="text-lg sm:text-xl text-[#181918] font-normal transition-colors duration-200 truncate">
+            {label}
+          </div>
+          <div className="text-2xl sm:text-3xl font-bold text-[#181918] transition-all duration-200 break-words leading-tight">
+            {valuePrefix ? `${valuePrefix} ${value}` : value}
+          </div>
         </div>
       )}
     </div>

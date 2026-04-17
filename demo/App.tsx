@@ -281,6 +281,7 @@ const App: React.FC = () => {
                     valuePrefix=""
                     badge="New"
                     width="100%"
+                    detailed
                     iconBackgroundColor="#E8F8F0"
                     iconColor="#5FB894"
                     progressText="↑ 12% from last month"
@@ -302,6 +303,7 @@ const App: React.FC = () => {
                     valuePrefix="₦"
                     badge="Hot"
                     width="100%"
+                    detailed
                     iconBackgroundColor="#E8F4FD"
                     iconColor="#4A9FD8"
                     progressText="↑ 8% from last week"
@@ -322,6 +324,7 @@ const App: React.FC = () => {
                     value="23"
                     valuePrefix=""
                     width="100%"
+                    detailed
                     iconBackgroundColor="#FFF3E8"
                     iconColor="#F59E42"
                     icon={
@@ -347,6 +350,7 @@ const App: React.FC = () => {
                     value="25,000"
                     valuePrefix="₦"
                     width="100%"
+                    detailed
                     iconBackgroundColor="#F3E8FD"
                     iconColor="#9B59D8"
                   />
@@ -355,8 +359,42 @@ const App: React.FC = () => {
                     value="15,000"
                     valuePrefix="₦"
                     width="100%"
+                    detailed
                     iconBackgroundColor="#E8F8F0"
                     iconColor="#5FB894"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  Stat Cards (Simple / Default Variant)
+                </h3>
+                <div className="flex flex-wrap gap-4">
+                  <StatCard label="All Shipment" value={0} valuePrefix="" />
+                  <StatCard label="In Transit" value={128} valuePrefix="" />
+                  <StatCard label="Delivered" value="1,204" valuePrefix="" />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  Simple Variant with Currency & Selection
+                </h3>
+                <div className="flex flex-wrap gap-4">
+                  <StatCard label="Total Revenue" value="2,450,000" valuePrefix="₦" />
+                  <StatCard
+                    label="Outstanding"
+                    value="325,000"
+                    valuePrefix="₦"
+                    selected
+                    onClick={() => console.log('Outstanding clicked')}
+                  />
+                  <StatCard
+                    label="Pending Orders"
+                    value={42}
+                    valuePrefix=""
+                    onClick={() => console.log('Pending clicked')}
                   />
                 </div>
               </div>
