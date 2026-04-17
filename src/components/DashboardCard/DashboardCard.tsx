@@ -90,7 +90,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 
   return (
     <div
-        className={`relative overflow-hidden flex flex-col rounded-[20px] px-3 sm:px-[18px] pt-3 transition-all duration-300 ease-in-out hover:-translate-y-1 cursor-pointer self-start ${hasBottomSection ? 'pb-0.5' : 'pb-3'} ${className}`}
+        className={`relative overflow-hidden flex flex-col rounded-[20px] px-3 sm:px-[18px] pt-3 transition-all duration-300 ease-in-out hover:-translate-y-1 cursor-pointer self-start ${hasBottomSection ? 'pb-1' : 'pb-3'} ${className}`}
         style={{
           background: backgroundImage
             ? `url(${backgroundImage}) center / cover no-repeat`
@@ -167,8 +167,8 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
             {isVisible ? `${valuePrefix} ${value}` : '****'}
           </div>
           {hasBottomSection && (
-            <div className="mt-2">
-              <div className="w-full h-px bg-white/10 mb-1 transition-opacity duration-300"></div>
+            <div className="mt-1.5 mb-1">
+              <div className="w-full h-px bg-white/10 mb-1.5 transition-opacity duration-300"></div>
               <div className="flex items-center justify-between gap-2 transition-all duration-200">
                 <div className="flex items-center gap-2 min-w-0">
                   {bottomIcon === undefined ? (
@@ -206,7 +206,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
                     type="button"
                     onClick={handleCopy}
                     aria-label={copied ? 'Copied' : 'Copy'}
-                    className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-colors duration-200 shrink-0 hover:opacity-80"
+                    className="bg-transparent border-none cursor-pointer p-0.5 flex items-center justify-center transition-colors duration-200 shrink-0 hover:opacity-80"
                     style={{ color: copyIconColor ?? '#EC615B' }}
                   >
                     {copied ? (
