@@ -1,21 +1,25 @@
 import React from 'react';
-import { Input as AntInput, InputProps as AntInputProps } from 'antd';
+import { Input as AntInput, InputProps as AntInputProps, InputRef } from 'antd';
+import { useController } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 
 export interface InputProps extends AntInputProps {
   label?: string;
   error?: string;
   helperText?: string;
+  placeholder?: string;
+  control?: Control<any>;
 }
 
-export const Input: React.FC<InputProps> = ({
+const InputBase = React.forwardRef<InputRef, Omit<InputProps, 'control'>>(({
   label,
   error,
   helperText,
   className = '',
   status,
+  required,
   ...props
-}) => {
-  // Generate a unique class name for this input instance to scope the styles
+}, ref) => {
   const errorClass = error ? 'input-error-state' : '';
 
   return (
@@ -23,7 +27,7 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label className="block text-sm font-medium mb-2" style={{ color: error ? '#C21919' : '#181918' }}>
           {label}
-          {props.required && <span style={{ color: '#C21919' }}>*</span>}
+          {required && <span style={{ color: '#C21919' }}>*</span>}
         </label>
       )}
       <style>
@@ -45,13 +49,14 @@ export const Input: React.FC<InputProps> = ({
         `}
       </style>
       <AntInput
+        ref={ref}
         className={`${className} ${errorClass}`}
         status={error ? 'error' : status}
         {...props}
         style={{
           height: '44px',
           borderRadius: '12px',
-          borderColor: error ? '#C21919' : '#D1D1D1',
+          padding: '4px 11px',
           ...props.style,
         }}
       />
@@ -76,4 +81,29 @@ export const Input: React.FC<InputProps> = ({
       )}
     </div>
   );
+});
+InputBase.displayName = 'InputBase';
+
+const ControlledInput: React.FC<InputProps & { control: NonNullable<InputProps['control']>; name: string }> = ({
+  control,
+  name,
+  error: errorProp,
+  ...rest
+}) => {
+  const { field, fieldState } = useController({ control, name });
+  return (
+    <InputBase
+      {...rest}
+      {...field}
+      error={errorProp ?? fieldState.error?.message}
+    />
+  );
 };
+
+export const Input = React.forwardRef<InputRef, InputProps>(({ control, name, ...props }, ref) => {
+  if (control && name) {
+    return <ControlledInput control={control} name={name} {...props} />;
+  }
+  return <InputBase ref={ref} name={name} {...props} />;
+});
+Input.displayName = 'Input';

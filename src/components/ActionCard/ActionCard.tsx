@@ -48,7 +48,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
 
   return (
     <button
-      className={`bg-[#FDFDFD] border border-[#E6E6E6] rounded-[14px] px-[18px] py-2.5 flex items-center gap-4 cursor-pointer transition-all duration-300 ease-in-out w-full h-[60px] hover:border-gray-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[#E6E6E6] disabled:hover:translate-y-0 ${className}`}
+      className={`bg-[#FDFDFD] border border-[#E6E6E6] rounded-[14px] p-4 md:py-2.5 md:px-[18px] flex flex-col md:flex-row items-start md:items-center justify-start gap-2 md:gap-4 cursor-pointer transition-all duration-300 ease-in-out w-full md:h-[60px] hover:border-gray-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[#E6E6E6] disabled:hover:translate-y-0 ${className}`}
       style={{
         boxShadow: '0 0 0 0 rgba(0, 0, 0, 0)',
         transition: 'all 0.3s ease-in-out',
@@ -73,7 +73,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
       >
         {icon}
       </div>
-      <div className="text-sm font-medium text-[#181918] transition-colors duration-200">{label}</div>
+      <div className="text-sm font-medium text-[#181918] transition-colors duration-200 text-left">{label}</div>
     </button>
   );
 };

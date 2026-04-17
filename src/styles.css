@@ -1,13 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
 
-@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* Input placeholder color */
@@ -15,12 +12,12 @@
   color: #7f7f7f !important;
 }
 
-/* Input with value (filled but not focused) */
-.ant-input:not(:focus):not(:placeholder-shown) {
+/* Input with value (filled but not focused) - exclude error states */
+.ant-input:not(:focus):not(:placeholder-shown):not(.input-error-state) {
   border-color: #616161 !important;
 }
 
-.ant-input-affix-wrapper:not(.ant-input-affix-wrapper-focused):has(input:not(:placeholder-shown)) {
+.ant-input-affix-wrapper:not(.ant-input-affix-wrapper-focused):not(.password-input-error-state):has(input:not(:placeholder-shown)) {
   border-color: #616161 !important;
 }
 
@@ -35,6 +32,120 @@
 .ant-input-affix-wrapper-focused {
   border-color: #ec615b !important;
   box-shadow: 0 0 0 2px rgba(236, 97, 91, 0.1) !important;
+}
+
+/* Input error state - red border #C21919 */
+.input-error-state.ant-input,
+.input-error-state .ant-input,
+input.input-error-state,
+input.ant-input.input-error-state {
+  border-color: #c21919 !important;
+}
+
+.input-error-state.ant-input:hover,
+.input-error-state .ant-input:hover,
+input.input-error-state:hover,
+input.ant-input.input-error-state:hover {
+  border-color: #c21919 !important;
+}
+
+.input-error-state.ant-input:focus,
+.input-error-state.ant-input-focused,
+.input-error-state .ant-input:focus,
+.input-error-state .ant-input-focused,
+input.input-error-state:focus,
+input.ant-input.input-error-state:focus {
+  border-color: #c21919 !important;
+  box-shadow: 0 0 0 2px rgba(194, 25, 25, 0.1) !important;
+}
+
+.input-error-state.ant-input-affix-wrapper,
+.input-error-state .ant-input-affix-wrapper {
+  border-color: #c21919 !important;
+}
+
+.input-error-state.ant-input-affix-wrapper:hover,
+.input-error-state .ant-input-affix-wrapper:hover {
+  border-color: #c21919 !important;
+}
+
+.input-error-state.ant-input-affix-wrapper:focus-within,
+.input-error-state.ant-input-affix-wrapper-focused,
+.input-error-state .ant-input-affix-wrapper:focus-within,
+.input-error-state .ant-input-affix-wrapper-focused {
+  border-color: #c21919 !important;
+  box-shadow: 0 0 0 2px rgba(194, 25, 25, 0.1) !important;
+}
+
+.input-error-state .ant-input-group-addon,
+.input-error-state.ant-input-group-addon {
+  border-color: #c21919 !important;
+}
+
+.input-error-state .ant-input-group-addon:first-child,
+.input-error-state.ant-input-group-addon:first-child {
+  border-right: none !important;
+}
+
+/* Ant Design status error override */
+.ant-input-status-error.input-error-state,
+.ant-input-status-error.input-error-state:hover,
+.ant-input-status-error.input-error-state:focus {
+  border-color: #c21919 !important;
+}
+
+/* Password input error state - red border #C21919 */
+.password-input-error-state.ant-input-affix-wrapper,
+.password-input-error-state .ant-input-affix-wrapper,
+.ant-input-affix-wrapper.password-input-error-state {
+  border-color: #c21919 !important;
+}
+
+.password-input-error-state.ant-input-affix-wrapper:hover,
+.password-input-error-state .ant-input-affix-wrapper:hover,
+.ant-input-affix-wrapper.password-input-error-state:hover {
+  border-color: #c21919 !important;
+}
+
+.password-input-error-state.ant-input-affix-wrapper:focus-within,
+.password-input-error-state.ant-input-affix-wrapper-focused,
+.password-input-error-state .ant-input-affix-wrapper:focus-within,
+.password-input-error-state .ant-input-affix-wrapper-focused,
+.ant-input-affix-wrapper.password-input-error-state:focus-within,
+.ant-input-affix-wrapper-focused.password-input-error-state {
+  border-color: #c21919 !important;
+  box-shadow: 0 0 0 2px rgba(194, 25, 25, 0.1) !important;
+}
+
+.password-input-error-state .ant-input-group-addon,
+.password-input-error-state.ant-input-group-addon {
+  border-color: #c21919 !important;
+}
+
+.password-input-error-state .ant-input-group-addon:first-child,
+.password-input-error-state.ant-input-group-addon:first-child {
+  border-right: none !important;
+}
+
+.password-input-error-state .ant-input,
+.password-input-error-state .ant-input-password .ant-input,
+.password-input-error-state.ant-input {
+  border-color: #c21919 !important;
+}
+
+.password-input-error-state .ant-input:focus,
+.password-input-error-state .ant-input-focused,
+.password-input-error-state .ant-input-password .ant-input:focus,
+.password-input-error-state.ant-input:focus {
+  border-color: #c21919 !important;
+  box-shadow: 0 0 0 2px rgba(194, 25, 25, 0.1) !important;
+}
+
+/* Ant Design status error override for password */
+.ant-input-affix-wrapper-status-error.password-input-error-state,
+.ant-input-affix-wrapper-status-error.password-input-error-state:hover,
+.ant-input-affix-wrapper-status-error.password-input-error-state:focus-within {
+  border-color: #c21919 !important;
 }
 
 /* Custom styles for password input */
@@ -52,12 +163,15 @@
   padding: 0 !important;
   margin: 0 !important;
   font-size: 14px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  width: 0 !important;
 }
 
 /* Password dots - larger font */
 .ant-input-affix-wrapper.password-input-custom input[type='password'],
 .ant-input-password.password-input-custom input[type='password'] {
-  font-size: 30px !important;
+  font-size: 22px !important;
 }
 
 /* When password is revealed - normal font */
@@ -71,7 +185,7 @@
 .ant-input-password.password-input-custom input[type='password']::placeholder {
   font-size: 14px !important;
   color: #7f7f7f !important;
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   display: block;
 }
 
@@ -81,244 +195,164 @@
   color: #7f7f7f !important;
 }
 
-@layer components {
-  /* Stat Card Animation */
-  .stat-card {
-    animation: fadeInUp 0.3s ease-out;
-  }
+/* Stat Card Animation */
+.stat-card {
+  animation: fadeInUp 0.3s ease-out;
+}
 
-  .stat-value {
-    animation: countUp 0.5s ease-out;
-  }
+.stat-value {
+  animation: countUp 0.5s ease-out;
+}
 
-  /* Card Animation */
-  .card {
-    animation: fadeIn 0.3s ease-out;
-  }
+/* Card Animation */
+.card {
+  animation: fadeIn 0.3s ease-out;
+}
 
-  /* Fade In Animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-  /* Fade In Up Animation */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  /* Count Up Animation */
-  @keyframes countUp {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
 
-  /* Pulse Animation for buttons on hover */
-  @keyframes pulse {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
 
-  /* Shimmer effect for loading states */
-  @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
-    }
-    100% {
-      background-position: 1000px 0;
-    }
-  }
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
 
-  .shimmer {
-    animation: shimmer 2s infinite linear;
-    background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
-    background-size: 1000px 100%;
-  }
+.shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-size: 1000px 100%;
+}
 
-  /* Slide in from right */
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
 
-  .slide-in-right {
-    animation: slideInRight 0.3s ease-out;
-  }
+.slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
 
-  /* Dropdown Animations - Ant Design Style */
-  .dropdown-slide-down {
-    animation: dropdownSlideDown 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-    transform-origin: top;
-  }
+.dropdown-slide-down {
+  animation: dropdownSlideDown 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: top;
+}
 
-  .dropdown-slide-up {
-    animation: dropdownSlideUp 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-    transform-origin: bottom;
-  }
+.dropdown-slide-up {
+  animation: dropdownSlideUp 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: bottom;
+}
 
-  @keyframes dropdownSlideDown {
-    from {
-      opacity: 0;
-      transform: scaleY(0) translateY(0);
-    }
-    to {
-      opacity: 1;
-      transform: scaleY(1) translateY(0);
-    }
-  }
+@keyframes dropdownSlideDown {
+  from { opacity: 0; transform: scaleY(0) translateY(0); }
+  to { opacity: 1; transform: scaleY(1) translateY(0); }
+}
 
-  @keyframes dropdownSlideUp {
-    from {
-      opacity: 0;
-      transform: scaleY(0.8) translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: scaleY(1) translateY(0);
-    }
-  }
+@keyframes dropdownSlideUp {
+  from { opacity: 0; transform: scaleY(0.8) translateY(8px); }
+  to { opacity: 1; transform: scaleY(1) translateY(0); }
+}
 
-  /* Dropdown Menu Item Hover Animation */
-  .dropdown-menu-item {
-    position: relative;
-  }
+.dropdown-menu-item {
+  position: relative;
+}
 
-  .dropdown-menu-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background-color: #3b82f6;
-    transform: scaleY(0);
-    transition: transform 0.2s ease;
-  }
+.dropdown-menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: #3b82f6;
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
 
-  .dropdown-menu-item:hover::before {
-    transform: scaleY(1);
-  }
+.dropdown-menu-item:hover::before {
+  transform: scaleY(1);
+}
 
-  /* Select Animation */
-  .select-trigger {
-    position: relative;
-  }
+.select-trigger {
+  position: relative;
+}
 
-  .select-dropdown {
-    animation: dropdownSlideDown 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-  }
+.select-dropdown {
+  animation: dropdownSlideDown 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
 
-  .select-option {
-    position: relative;
-    transition: all 0.15s ease;
-  }
+.select-option {
+  position: relative;
+  transition: all 0.15s ease;
+}
 
-  .select-option:hover {
-    padding-left: 1.25rem;
-  }
+.select-option:hover {
+  padding-left: 1.25rem;
+}
 
-  /* Modal Animations */
-  .modal-mask {
-    animation: fadeIn 0.3s ease-out;
-  }
+.modal-mask {
+  animation: fadeIn 0.3s ease-out;
+}
 
-  .modal-content {
-    animation: modalSlideIn 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  }
+.modal-content {
+  animation: modalSlideIn 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
 
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95) translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
-  /* Progress Bar Active Animation */
-  @keyframes progressActive {
-    0% {
-      background-position: 0 0;
-    }
-    100% {
-      background-position: 40px 0;
-    }
-  }
+@keyframes progressActive {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
 
-  .progress-active {
-    background-image: linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.2) 25%,
-      transparent 25%,
-      transparent 50%,
-      rgba(255, 255, 255, 0.2) 50%,
-      rgba(255, 255, 255, 0.2) 75%,
-      transparent 75%,
-      transparent
-    );
-    background-size: 40px 40px;
-    animation: progressActive 1s linear infinite;
-  }
+.progress-active {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.2) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 40px 40px;
+  animation: progressActive 1s linear infinite;
+}
 
-  /* StatCard Slide-In Active Effect */
-  @keyframes slideIn {
-    0% {
-      opacity: 0;
-      transform: translateX(-100%);
-    }
-    100% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateX(-100%); }
+  100% { opacity: 1; transform: translateX(0); }
+}
 
-  .animate-slide-in {
-    animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+.animate-slide-in {
+  animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
-  /* Selected Items List Animation */
-  @keyframes slideInItem {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+@keyframes slideInItem {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
 
-  .animate-slide-in-item {
-    animation: slideInItem 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;
-  }
+.animate-slide-in-item {
+  animation: slideInItem 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;
 }

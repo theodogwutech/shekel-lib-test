@@ -1,21 +1,25 @@
 import React from 'react';
-import { Input as AntInput } from 'antd';
-import type { PasswordProps as AntPasswordProps } from 'antd/es/input';
+import { Input as AntInput, InputProps as AntInputProps, InputRef } from 'antd';
+import { useController } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 
-export interface PasswordInputProps extends AntPasswordProps {
+export interface PasswordInputProps extends Omit<AntInputProps, 'suffix'> {
   label?: string;
   error?: string;
   helperText?: string;
+  placeholder?: string;
+  control?: Control<any>;
 }
 
-export const PasswordInput: React.FC<PasswordInputProps> = ({
+const PasswordInputBase = React.forwardRef<InputRef, Omit<PasswordInputProps, 'control'>>(({
   label,
   error,
   helperText,
   className = '',
   status,
+  required,
   ...props
-}) => {
+}, ref) => {
   const errorClass = error ? 'password-input-error-state' : '';
   const combinedClassName = `password-input-custom ${className} ${errorClass}`;
 
@@ -24,7 +28,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
       {label && (
         <label className="block text-sm font-medium mb-2" style={{ color: error ? '#C21919' : '#181918' }}>
           {label}
-          {props.required && <span style={{ color: '#C21919' }}>*</span>}
+          {required && <span style={{ color: '#C21919' }}>*</span>}
         </label>
       )}
       <style>
@@ -48,13 +52,13 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
         `}
       </style>
       <AntInput.Password
+        ref={ref}
         className={combinedClassName}
         status={error ? 'error' : status}
         {...props}
         style={{
           height: '44px',
           borderRadius: '12px',
-          borderColor: error ? '#C21919' : '#D1D1D1',
           ...props.style,
         }}
       />
@@ -79,4 +83,29 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
       )}
     </div>
   );
+});
+PasswordInputBase.displayName = 'PasswordInputBase';
+
+const ControlledPasswordInput: React.FC<PasswordInputProps & { control: NonNullable<PasswordInputProps['control']>; name: string }> = ({
+  control,
+  name,
+  error: errorProp,
+  ...rest
+}) => {
+  const { field, fieldState } = useController({ control, name });
+  return (
+    <PasswordInputBase
+      {...rest}
+      {...field}
+      error={errorProp ?? fieldState.error?.message}
+    />
+  );
 };
+
+export const PasswordInput = React.forwardRef<InputRef, PasswordInputProps>(({ control, name, ...props }, ref) => {
+  if (control && name) {
+    return <ControlledPasswordInput control={control} name={name} {...props} />;
+  }
+  return <PasswordInputBase ref={ref} name={name} {...props} />;
+});
+PasswordInput.displayName = 'PasswordInput';

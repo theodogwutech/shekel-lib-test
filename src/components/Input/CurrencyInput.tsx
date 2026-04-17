@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Input as AntInput } from 'antd';
+import { Input as AntInput, InputRef } from 'antd';
 import type { InputProps as AntInputProps } from 'antd';
+import { useController } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 
 export interface CurrencyInputProps extends Omit<AntInputProps, 'onChange'> {
   label?: string;
@@ -9,9 +11,10 @@ export interface CurrencyInputProps extends Omit<AntInputProps, 'onChange'> {
   currencySymbol?: string;
   formatAmount?: boolean;
   onChange?: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
+  control?: Control<any>;
 }
 
-export const CurrencyInput: React.FC<CurrencyInputProps> = ({
+const CurrencyInputBase = React.forwardRef<InputRef, Omit<CurrencyInputProps, 'control'>>(({
   label,
   error,
   helperText,
@@ -22,33 +25,23 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   onChange,
   value: externalValue,
   ...props
-}) => {
+}, ref) => {
   const errorClass = error ? 'currency-input-error-state' : '';
   const [displayValue, setDisplayValue] = useState<string>('');
 
-  // Format number with commas
   const formatNumber = (num: string): string => {
-    // Remove all non-digit characters except decimal point
     const cleanNum = num.replace(/[^\d.]/g, '');
-
-    // Split into integer and decimal parts
     const parts = cleanNum.split('.');
     const integerPart = parts[0];
     const decimalPart = parts[1];
-
-    // Add commas to integer part
     const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-    // Combine with decimal part if exists
     return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
   };
 
-  // Remove formatting to get raw value
   const unformatNumber = (formatted: string): string => {
     return formatted.replace(/,/g, '');
   };
 
-  // Update display value when external value changes
   useEffect(() => {
     if (externalValue !== undefined) {
       const stringValue = String(externalValue);
@@ -56,7 +49,6 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
     }
   }, [externalValue, formatAmount]);
 
-  // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
 
@@ -64,7 +56,6 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
       const rawValue = unformatNumber(inputValue);
       const formatted = formatNumber(rawValue);
       setDisplayValue(formatted);
-
       if (onChange) {
         onChange(rawValue, e);
       }
@@ -128,6 +119,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
         `}
       </style>
       <AntInput
+        ref={ref}
         className={`currency-input-wrapper ${className} ${errorClass}`}
         status={error ? 'error' : status}
         prefix={<span>{currencySymbol}</span>}
@@ -154,4 +146,31 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
       {!error && helperText && <div className="mt-1 text-xs text-gray-500">{helperText}</div>}
     </div>
   );
+});
+CurrencyInputBase.displayName = 'CurrencyInputBase';
+
+const ControlledCurrencyInput: React.FC<CurrencyInputProps & { control: NonNullable<CurrencyInputProps['control']>; name: string }> = ({
+  control,
+  name,
+  error: errorProp,
+  ...rest
+}) => {
+  const { field, fieldState } = useController({ control, name });
+  return (
+    <CurrencyInputBase
+      {...rest}
+      value={field.value}
+      onChange={(value) => field.onChange(value)}
+      onBlur={field.onBlur}
+      error={errorProp ?? fieldState.error?.message}
+    />
+  );
 };
+
+export const CurrencyInput = React.forwardRef<InputRef, CurrencyInputProps>(({ control, name, ...props }, ref) => {
+  if (control && name) {
+    return <ControlledCurrencyInput control={control} name={name} {...props} />;
+  }
+  return <CurrencyInputBase ref={ref} name={name} {...props} />;
+});
+CurrencyInput.displayName = 'CurrencyInput';

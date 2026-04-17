@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { FC, MouseEvent, CSSProperties } from 'react';
+import { useController } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 
 export interface SelectOption {
   value: string | number;
@@ -13,6 +15,8 @@ export interface SelectProps {
   defaultValue?: string | number;
   placeholder?: string;
   onChange?: (value: string | number) => void;
+  onBlur?: () => void;
+  name?: string;
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'responsive';
   fullWidth?: boolean;
@@ -28,14 +32,20 @@ export interface SelectProps {
   hoverBgColor?: string;
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
   style?: CSSProperties;
+  label?: string;
+  error?: string;
+  helperText?: string;
+  control?: Control<any>;
 }
 
-export const Select: FC<SelectProps> = ({
+const SelectBase: FC<Omit<SelectProps, 'control'>> = ({
   options,
   value: controlledValue,
   defaultValue,
   placeholder = 'Select an option',
   onChange,
+  onBlur,
+  name,
   disabled = false,
   size = 'md',
   fullWidth = false,
@@ -51,11 +61,12 @@ export const Select: FC<SelectProps> = ({
   hoverBgColor,
   rounded = 'lg',
   style,
+  label,
+  error,
+  helperText,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState<string | number | undefined>(
-    defaultValue
-  );
+  const [internalValue, setInternalValue] = useState<string | number | undefined>(defaultValue);
   const [searchQuery, setSearchQuery] = useState('');
   const selectRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -67,6 +78,7 @@ export const Select: FC<SelectProps> = ({
       if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setSearchQuery('');
+        if (isOpen) onBlur?.();
       }
     };
 
@@ -124,7 +136,6 @@ export const Select: FC<SelectProps> = ({
 
   const widthClass = fullWidth ? 'w-full' : 'min-w-[200px]';
 
-  // Helper function to apply custom colors to inline styles
   const getTriggerStyles = (): CSSProperties => {
     const styles: CSSProperties = {};
     if (bgColor) styles.backgroundColor = bgColor;
@@ -157,120 +168,171 @@ export const Select: FC<SelectProps> = ({
   );
 
   return (
-    <div ref={selectRef} className={`relative inline-block ${widthClass}`} style={style}>
-      <div
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`
-          select-trigger
-          flex items-center justify-between gap-2
-          border transition-all duration-200 ease-out
-          ${!className.includes('px-') && !className.includes('py-') && !className.includes('h-') ? sizeClasses[size] : ''}
-          ${!className.includes('rounded') ? roundedClasses[rounded] : ''}
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          ${isOpen ? 'ring-2 ring-opacity-20' : ''}
-          ${className}
-        `}
-        style={{
-          ...getTriggerStyles(),
-          backgroundColor: bgColor || getTriggerStyles().backgroundColor || '#FFFFFF',
-          borderColor: borderColor || getTriggerStyles().borderColor || '#D1D5DB',
-          ...(isOpen && {
-            borderColor: focusBorderColor,
-            boxShadow: `0 0 0 2px ${focusBorderColor}20`,
-          }),
-          ...(!disabled && !isOpen && hoverBgColor && {
-            cursor: 'pointer',
-          }),
-        }}
-        onMouseEnter={(e) => {
-          if (!disabled && hoverBgColor) {
-            e.currentTarget.style.backgroundColor = hoverBgColor;
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (bgColor) {
-            e.currentTarget.style.backgroundColor = bgColor;
-          } else {
-            e.currentTarget.style.backgroundColor = '#FFFFFF';
-          }
-        }}
-      >
-        <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <div className="flex items-center gap-1">
-          {allowClear && value && !disabled && (
-            <span
-              onClick={handleClear}
-              className="text-gray-400 hover:text-gray-600 transition-colors duration-200 ease-out"
-            >
-              {ClearIcon}
-            </span>
-          )}
-          <span className="text-gray-400">{ChevronIcon}</span>
-        </div>
-      </div>
-
-      {isOpen && !disabled && (
-        <div className="absolute top-full left-0 right-0 mt-1 z-50 dropdown-slide-down">
-          <div className={`select-dropdown bg-white shadow-lg border border-gray-200 py-1 max-h-[300px] overflow-auto ${roundedClasses[rounded]}`}>
-            {showSearch && (
-              <div className="px-2 py-2 border-b border-gray-200">
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={searchPlaceholder}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 transition-all duration-200 ease-out"
-                  style={{
-                    borderColor: borderColor,
-                    boxShadow: `0 0 0 2px ${focusBorderColor}20`,
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
+    <div className={`relative inline-block ${widthClass}`} style={style}>
+      {label && (
+        <label className="block text-sm font-medium mb-2" style={{ color: error ? '#C21919' : '#181918' }}>
+          {label}
+        </label>
+      )}
+      <div ref={selectRef} className="relative">
+        <input type="hidden" name={name} value={value ?? ''} readOnly />
+        <div
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          className={`
+            select-trigger
+            flex items-center justify-between gap-2
+            border transition-all duration-200 ease-out
+            ${!className.includes('px-') && !className.includes('py-') && !className.includes('h-') ? sizeClasses[size] : ''}
+            ${!className.includes('rounded') ? roundedClasses[rounded] : ''}
+            ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+            ${isOpen ? 'ring-2 ring-opacity-20' : ''}
+            ${className}
+          `}
+          style={{
+            ...getTriggerStyles(),
+            backgroundColor: bgColor || getTriggerStyles().backgroundColor || '#FFFFFF',
+            borderColor: error
+              ? '#C21919'
+              : borderColor || getTriggerStyles().borderColor || '#D1D5DB',
+            ...(isOpen && {
+              borderColor: error ? '#C21919' : focusBorderColor,
+              boxShadow: `0 0 0 2px ${error ? '#C21919' : focusBorderColor}20`,
+            }),
+            ...(!disabled && !isOpen && hoverBgColor && {
+              cursor: 'pointer',
+            }),
+          }}
+          onMouseEnter={(e) => {
+            if (!disabled && hoverBgColor) {
+              e.currentTarget.style.backgroundColor = hoverBgColor;
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (bgColor) {
+              e.currentTarget.style.backgroundColor = bgColor;
+            } else {
+              e.currentTarget.style.backgroundColor = '#FFFFFF';
+            }
+          }}
+        >
+          <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+          <div className="flex items-center gap-1">
+            {allowClear && value && !disabled && (
+              <span
+                onClick={handleClear}
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 ease-out"
+              >
+                {ClearIcon}
+              </span>
             )}
-            {filteredOptions.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                No results found
-              </div>
-            ) : (
-              filteredOptions.map((option) => (
-                <div
-                  key={option.value}
-                  onClick={() => !option.disabled && handleSelect(option.value)}
-                  className={`
-                    select-option
-                    px-4 py-2 text-sm transition-all duration-200 ease-out
-                    ${option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                  `}
-                  style={{
-                    ...(option.value === value ? getSelectedOptionStyles() : {}),
-                    backgroundColor: option.value === value ? (selectedBgColor || '#FCEAE9') : undefined,
-                    color: option.value === value ? (selectedTextColor || '#EC615B') : '#181918',
-                    fontWeight: option.value === value ? 'medium' : undefined,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!option.disabled && option.value !== value) {
-                      e.currentTarget.style.backgroundColor = hoverBgColor || '#F3F4F6';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (option.value !== value) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }
-                  }}
-                >
-                  {option.label}
-                </div>
-              ))
-            )}
+            <span className="text-gray-400">{ChevronIcon}</span>
           </div>
         </div>
+
+        {isOpen && !disabled && (
+          <div className="absolute top-full left-0 right-0 mt-1 z-50 dropdown-slide-down">
+            <div className={`select-dropdown bg-white shadow-lg border border-gray-200 py-1 max-h-[300px] overflow-auto ${roundedClasses[rounded]}`}>
+              {showSearch && (
+                <div className="px-2 py-2 border-b border-gray-200">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={searchPlaceholder}
+                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 transition-all duration-200 ease-out"
+                    style={{
+                      borderColor: borderColor,
+                      boxShadow: `0 0 0 2px ${focusBorderColor}20`,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              )}
+              {filteredOptions.length === 0 ? (
+                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                  No results found
+                </div>
+              ) : (
+                filteredOptions.map((option) => (
+                  <div
+                    key={option.value}
+                    onClick={() => !option.disabled && handleSelect(option.value)}
+                    className={`
+                      select-option
+                      px-4 py-2 text-sm transition-all duration-200 ease-out
+                      ${option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                    `}
+                    style={{
+                      ...(option.value === value ? getSelectedOptionStyles() : {}),
+                      backgroundColor: option.value === value ? (selectedBgColor || '#FCEAE9') : undefined,
+                      color: option.value === value ? (selectedTextColor || '#EC615B') : '#181918',
+                      fontWeight: option.value === value ? 'medium' : undefined,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!option.disabled && option.value !== value) {
+                        e.currentTarget.style.backgroundColor = hoverBgColor || '#F3F4F6';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (option.value !== value) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
+                  >
+                    {option.label}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+      {error && (
+        <div className="flex items-center mt-1 text-xs text-[#C21919]">
+          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          {error}
+        </div>
+      )}
+      {!error && helperText && (
+        <div className="mt-1 text-xs text-gray-500">{helperText}</div>
       )}
     </div>
   );
+};
+
+const ControlledSelect: FC<SelectProps & { control: NonNullable<SelectProps['control']>; name: string }> = ({
+  control,
+  name,
+  error: errorProp,
+  ...rest
+}) => {
+  const { field, fieldState } = useController({ control, name });
+  return (
+    <SelectBase
+      {...rest}
+      value={field.value}
+      onChange={field.onChange}
+      onBlur={field.onBlur}
+      name={name}
+      error={errorProp ?? fieldState.error?.message}
+    />
+  );
+};
+
+export const Select: FC<SelectProps> = ({ control, name, ...props }) => {
+  if (control && name) {
+    return <ControlledSelect control={control} name={name} {...props} />;
+  }
+  return <SelectBase name={name} {...props} />;
 };
 
 export default Select;

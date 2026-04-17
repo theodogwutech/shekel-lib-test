@@ -1,21 +1,27 @@
 import React, { useRef, useState, useEffect, KeyboardEvent, ClipboardEvent } from 'react';
 import { Input, InputRef } from 'antd';
+import { useController } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 
 export interface OTPInputProps {
   length?: number;
   value?: string;
   onChange?: (value: string) => void;
+  onBlur?: () => void;
   onComplete?: (value: string) => void;
+  name?: string;
   error?: boolean;
   errorMessage?: string;
   disabled?: boolean;
   className?: string;
+  control?: Control<any>;
 }
 
-export const OTPInput: React.FC<OTPInputProps> = ({
+const OTPInputBase: React.FC<Omit<OTPInputProps, 'control'>> = ({
   length = 6,
   value = '',
   onChange,
+  onBlur,
   onComplete,
   error = false,
   errorMessage,
@@ -34,29 +40,25 @@ export const OTPInput: React.FC<OTPInputProps> = ({
   }, [value, length]);
 
   const handleChange = (index: number, val: string) => {
-    // Only allow numbers
     if (val && !/^\d+$/.test(val)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = val.slice(-1); // Take only the last character
+    newOtp[index] = val.slice(-1);
     setOtp(newOtp);
 
     const otpString = newOtp.join('');
     onChange?.(otpString);
 
-    // Move to next input if value is entered
     if (val && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Call onComplete if all fields are filled
     if (newOtp.every((digit) => digit !== '')) {
       onComplete?.(otpString);
     }
   };
 
   const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    // Move to previous input on backspace if current input is empty
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
@@ -66,7 +68,6 @@ export const OTPInput: React.FC<OTPInputProps> = ({
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text/plain');
 
-    // Only allow numbers
     if (!/^\d+$/.test(pastedData)) return;
 
     const pastedArray = pastedData.split('').slice(0, length);
@@ -76,11 +77,9 @@ export const OTPInput: React.FC<OTPInputProps> = ({
     const otpString = newOtp.join('');
     onChange?.(otpString);
 
-    // Focus on the next empty input or the last input
     const nextIndex = Math.min(pastedArray.length, length - 1);
     inputRefs.current[nextIndex]?.focus();
 
-    // Call onComplete if all fields are filled
     if (newOtp.every((digit) => digit !== '')) {
       onComplete?.(otpString);
     }
@@ -88,7 +87,7 @@ export const OTPInput: React.FC<OTPInputProps> = ({
 
   return (
     <div className="w-full">
-      <div className={`flex gap-2 justify-center ${className}`}>
+      <div className={`flex gap-2 justify-center ${className}`} onBlur={onBlur}>
         {otp.map((digit, index) => (
           <React.Fragment key={index}>
             <Input
@@ -132,4 +131,32 @@ export const OTPInput: React.FC<OTPInputProps> = ({
       )}
     </div>
   );
+};
+
+const ControlledOTPInput: React.FC<OTPInputProps & { control: NonNullable<OTPInputProps['control']>; name: string }> = ({
+  control,
+  name,
+  error: errorProp,
+  errorMessage: errorMessageProp,
+  ...rest
+}) => {
+  const { field, fieldState } = useController({ control, name });
+  const hasError = errorProp ?? !!fieldState.error;
+  return (
+    <OTPInputBase
+      {...rest}
+      value={field.value}
+      onChange={field.onChange}
+      onBlur={field.onBlur}
+      error={hasError}
+      errorMessage={errorMessageProp ?? fieldState.error?.message}
+    />
+  );
+};
+
+export const OTPInput: React.FC<OTPInputProps> = ({ control, name, ...props }) => {
+  if (control && name) {
+    return <ControlledOTPInput control={control} name={name} {...props} />;
+  }
+  return <OTPInputBase {...props} />;
 };

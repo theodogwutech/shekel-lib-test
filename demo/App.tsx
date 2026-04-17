@@ -27,6 +27,12 @@ const App: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [phone, setPhone] = useState('');
   const [amount, setAmount] = useState('');
+  const [buttonLoading, setButtonLoading] = useState(false);
+
+  const handleLoadingDemo = () => {
+    setButtonLoading(true);
+    setTimeout(() => setButtonLoading(false), 3000);
+  };
 
   return (
     <ConfigProvider
@@ -34,16 +40,17 @@ const App: React.FC = () => {
         token: {
           colorPrimary: '#EC615B',
           borderRadius: 8,
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
         },
       }}
     >
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-gray-50 p-4 md:p-8">
         <div className="max-w-6xl mx-auto space-y-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">
               Shekel Shared Components v1.0.11
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm md:text-base text-gray-600">
               New components library built with React, TypeScript, Tailwind CSS, and Ant Design
             </p>
           </div>
@@ -52,7 +59,7 @@ const App: React.FC = () => {
           <Card title="Input Components" shadow="lg">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Text Input</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Text Input</h3>
                 <Input
                   label="Email Address"
                   placeholder="ben@shekel.africa"
@@ -60,20 +67,36 @@ const App: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   helperText="We'll never share your email"
                 />
+                <div className="mt-4">
+                  <Input
+                    label="Email Address (Error State)"
+                    placeholder="ben@shekel.africa"
+                    error="Please enter a valid email address"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">Password Input</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Password Input</h3>
                 <PasswordInput
                   label="Password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <div className="mt-4">
+                  <PasswordInput
+                    label="Password (Error State)"
+                    placeholder="Enter your password"
+                    error="Password must be at least 8 characters"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">Phone Input</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Phone Input</h3>
                 <PhoneInput
                   label="Phone Number"
                   placeholder="Phone number"
@@ -84,7 +107,7 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">Currency Input</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Currency Input</h3>
                 <CurrencyInput
                   label="Amount"
                   placeholder="Enter amount"
@@ -96,7 +119,9 @@ const App: React.FC = () => {
               </div>
 
               <div className="md:col-span-2">
-                <h3 className="text-lg font-semibold mb-4">OTP Input - Enter OTP Code</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  OTP Input - Enter OTP Code
+                </h3>
                 <OTPInput length={6} value={otp} onChange={(value) => setOtp(value)} />
               </div>
             </div>
@@ -106,7 +131,7 @@ const App: React.FC = () => {
           <Card title="User Components" shadow="lg">
             <div className="space-y-8">
               <div>
-                <h3 className="text-lg font-semibold mb-4">User Pill</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">User Pill</h3>
                 <div className="flex flex-wrap gap-4">
                   <UserPill name="Benjamin Oladokun" subtitle="Global Admin" />
                   <UserPill name="Sarah Johnson" subtitle="Manager" />
@@ -115,7 +140,7 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">User Card</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">User Card</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <UserCard
                     name="Benjamin Oladokun"
@@ -127,7 +152,7 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">User Profile Dropdown</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">User Profile Dropdown</h3>
                 <UserProfileDropdown
                   name="Benjamin Oladokun"
                   role="Global Admin"
@@ -167,14 +192,22 @@ const App: React.FC = () => {
           <Card title="Dashboard Cards" shadow="lg">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Dashboard Card with Ledger Balance</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  Dashboard Card with Ledger Balance
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DashboardCard
                     label="Total Balance"
                     value="2,450,000"
                     valuePrefix="₦"
-                    ledgerBalance="1,200,000"
+                    // ledgerBalance="1,200,000"
                     showVisibilityToggle
+                    width="100%"
+                    topRight={
+                      <Button variant="ghost" size="small">
+                        Withdraw
+                      </Button>
+                    }
                     icon={
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path
@@ -194,6 +227,7 @@ const App: React.FC = () => {
                     ledgerBalance="750,000"
                     showVisibilityToggle
                     backgroundPattern="wave"
+                    width="100%"
                     icon={
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path
@@ -210,7 +244,34 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  Dashboard Card with Account Details & Copy Button
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DashboardCard
+                    label="Available Balance"
+                    value="30,281,291.00"
+                    valuePrefix="₦"
+                    valueFontSize={20}
+                    bottomLabel=""
+                    bottomValue="9999045041 • Providus Bank"
+                    showLedgerValuePrefix={false}
+                    bottomIcon={null}
+                    showCopyButton
+                    copyValue="9999045041"
+                    onCopy={(v) => console.log('Copied:', v)}
+                    width="100%"
+                    topRight={
+                      <Button variant="ghost" size="small">
+                        Fund Wallet
+                      </Button>
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
                   Stat Cards with Badge & Custom Colors
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -219,6 +280,7 @@ const App: React.FC = () => {
                     value="1,234"
                     valuePrefix=""
                     badge="New"
+                    width="100%"
                     iconBackgroundColor="#E8F8F0"
                     iconColor="#5FB894"
                     progressText="↑ 12% from last month"
@@ -239,6 +301,7 @@ const App: React.FC = () => {
                     value="45,230"
                     valuePrefix="₦"
                     badge="Hot"
+                    width="100%"
                     iconBackgroundColor="#E8F4FD"
                     iconColor="#4A9FD8"
                     progressText="↑ 8% from last week"
@@ -258,9 +321,9 @@ const App: React.FC = () => {
                     label="Pending Tasks"
                     value="23"
                     valuePrefix=""
+                    width="100%"
                     iconBackgroundColor="#FFF3E8"
                     iconColor="#F59E42"
-                    progressText="5 due today"
                     icon={
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path
@@ -277,20 +340,21 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">Custom Width</h3>
-                <div className="flex flex-wrap gap-4">
+                <h3 className="text-base md:text-lg font-semibold mb-4">Custom Width</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <StatCard
-                    label="Default Width (347px)"
+                    label="Default Width"
                     value="25,000"
                     valuePrefix="₦"
+                    width="100%"
                     iconBackgroundColor="#F3E8FD"
                     iconColor="#9B59D8"
                   />
                   <StatCard
-                    label="Custom 250px"
+                    label="Custom Width"
                     value="15,000"
                     valuePrefix="₦"
-                    width={250}
+                    width="100%"
                     iconBackgroundColor="#E8F8F0"
                     iconColor="#5FB894"
                   />
@@ -302,7 +366,7 @@ const App: React.FC = () => {
           {/* Action Cards */}
           <Card title="Action Cards" shadow="lg">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+              <h3 className="text-base md:text-lg font-semibold mb-4">Quick Actions</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ActionCard
                   label="Export Data"
@@ -379,10 +443,11 @@ const App: React.FC = () => {
           <Card title="Notification Dropdown" shadow="lg">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">With Notifications</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">With Notifications</h3>
                 <NotificationDropdown
                   title="Notifications"
                   count={5}
+                  width="100%"
                   notifications={[
                     {
                       id: '1',
@@ -448,10 +513,11 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">Empty State</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Empty State</h3>
                 <NotificationDropdown
                   title="Notifications"
                   count={0}
+                  width="100%"
                   notifications={[]}
                   onViewMore={() => console.log('View more clicked')}
                 />
@@ -463,7 +529,9 @@ const App: React.FC = () => {
           <Card title="Tabs Component" shadow="lg">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Settings Tabs (Like Screenshot)</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  Settings Tabs (Like Screenshot)
+                </h3>
                 <TabsComponent
                   defaultActiveKey="personal"
                   items={[
@@ -471,9 +539,11 @@ const App: React.FC = () => {
                       key: 'personal',
                       label: 'Personal Information',
                       children: (
-                        <div className="p-6 bg-gray-50 rounded-lg">
-                          <h4 className="font-semibold text-lg mb-4">Personal Information</h4>
-                          <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 md:p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-base md:text-lg mb-4">
+                            Personal Information
+                          </h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                               <label className="text-xs font-medium text-gray-700 block mb-1">
                                 First Name
@@ -506,8 +576,10 @@ const App: React.FC = () => {
                       key: 'team',
                       label: 'Team Management',
                       children: (
-                        <div className="p-6 bg-gray-50 rounded-lg">
-                          <h4 className="font-semibold text-lg mb-2">Team Management</h4>
+                        <div className="p-3 md:p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-base md:text-lg mb-2">
+                            Team Management
+                          </h4>
                           <p className="text-sm text-gray-600">
                             Manage your team members and their roles.
                           </p>
@@ -518,8 +590,10 @@ const App: React.FC = () => {
                       key: 'security',
                       label: 'Security',
                       children: (
-                        <div className="p-6 bg-gray-50 rounded-lg">
-                          <h4 className="font-semibold text-lg mb-2">Security Settings</h4>
+                        <div className="p-3 md:p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-base md:text-lg mb-2">
+                            Security Settings
+                          </h4>
                           <p className="text-sm text-gray-600">
                             Configure your security preferences and password.
                           </p>
@@ -530,8 +604,8 @@ const App: React.FC = () => {
                       key: 'subscription',
                       label: 'Subscription',
                       children: (
-                        <div className="p-6 bg-gray-50 rounded-lg">
-                          <h4 className="font-semibold text-lg mb-2">Subscription</h4>
+                        <div className="p-3 md:p-6 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-base md:text-lg mb-2">Subscription</h4>
                           <p className="text-sm text-gray-600">
                             View and manage your subscription plan.
                           </p>
@@ -543,7 +617,7 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">Basic Tabs</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Basic Tabs</h3>
                 <TabsComponent
                   defaultActiveKey="1"
                   items={[
@@ -551,7 +625,7 @@ const App: React.FC = () => {
                       key: '1',
                       label: 'Overview',
                       children: (
-                        <div className="p-4 bg-gray-50 rounded-lg">
+                        <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
                           <p className="text-sm text-gray-600">This is the overview tab content.</p>
                         </div>
                       ),
@@ -560,7 +634,7 @@ const App: React.FC = () => {
                       key: '2',
                       label: 'Analytics',
                       children: (
-                        <div className="p-4 bg-gray-50 rounded-lg">
+                        <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
                           <p className="text-sm text-gray-600">
                             Analytics and metrics will appear here.
                           </p>
@@ -571,7 +645,7 @@ const App: React.FC = () => {
                       key: '3',
                       label: 'Reports',
                       children: (
-                        <div className="p-4 bg-gray-50 rounded-lg">
+                        <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
                           <p className="text-sm text-gray-600">Your reports and exports.</p>
                         </div>
                       ),
@@ -586,7 +660,9 @@ const App: React.FC = () => {
           <Card title="Country Selector" shadow="lg">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Default Selector (No Search)</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  Default Selector (No Search)
+                </h3>
                 <div className="flex flex-wrap gap-4">
                   <CountrySelector
                     defaultCountry="NG"
@@ -604,7 +680,7 @@ const App: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-4">With Search Enabled</h3>
+                <h3 className="text-base md:text-lg font-semibold mb-4">With Search Enabled</h3>
                 <CountrySelector
                   defaultCountry="NG"
                   showSearch
@@ -617,11 +693,60 @@ const App: React.FC = () => {
             </div>
           </Card>
 
+          {/* Buttons */}
+          <Card title="Buttons" shadow="lg">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Variants</h3>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="primary">Primary</Button>
+                  <Button variant="secondary">Secondary</Button>
+                  <Button variant="outline">Outline</Button>
+                  <Button variant="ghost">Ghost</Button>
+                  <Button variant="primary" disabled>
+                    Disabled
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Sizes</h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button variant="primary" size="xsmall">
+                    XSmall
+                  </Button>
+                  <Button variant="primary" size="small">
+                    Small
+                  </Button>
+                  <Button variant="primary" size="medium">
+                    Medium
+                  </Button>
+                  <Button variant="primary" size="large">
+                    Large
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Loading State</h3>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="primary" loading={buttonLoading} onClick={handleLoadingDemo}>
+                    {buttonLoading ? 'Processing...' : 'Click to Load'}
+                  </Button>
+                  <Button variant="outline" loading>
+                    Always Loading
+                  </Button>
+                  <Button variant="ghost" loading>
+                    Ghost Loading
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+
           {/* Login Form Example */}
           <Card title="Complete Form Example" shadow="xl">
             <div className="max-w-md mx-auto space-y-4">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold">Sign in to your account</h2>
+                <h2 className="text-xl md:text-2xl font-bold">Sign in to your account</h2>
                 <p className="text-gray-600 text-sm mt-2">
                   Enter your credentials to access your profile
                 </p>
@@ -629,7 +754,22 @@ const App: React.FC = () => {
 
               <Input label="Email Address" placeholder="ben@shekel.africa" type="email" />
 
+              <Input
+                label="Email with Error"
+                placeholder="ben@shekel.africa"
+                type="email"
+                error="Please enter a valid email address"
+                required
+              />
+
               <PasswordInput label="Password" placeholder="Enter password" />
+
+              <PasswordInput
+                label="Password with Error"
+                placeholder="Enter password"
+                error="Password must be at least 8 characters"
+                required
+              />
 
               <PhoneInput label="Phone Number" placeholder="Phone number" countryCode="+234" />
 

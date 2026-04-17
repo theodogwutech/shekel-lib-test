@@ -18,6 +18,8 @@ A modern React component library built with **React**, **TypeScript**, **Tailwin
 
 ```bash
 npm install shekel-fe-shared-lib
+# or
+yarn add shekel-fe-shared-lib
 ```
 
 ## Peer Dependencies
@@ -25,12 +27,16 @@ npm install shekel-fe-shared-lib
 This package requires the following peer dependencies:
 
 ```bash
-npm install react react-dom
+npm install react react-dom antd
+# or
+yarn add react react-dom antd
 ```
 
 ## Usage
 
-### Import Components and Styles
+### Standard React/Vite Projects
+
+Import components and styles in your main app file:
 
 ```tsx
 import {
@@ -43,7 +49,6 @@ import {
   NotificationDropdown
 } from 'shekel-fe-shared-lib';
 import 'shekel-fe-shared-lib/styles.css';
-import 'antd/dist/reset.css'; // Required for Ant Design components
 
 function App() {
   return (
@@ -71,6 +76,68 @@ function App() {
 }
 ```
 
+### Next.js Projects
+
+Due to PostCSS compatibility between Tailwind v4 (used in this library) and Tailwind v3 (commonly used in Next.js projects), Next.js requires a special setup:
+
+1. **Create a postinstall script** (`scripts/copy-shared-lib-css.js`):
+
+```js
+const fs = require('fs');
+const path = require('path');
+
+const source = path.join(__dirname, '../node_modules/shekel-fe-shared-lib/dist/shekel-fe-shared-lib.css');
+const dest = path.join(__dirname, '../public/styles/shekel-shared-lib.css');
+
+try {
+    // Ensure public/styles directory exists
+    const dir = path.dirname(dest);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    if (fs.existsSync(source)) {
+        fs.copyFileSync(source, dest);
+        console.log('✓ Copied shekel-fe-shared-lib CSS to public/styles/');
+    }
+} catch (error) {
+    console.error('Warning: Could not copy shekel-fe-shared-lib CSS:', error.message);
+}
+```
+
+2. **Update your `package.json`**:
+
+```json
+{
+  "scripts": {
+    "postinstall": "node scripts/copy-shared-lib-css.js"
+  }
+}
+```
+
+3. **Load CSS in `pages/_document.tsx`**:
+
+```tsx
+import { Html, Head, Main, NextScript } from 'next/document';
+
+export default function Document() {
+    return (
+        <Html lang="en">
+            <Head>
+                {/* Load shared library CSS directly to bypass PostCSS */}
+                <link rel="stylesheet" href="/styles/shekel-shared-lib.css" />
+            </Head>
+            <body>
+                <Main />
+                <NextScript />
+            </body>
+        </Html>
+    );
+}
+```
+
+The postinstall script automatically copies the library's CSS to the `public/` folder on install, and loading it via a link tag bypasses PostCSS processing entirely.
+
 ### Tailwind CSS Setup
 
 If your project uses Tailwind CSS, add this library to your `tailwind.config.js` content array:
@@ -79,7 +146,9 @@ If your project uses Tailwind CSS, add this library to your `tailwind.config.js`
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/shekel-fe-shared-lib/dist/**/*.{js,mjs}",
+    "./pages/**/*.{js,jsx,ts,tsx}", // for Next.js
+    "./components/**/*.{js,jsx,ts,tsx}", // for Next.js
+    "./node_modules/shekel-fe-shared-lib/dist/**/*.{js,mjs,cjs}",
   ],
   // ... rest of your config
 }

@@ -1,6 +1,12 @@
 import React from 'react';
 import { Select } from 'antd';
 import type { SelectProps } from 'antd';
+import flagNG from '../../assets/flags/NG.svg';
+import flagUS from '../../assets/flags/US.svg';
+import flagGB from '../../assets/flags/GB.svg';
+import flagGH from '../../assets/flags/GH.svg';
+import flagKE from '../../assets/flags/KE.svg';
+import flagZA from '../../assets/flags/ZA.svg';
 
 export interface Country {
   code: string;
@@ -16,12 +22,12 @@ export interface CountrySelectorProps extends Omit<SelectProps, 'options'> {
 }
 
 const defaultCountries: Country[] = [
-  { code: 'NG', name: 'Nigeria', flag: '/images/flags/NG.svg' },
-  { code: 'US', name: 'United States', flag: '/images/flags/US.svg' },
-  { code: 'GB', name: 'United Kingdom', flag: '/images/flags/GB.svg' },
-  { code: 'GH', name: 'Ghana', flag: '/images/flags/GH.svg' },
-  { code: 'KE', name: 'Kenya', flag: '/images/flags/KE.svg' },
-  { code: 'ZA', name: 'South Africa', flag: '/images/flags/ZA.svg' },
+  { code: 'NG', name: 'Nigeria', flag: flagNG },
+  { code: 'US', name: 'United States', flag: flagUS },
+  { code: 'GB', name: 'United Kingdom', flag: flagGB },
+  { code: 'GH', name: 'Ghana', flag: flagGH },
+  { code: 'KE', name: 'Kenya', flag: flagKE },
+  { code: 'ZA', name: 'South Africa', flag: flagZA },
 ];
 
 export const CountrySelector: React.FC<CountrySelectorProps> = ({

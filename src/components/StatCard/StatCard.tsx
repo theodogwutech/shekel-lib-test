@@ -7,10 +7,14 @@ export interface StatCardProps {
   iconBackgroundColor?: string;
   iconColor?: string;
   valuePrefix?: string;
-  progressText?: string;
-  badge?: string;
+  progressText?: string | React.ReactNode;
+  badge?: string | React.ReactNode;
   width?: string | number;
   className?: string;
+  selected?: boolean;
+  onClick?: () => void;
+  size?: 'sm' | 'md' | 'lg';
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -24,7 +28,23 @@ export const StatCard: React.FC<StatCardProps> = ({
   badge,
   width = 347,
   className = '',
+  selected = false,
+  onClick,
+  size = 'md',
+  rounded = '2xl',
 }) => {
+  const sizeClass = size === 'sm' ? 'p-3' : size === 'lg' ? 'p-6' : 'p-4';
+
+  const roundedMap: Record<string, string> = {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    xl: 'rounded-xl',
+    '2xl': 'rounded-2xl',
+    full: 'rounded-full',
+  };
+  const roundedClass = roundedMap[rounded] ?? 'rounded-2xl';
   const defaultIcon = (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" />
@@ -34,17 +54,18 @@ export const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`bg-white border border-[#E6E6E6] rounded-2xl p-4 flex flex-col justify-between transition-all duration-300 ease-in-out hover:border-gray-300 hover:-translate-y-1 cursor-pointer ${className}`}
+      className={`bg-white border flex flex-col justify-between transition-all duration-300 ease-in-out hover:border-gray-300 hover:-translate-y-1 cursor-pointer ${sizeClass} ${roundedClass} ${selected ? 'border-[#EC615B]' : 'border-[#E6E6E6]'} ${className}`}
       style={{
         width: typeof width === 'number' ? `${width}px` : width,
-        boxShadow: '0 0 0 0 rgba(0, 0, 0, 0)',
+        boxShadow: selected ? '0 0 0 1px #EC615B' : '0 0 0 0 rgba(0, 0, 0, 0)',
         transition: 'all 0.3s ease-in-out',
       }}
+      onClick={onClick}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 0 20px 0 rgba(0, 0, 0, 0.1)';
+        e.currentTarget.style.boxShadow = selected ? '0 0 0 1px #EC615B' : '0 0 20px 0 rgba(0, 0, 0, 0.1)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 0 0 0 rgba(0, 0, 0, 0)';
+        e.currentTarget.style.boxShadow = selected ? '0 0 0 1px #EC615B' : '0 0 0 0 rgba(0, 0, 0, 0)';
       }}
     >
       <div>
@@ -58,11 +79,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           >
             {icon || defaultIcon}
           </div>
-          {badge && (
-            <div className="bg-[#EBEBEB] text-[#181918] text-[11px] font-medium px-2 py-1 rounded-full border border-[#D1D1D1] transition-colors duration-200">
-              {badge}
-            </div>
-          )}
+          {badge && badge}
         </div>
         <div className="text-sm text-[#181918] font-light transition-colors duration-200">
           {label}

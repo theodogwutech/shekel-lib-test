@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Input as AntInput, Select } from 'antd';
+import { Input as AntInput, Select, InputRef } from 'antd';
 import type { InputProps as AntInputProps } from 'antd';
+import { useController } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 
 export interface PhoneInputProps
   extends Omit<AntInputProps, 'addonBefore' | 'value' | 'onChange'> {
@@ -15,9 +17,10 @@ export interface PhoneInputProps
   customFormat?: (value: string) => string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  control?: Control<any>;
 }
 
-export const PhoneInput: React.FC<PhoneInputProps> = ({
+const PhoneInputBase = React.forwardRef<InputRef, Omit<PhoneInputProps, 'control'>>(({
   label,
   error,
   helperText,
@@ -36,11 +39,10 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   value,
   onChange,
   ...props
-}) => {
+}, ref) => {
   const errorClass = error ? 'phone-input-error-state' : '';
   const [displayValue, setDisplayValue] = useState('');
 
-  // Update display value when external value changes
   useEffect(() => {
     if (value !== undefined) {
       const cleaned = String(value).replace(/\D/g, '');
@@ -50,24 +52,19 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   }, [value, format, countryCode]);
 
   const formatPhoneNumber = (val: string): string => {
-    // Remove all non-digits
     const cleaned = val.replace(/\D/g, '');
 
-    // If custom format is provided, use it
     if (customFormat) {
       return customFormat(cleaned);
     }
 
-    // If format is 'none', return unformatted
     if (format === 'none') {
       return cleaned;
     }
 
-    // Format based on country code and format type
     let formatted = '';
 
     if (format === 'spaced') {
-      // Format: 803 456 7890
       if (cleaned.length <= 3) {
         formatted = cleaned;
       } else if (cleaned.length <= 6) {
@@ -76,7 +73,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6, 10)}`;
       }
     } else if (format === 'dashed') {
-      // Format: 803-456-7890
       if (cleaned.length <= 3) {
         formatted = cleaned;
       } else if (cleaned.length <= 6) {
@@ -85,9 +81,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         formatted = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
       }
     } else {
-      // Default format based on country code
       if (countryCode === '+1') {
-        // US format: (803) 456-7890
         if (cleaned.length <= 3) {
           formatted = cleaned;
         } else if (cleaned.length <= 6) {
@@ -96,7 +90,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           formatted = `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
         }
       } else {
-        // International format: 803 456 7890
         if (cleaned.length <= 3) {
           formatted = cleaned;
         } else if (cleaned.length <= 6) {
@@ -111,7 +104,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Only allow numbers and control keys
     if (
       !/^\d$/.test(e.key) &&
       e.key !== 'Backspace' &&
@@ -131,27 +123,20 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
     const input = e.target;
     const cursorPosition = input.selectionStart || 0;
 
-    // Only allow numbers
     const cleaned = input.value.replace(/\D/g, '');
-
-    // Format the number
     const formatted = formatPhoneNumber(cleaned);
 
-    // Update display value
     setDisplayValue(formatted);
 
-    // Calculate cursor position adjustment
     const oldLength = displayValue.length;
     const newLength = formatted.length;
     const diff = newLength - oldLength;
 
-    // Restore cursor position after React updates
     requestAnimationFrame(() => {
       const newCursorPosition = Math.max(0, Math.min(cursorPosition + diff, formatted.length));
       input.setSelectionRange(newCursorPosition, newCursorPosition);
     });
 
-    // Call onChange with the raw cleaned value
     if (onChange) {
       const syntheticEvent = {
         ...e,
@@ -171,11 +156,9 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
     const currentCleaned = displayValue.replace(/\D/g, '');
     const newCleaned = currentCleaned.slice(0, start) + numericData;
 
-    // Format the new value
     const formatted = formatPhoneNumber(newCleaned);
     setDisplayValue(formatted);
 
-    // Call onChange with the raw cleaned value
     if (onChange) {
       const syntheticEvent = {
         ...e,
@@ -269,6 +252,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         )}
         <AntInput
           {...props}
+          ref={ref}
           value={displayValue}
           className={className}
           onKeyDown={handleKeyDown}
@@ -298,4 +282,31 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       {!error && helperText && <div className="mt-1 text-xs text-gray-500">{helperText}</div>}
     </div>
   );
+});
+PhoneInputBase.displayName = 'PhoneInputBase';
+
+const ControlledPhoneInput: React.FC<PhoneInputProps & { control: NonNullable<PhoneInputProps['control']>; name: string }> = ({
+  control,
+  name,
+  error: errorProp,
+  ...rest
+}) => {
+  const { field, fieldState } = useController({ control, name });
+  return (
+    <PhoneInputBase
+      {...rest}
+      value={field.value}
+      onChange={(e) => field.onChange(e.target.value)}
+      onBlur={field.onBlur}
+      error={errorProp ?? fieldState.error?.message}
+    />
+  );
 };
+
+export const PhoneInput = React.forwardRef<InputRef, PhoneInputProps>(({ control, name, ...props }, ref) => {
+  if (control && name) {
+    return <ControlledPhoneInput control={control} name={name} {...props} />;
+  }
+  return <PhoneInputBase ref={ref} name={name} {...props} />;
+});
+PhoneInput.displayName = 'PhoneInput';

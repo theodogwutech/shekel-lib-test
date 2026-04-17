@@ -1,4 +1,5 @@
 import React from 'react';
+import emptyNotificationSvg from '../../assets/empty-notification.svg';
 
 export interface NotificationItem {
   id: string;
@@ -19,6 +20,7 @@ export interface NotificationDropdownProps {
   onViewMore?: () => void;
   className?: string;
   maxHeight?: string | number;
+  width?: string | number;
 }
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
@@ -26,6 +28,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   notifications,
   onViewMore,
   className = '',
+  width = 380,
   maxHeight = 400,
 }) => {
   const defaultIcon = (
@@ -38,7 +41,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   return (
     <div
       className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden ${className}`}
-      style={{ width: '380px' }}
+      style={{ width: typeof width === 'number' ? `${width}px` : width }}
     >
       {/* Tab Section */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
@@ -68,7 +71,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         {notifications.length === 0 ? (
           <div className="px-4 py-16 flex flex-col items-center justify-center">
             <img
-              src="/images/empty-notification.svg"
+              src={emptyNotificationSvg}
               alt="No notifications"
               className="w-16 h-16 mb-4"
             />

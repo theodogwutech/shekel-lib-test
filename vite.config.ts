@@ -19,7 +19,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime', 'antd', /^antd\//],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'antd', /^antd\//, '@ant-design/icons', /^@ant-design\//],
       output: {
         globals: {
           react: 'React',
