@@ -6,6 +6,7 @@ import {
   OTPInput,
   PhoneInput,
   CurrencyInput,
+  SelectInput,
   UserPill,
   UserCard,
   CountrySelector,
@@ -123,6 +124,63 @@ const App: React.FC = () => {
                   OTP Input - Enter OTP Code
                 </h3>
                 <OTPInput length={6} value={otp} onChange={(value) => setOtp(value)} />
+              </div>
+
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Select Input</h3>
+                <SelectInput
+                  label="Country"
+                  required
+                  placeholder="Select a country"
+                  defaultValue="NG"
+                  options={[
+                    { value: 'NG', label: 'Nigeria' },
+                    { value: 'GH', label: 'Ghana' },
+                    { value: 'KE', label: 'Kenya' },
+                    { value: 'ZA', label: 'South Africa' },
+                    { value: 'US', label: 'United States' },
+                    { value: 'GB', label: 'United Kingdom' },
+                  ]}
+                  onChange={(v) => console.log('country:', v)}
+                />
+              </div>
+
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">
+                  Select Input - Searchable + Error
+                </h3>
+                <SelectInput
+                  label="Account Type"
+                  required
+                  showSearch
+                  placeholder="Pick one"
+                  optionFilterProp="label"
+                  error="This field is required"
+                  labelExtra={<a href="#help" className="text-xs text-[#EC615B]">Need help?</a>}
+                  options={[
+                    { value: 'savings', label: 'Savings' },
+                    { value: 'current', label: 'Current' },
+                    { value: 'domiciliary', label: 'Domiciliary' },
+                  ]}
+                />
+              </div>
+
+              <div>
+                <h3 className="text-base md:text-lg font-semibold mb-4">Select Input - Multiple</h3>
+                <SelectInput
+                  label="Interests"
+                  mode="multiple"
+                  allowClear
+                  placeholder="Pick one or more"
+                  height={48}
+                  options={[
+                    { value: 'tech', label: 'Technology' },
+                    { value: 'finance', label: 'Finance' },
+                    { value: 'health', label: 'Health' },
+                    { value: 'travel', label: 'Travel' },
+                  ]}
+                  helperText="Hold Cmd/Ctrl to pick multiple"
+                />
               </div>
             </div>
           </Card>
