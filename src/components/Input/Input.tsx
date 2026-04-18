@@ -4,7 +4,11 @@ import { useController } from 'react-hook-form';
 import type { Control } from 'react-hook-form';
 
 export interface InputProps extends AntInputProps {
-  label?: string;
+  label?: React.ReactNode;
+  labelClassName?: string;
+  labelStyle?: React.CSSProperties;
+  labelExtra?: React.ReactNode;
+  requiredMark?: React.ReactNode;
   error?: string;
   helperText?: string;
   placeholder?: string;
@@ -13,22 +17,38 @@ export interface InputProps extends AntInputProps {
 
 const InputBase = React.forwardRef<InputRef, Omit<InputProps, 'control'>>(({
   label,
+  labelClassName = '',
+  labelStyle,
+  labelExtra,
+  requiredMark,
   error,
   helperText,
   className = '',
   status,
   required,
+  id,
   ...props
 }, ref) => {
   const errorClass = error ? 'input-error-state' : '';
+  const reactId = React.useId();
+  const inputId = id ?? reactId;
+  const resolvedRequiredMark =
+    requiredMark === undefined ? <span style={{ color: '#C21919' }}>*</span> : requiredMark;
 
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium mb-2" style={{ color: error ? '#C21919' : '#181918' }}>
-          {label}
-          {required && <span style={{ color: '#C21919' }}>*</span>}
-        </label>
+        <div className="flex items-center justify-between mb-2 gap-2">
+          <label
+            htmlFor={inputId}
+            className={`block text-sm font-medium ${labelClassName}`}
+            style={{ color: error ? '#C21919' : '#181918', ...labelStyle }}
+          >
+            {label}
+            {required && resolvedRequiredMark}
+          </label>
+          {labelExtra && <div className="shrink-0">{labelExtra}</div>}
+        </div>
       )}
       <style>
         {error && `
@@ -50,8 +70,10 @@ const InputBase = React.forwardRef<InputRef, Omit<InputProps, 'control'>>(({
       </style>
       <AntInput
         ref={ref}
+        id={inputId}
         className={`${className} ${errorClass}`}
         status={error ? 'error' : status}
+        required={required}
         {...props}
         style={{
           height: '44px',
