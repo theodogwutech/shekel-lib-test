@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar } from 'antd';
+import { Avatar } from '../_Avatar';
 import cardBorderSvg from '../../assets/card-border.svg';
 
 export interface UserCardProps {
@@ -8,6 +8,8 @@ export interface UserCardProps {
   role?: string;
   avatar?: string;
   className?: string;
+  avatarBgColor?: string;
+  avatarTextColor?: string;
 }
 
 export const UserCard: React.FC<UserCardProps> = ({
@@ -16,6 +18,8 @@ export const UserCard: React.FC<UserCardProps> = ({
   role,
   avatar,
   className = '',
+  avatarBgColor = '#181918',
+  avatarTextColor = '#FFFFFF',
 }) => {
   return (
     <div
@@ -25,69 +29,39 @@ export const UserCard: React.FC<UserCardProps> = ({
         background:
           'linear-gradient(to bottom, rgba(236, 97, 91, 0.05) 0%, rgba(255, 255, 255, 0) 50%)',
       }}
-      className="relative min-h-[120px] pt-8 pb-4 pl-4 pr-4"
+      className={`relative min-h-[120px] pt-8 pb-4 px-4 ${className}`}
     >
       <img
         src={cardBorderSvg}
-        alt="img-bg"
-        style={{
-          position: 'absolute',
-          top: -8,
-          left: 0,
-          objectFit: 'cover',
-        }}
+        alt=""
+        aria-hidden
+        style={{ position: 'absolute', top: -8, left: 0, objectFit: 'cover' }}
       />
-      <div
-        className={`flex gap-4 items-center relative ${className}`}
-        style={{
-          position: 'relative',
-        }}
-      >
-        {avatar ? (
-          <Avatar src={avatar} size={80} />
-        ) : (
-          <Avatar
-            size={80}
-            style={{ backgroundColor: '#181918', fontSize: '32px', fontWeight: 600 }}
-          >
-            {name
-              .split(' ')
-              .map((n) => n[0])
-              .join('')
-              .toUpperCase()}
-          </Avatar>
-        )}
-        <div className="flex flex-col">
+      <div className="flex gap-4 items-center relative">
+        <Avatar
+          src={avatar}
+          name={name}
+          size={80}
+          bgColor={avatarBgColor}
+          textColor={avatarTextColor}
+        />
+        <div className="flex flex-col min-w-0">
           <span
-            style={{
-              color: '#181918',
-              fontSize: '16px',
-              fontWeight: 600,
-              lineHeight: '1.3',
-            }}
+            className="text-[#181918]"
+            style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.3 }}
           >
             {name}
           </span>
           <span
-            style={{
-              color: '#181918',
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: '1.4',
-              marginTop: '4px',
-            }}
+            className="text-[#181918]"
+            style={{ fontSize: 14, fontWeight: 400, lineHeight: 1.4, marginTop: 4 }}
           >
             {email}
           </span>
           {role && (
             <span
-              style={{
-                color: '#181918',
-                fontSize: '14px',
-                fontWeight: 400,
-                lineHeight: '1.4',
-                marginTop: '2px',
-              }}
+              className="text-[#181918]"
+              style={{ fontSize: 14, fontWeight: 400, lineHeight: 1.4, marginTop: 2 }}
             >
               {role}
             </span>

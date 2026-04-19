@@ -133,30 +133,54 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
               <button
                 className="bg-transparent border-none cursor-pointer p-1 flex items-center justify-center text-white hover:text-white/80 transition-colors duration-200"
                 onClick={handleToggleVisibility}
-                aria-label="Toggle visibility"
+                aria-label={isVisible ? 'Hide value' : 'Show value'}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M1.61342 8.47806C1.52262 8.3343 1.47723 8.26242 1.45182 8.15155C1.43273 8.06827 1.43273 7.93694 1.45182 7.85366C1.47723 7.74279 1.52262 7.67091 1.61341 7.52715C2.36369 6.33916 4.59693 3.33594 8.00027 3.33594C11.4036 3.33594 13.6369 6.33916 14.3871 7.52715C14.4779 7.67091 14.5233 7.74279 14.5487 7.85366C14.5678 7.93694 14.5678 8.06827 14.5487 8.15155C14.5233 8.26242 14.4779 8.3343 14.3871 8.47806C13.6369 9.66604 11.4036 12.6693 8.00027 12.6693C4.59693 12.6693 2.36369 9.66604 1.61342 8.47806Z"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M8.00027 10.0026C9.10484 10.0026 10.0003 9.10717 10.0003 8.0026C10.0003 6.89803 9.10484 6.0026 8.00027 6.0026C6.8957 6.0026 6.00027 6.89803 6.00027 8.0026C6.00027 9.10717 6.8957 10.0026 8.00027 10.0026Z"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                {isVisible ? (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M1.61342 8.47806C1.52262 8.3343 1.47723 8.26242 1.45182 8.15155C1.43273 8.06827 1.43273 7.93694 1.45182 7.85366C1.47723 7.74279 1.52262 7.67091 1.61341 7.52715C2.36369 6.33916 4.59693 3.33594 8.00027 3.33594C11.4036 3.33594 13.6369 6.33916 14.3871 7.52715C14.4779 7.67091 14.5233 7.74279 14.5487 7.85366C14.5678 7.93694 14.5678 8.06827 14.5487 8.15155C14.5233 8.26242 14.4779 8.3343 14.3871 8.47806C13.6369 9.66604 11.4036 12.6693 8.00027 12.6693C4.59693 12.6693 2.36369 9.66604 1.61342 8.47806Z"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M8.00027 10.0026C9.10484 10.0026 10.0003 9.10717 10.0003 8.0026C10.0003 6.89803 9.10484 6.0026 8.00027 6.0026C6.8957 6.0026 6.00027 6.89803 6.00027 8.0026C6.00027 9.10717 6.8957 10.0026 8.00027 10.0026Z"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6.59 6.59a2 2 0 102.82 2.82M7.15 3.38A8 8 0 018 3.33c3.4 0 5.63 3 6.39 4.19.09.14.13.22.16.33.02.08.02.21 0 .29-.02.11-.07.19-.16.33a11.57 11.57 0 01-1.33 1.7M4.41 4.41A11.6 11.6 0 001.61 7.53c-.09.14-.13.22-.16.33-.02.08-.02.21 0 .29.02.11.07.19.16.33.75 1.19 2.98 4.19 6.39 4.19 1.38 0 2.55-.5 3.49-1.15"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M2 2l12 12"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
               </button>
             )}
           </div>

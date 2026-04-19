@@ -1,6 +1,6 @@
 import React from 'react';
-import { Select } from 'antd';
-import type { SelectProps } from 'antd';
+import { SelectInput } from '../Input/SelectInput';
+import type { SelectInputProps } from '../Input/SelectInput';
 import flagNG from '../../assets/flags/NG.svg';
 import flagUS from '../../assets/flags/US.svg';
 import flagGB from '../../assets/flags/GB.svg';
@@ -14,14 +14,17 @@ export interface Country {
   flag: string;
 }
 
-export interface CountrySelectorProps extends Omit<SelectProps, 'options'> {
+export interface CountrySelectorProps
+  extends Omit<SelectInputProps, 'options' | 'value' | 'onChange'> {
   countries?: Country[];
   defaultCountry?: string;
+  value?: string;
   onCountryChange?: (countryCode: string) => void;
   showSearch?: boolean;
+  flagSize?: number;
 }
 
-const defaultCountries: Country[] = [
+const DEFAULT_COUNTRIES: Country[] = [
   { code: 'NG', name: 'Nigeria', flag: flagNG },
   { code: 'US', name: 'United States', flag: flagUS },
   { code: 'GB', name: 'United Kingdom', flag: flagGB },
@@ -31,115 +34,44 @@ const defaultCountries: Country[] = [
 ];
 
 export const CountrySelector: React.FC<CountrySelectorProps> = ({
-  countries = defaultCountries,
+  countries = DEFAULT_COUNTRIES,
   defaultCountry = 'NG',
+  value,
   onCountryChange,
   showSearch = false,
-  className = '',
+  flagSize = 24,
   ...props
 }) => {
-  const handleChange = (value: string) => {
-    if (onCountryChange) {
-      onCountryChange(value);
-    }
-  };
-
-  const renderFlag = (flag: string) => {
-    return (
-      <img
-        src={flag}
-        alt="flag"
-        className="w-7 h-7 rounded-full object-cover"
-        style={{ width: '28px', height: '28px' }}
-      />
-    );
-  };
-
-  const options = countries.map((country) => ({
-    value: country.code,
+  const options = countries.map((c) => ({
+    value: c.code,
     label: (
-      <div className="flex items-center gap-2">
-        {renderFlag(country.flag)}
-        <span>{country.code}</span>
-      </div>
+      <span className="inline-flex items-center gap-2">
+        <img
+          src={c.flag}
+          alt=""
+          aria-hidden
+          className="shrink-0 rounded-full object-cover"
+          style={{ width: flagSize, height: flagSize }}
+        />
+        <span>{c.code}</span>
+      </span>
     ),
-    // Add searchable text for filtering
-    searchLabel: `${country.name} ${country.code}`.toLowerCase(),
+    searchLabel: `${c.name} ${c.code}`.toLowerCase(),
   }));
 
-  // Custom filter function for searching
-  const handleFilter = (input: string, option: any) => {
-    return option?.searchLabel?.includes(input.toLowerCase()) || false;
-  };
-
   return (
-    <>
-      <style>
-        {`
-          .country-selector.ant-select {
-            min-width: 90px;
-            heigh: 40px;
-            border-radius: 20px;
-            padding: 5px !important;
-            background: #EEEEEE;
-          }
-
-          .country-selector .ant-select-selector {
-            border-radius: 20px !important;
-            border: 1px solid #E5E7EB !important;
-            height: 40px !important;
-            display: flex;
-            align-items: center;
-            background: #FFFFFF !important;
-          }
-
-          .country-selector .ant-select-selection-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            color: #000000;
-          }
-
-          .country-selector:hover .ant-select-selector {
-            border-color: #D1D5DB !important;
-          }
-
-          .country-selector.ant-select-focused .ant-select-selector {
-            border-color: #EC615B !important;
-            box-shadow: 0 0 0 2px rgba(236, 97, 91, 0.1) !important;
-          }
-
-          .country-selector .ant-select-arrow {
-            color: #6B7280;
-          }
-
-          .country-selector .ant-select-dropdown {
-            border-radius: 12px !important;
-          }
-        `}
-      </style>
-      <Select
-        className={`country-selector ${className}`}
-        defaultValue={defaultCountry}
-        onChange={handleChange}
-        options={options}
-        showSearch={showSearch}
-        filterOption={handleFilter}
-        placeholder="Search country..."
-        suffixIcon={
-          <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-            <path
-              d="M1 1.5L6 6.5L11 1.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        }
-        {...props}
-      />
-    </>
+    <SelectInput
+      {...props}
+      value={value}
+      defaultValue={value === undefined ? defaultCountry : undefined}
+      options={options}
+      showSearch={showSearch}
+      filterOption={
+        showSearch
+          ? (input, opt: any) => opt?.searchLabel?.includes(input.toLowerCase()) ?? false
+          : false
+      }
+      onChange={(v) => onCountryChange?.(v as string)}
+    />
   );
 };

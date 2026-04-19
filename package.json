@@ -1,6 +1,6 @@
 {
   "name": "shekel-fe-shared-lib",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Shared component library built with React and Tailwind CSS",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -49,19 +49,11 @@
     "vite-plugin-dts": "^4.5.4"
   },
   "peerDependencies": {
-    "@ant-design/icons": "^5.0.0",
-    "antd": "^5.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-hook-form": "^7.0.0"
   },
   "peerDependenciesMeta": {
-    "@ant-design/icons": {
-      "optional": true
-    },
-    "antd": {
-      "optional": true
-    },
     "react-hook-form": {
       "optional": true
     }

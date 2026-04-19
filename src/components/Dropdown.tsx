@@ -144,6 +144,7 @@ export const Dropdown: FC<DropdownProps> = ({
       {isOpen && !disabled && (
         <div
           className={`absolute ${placementClasses[placement]} ${animationClasses} z-50 ${sizeClasses[size]} ${overlayClassName}`}
+          style={{ maxWidth: 'calc(100vw - 16px)' }}
         >
           <div
             className={`dropdown-menu rounded-lg shadow-lg border py-1 overflow-hidden ${finalBorderColor}`}

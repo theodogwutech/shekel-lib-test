@@ -41,7 +41,10 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   return (
     <div
       className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden ${className}`}
-      style={{ width: typeof width === 'number' ? `${width}px` : width }}
+      style={{
+        width: typeof width === 'number' ? `${width}px` : width,
+        maxWidth: 'calc(100vw - 16px)',
+      }}
     >
       {/* Tab Section */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50">

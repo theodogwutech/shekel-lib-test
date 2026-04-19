@@ -1,6 +1,5 @@
 import React from 'react';
-import { Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Avatar } from '../_Avatar';
 
 export interface UserPillProps {
   name: string;
@@ -8,52 +7,47 @@ export interface UserPillProps {
   avatar?: string;
   className?: string;
   size?: 'small' | 'medium' | 'large';
+  bgColor?: string;
+  onClick?: () => void;
 }
+
+const SIZE_MAP = {
+  small: { avatar: 24, name: 12, subtitle: 10, padding: '4px 10px 4px 4px', gap: 6 },
+  medium: { avatar: 30, name: 14, subtitle: 12, padding: '5px 12px 5px 5px', gap: 8 },
+  large: { avatar: 36, name: 16, subtitle: 13, padding: '6px 14px 6px 6px', gap: 10 },
+};
 
 export const UserPill: React.FC<UserPillProps> = ({
   name,
   subtitle,
   avatar,
   className = '',
+  size = 'medium',
+  bgColor = '#E6E6E6',
+  onClick,
 }) => {
-  const avatarSize = 30;
-
+  const s = SIZE_MAP[size];
+  const clickable = !!onClick;
   return (
     <div
-      className={`flex items-center ${className}`}
-      style={{
-        backgroundColor: '#E6E6E6',
-        borderRadius: '40px',
-        padding: '5px 12px 5px 5px',
-        height: '40px',
-        gap: '8px',
-      }}
+      onClick={onClick}
+      className={`inline-flex items-center rounded-full transition-colors ${
+        clickable ? 'cursor-pointer hover:opacity-90' : ''
+      } ${className}`}
+      style={{ backgroundColor: bgColor, padding: s.padding, gap: s.gap }}
     >
-      {avatar ? (
-        <Avatar src={avatar} size={avatarSize} />
-      ) : (
-        <Avatar icon={<UserOutlined />} size={avatarSize} style={{ backgroundColor: '#6B7280' }} />
-      )}
-      <div className="flex flex-col">
+      <Avatar src={avatar} name={name} size={s.avatar} bgColor="#6B7280" textColor="#FFFFFF" />
+      <div className="flex flex-col min-w-0">
         <span
-          style={{
-            color: '#181918',
-            fontSize: '14px',
-            fontWeight: 600,
-            lineHeight: '1.2',
-          }}
+          className="text-[#181918] truncate"
+          style={{ fontSize: s.name, lineHeight: 1.2, fontWeight: 600 }}
         >
           {name}
         </span>
         {subtitle && (
           <span
-            style={{
-              color: '#181918',
-              fontSize: '12px',
-              fontWeight: 400,
-              lineHeight: '1.2',
-              marginTop: '2px',
-            }}
+            className="text-[#181918] truncate"
+            style={{ fontSize: s.subtitle, lineHeight: 1.2, marginTop: 2 }}
           >
             {subtitle}
           </span>
@@ -62,3 +56,5 @@ export const UserPill: React.FC<UserPillProps> = ({
     </div>
   );
 };
+
+export default UserPill;
