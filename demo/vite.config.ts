@@ -1,11 +1,27 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
   root: __dirname,
   base: './',
   plugins: [react()],
+  css: {
+    postcss: {
+      plugins: [
+        tailwindcss({
+          content: [
+            resolve(__dirname, './*.html'),
+            resolve(__dirname, './**/*.{js,ts,jsx,tsx}'),
+            resolve(__dirname, '../src/**/*.{js,ts,jsx,tsx}'),
+          ],
+        }),
+        autoprefixer(),
+      ],
+    },
+  },
   resolve: {
     alias: {
       'shekel-fe-shared-lib': resolve(__dirname, '../src'),
