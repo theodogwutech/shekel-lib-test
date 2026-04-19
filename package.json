@@ -21,6 +21,8 @@
   "scripts": {
     "dev": "vite demo",
     "build": "vite build",
+    "build:demo": "vite build --config demo/vite.config.ts",
+    "preview:demo": "vite preview --config demo/vite.config.ts --outDir ../demo-dist",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
