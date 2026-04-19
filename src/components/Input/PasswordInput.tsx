@@ -1,111 +1,118 @@
 import React from 'react';
-import { Input as AntInput, InputProps as AntInputProps, InputRef } from 'antd';
 import { useController } from 'react-hook-form';
 import type { Control } from 'react-hook-form';
+import { Input } from './Input';
+import type { InputProps } from './Input';
 
-export interface PasswordInputProps extends Omit<AntInputProps, 'suffix'> {
-  label?: string;
-  error?: string;
-  helperText?: string;
-  placeholder?: string;
+export interface PasswordInputProps extends Omit<InputProps, 'type' | 'suffix' | 'control'> {
   control?: Control<any>;
+  visibilityToggle?: boolean;
 }
 
-const PasswordInputBase = React.forwardRef<InputRef, Omit<PasswordInputProps, 'control'>>(({
-  label,
-  error,
-  helperText,
-  className = '',
-  status,
-  required,
-  ...props
-}, ref) => {
-  const errorClass = error ? 'password-input-error-state' : '';
-  const combinedClassName = `password-input-custom ${className} ${errorClass}`;
-
-  return (
-    <div className="w-full">
-      {label && (
-        <label className="block text-sm font-medium mb-2" style={{ color: error ? '#C21919' : '#181918' }}>
-          {label}
-          {required && <span style={{ color: '#C21919' }}>*</span>}
-        </label>
-      )}
-      <style>
-        {error && `
-          .password-input-error-state .ant-input-group-addon {
-            border-color: #C21919 !important;
-          }
-          .password-input-error-state .ant-input-group-addon:first-child {
-            border-right: none !important;
-          }
-          .password-input-error-state .ant-input,
-          .password-input-error-state .ant-input-password .ant-input {
-            border-color: #C21919 !important;
-          }
-          .password-input-error-state .ant-input:focus,
-          .password-input-error-state .ant-input-focused,
-          .password-input-error-state .ant-input-password .ant-input:focus {
-            border-color: #C21919 !important;
-            box-shadow: 0 0 0 2px rgba(194, 25, 25, 0.1) !important;
-          }
-        `}
-      </style>
-      <AntInput.Password
-        ref={ref}
-        className={combinedClassName}
-        status={error ? 'error' : status}
-        {...props}
-        style={{
-          height: '44px',
-          borderRadius: '12px',
-          ...props.style,
-        }}
+const EyeIcon: React.FC<{ visible: boolean }> = ({ visible }) =>
+  visible ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-      {error && (
-        <div className="flex items-center mt-1 text-xs text-[#C21919]">
-          <svg
-            className="w-3 h-3 mr-1"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-          {error}
-        </div>
-      )}
-      {!error && helperText && (
-        <div className="mt-1 text-xs text-gray-500">{helperText}</div>
-      )}
-    </div>
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M9.88 9.88a3 3 0 104.24 4.24M10.73 5.08A10.43 10.43 0 0112 5c6.5 0 10 7 10 7a13.16 13.16 0 01-1.67 2.68M6.61 6.61A13.53 13.53 0 002 12s3.5 7 10 7a9.74 9.74 0 005.39-1.61"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2 2l20 20"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
   );
-});
+
+const PasswordInputBase = React.forwardRef<HTMLInputElement, Omit<PasswordInputProps, 'control'>>(
+  ({ visibilityToggle = true, ...props }, ref) => {
+    const [visible, setVisible] = React.useState(false);
+
+    const toggle = (
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Hide password' : 'Show password'}
+        tabIndex={-1}
+        className="flex items-center justify-center text-[#8C8C8C] hover:text-[#181918] transition-colors"
+      >
+        <EyeIcon visible={visible} />
+      </button>
+    );
+
+    const isError = !!props.error;
+    const errColor = props.errorColor ?? '#C21919';
+    return (
+      <>
+        <style>{`
+          .shekel-password-input::placeholder {
+            transform: translateY(-2px);
+          }
+        `}</style>
+        <Input
+          ref={ref}
+          {...props}
+          type={visible ? 'text' : 'password'}
+          suffix={visibilityToggle ? toggle : undefined}
+          className={`shekel-password-input placeholder:text-sm placeholder:tracking-normal ${props.className ?? ''}`}
+          style={{
+            fontSize: visible ? undefined : 20,
+            letterSpacing: visible ? 'normal' : '0.15em',
+            color: isError && !visible ? errColor : undefined,
+            caretColor: isError ? errColor : undefined,
+            ...props.style,
+          }}
+        />
+      </>
+    );
+  }
+);
 PasswordInputBase.displayName = 'PasswordInputBase';
 
-const ControlledPasswordInput: React.FC<PasswordInputProps & { control: NonNullable<PasswordInputProps['control']>; name: string }> = ({
-  control,
-  name,
-  error: errorProp,
-  ...rest
-}) => {
+const ControlledPasswordInput: React.FC<
+  PasswordInputProps & { control: NonNullable<PasswordInputProps['control']>; name: string }
+> = ({ control, name, error: errorProp, ...rest }) => {
   const { field, fieldState } = useController({ control, name });
   return (
     <PasswordInputBase
       {...rest}
-      {...field}
+      name={name}
+      value={field.value ?? ''}
+      onChange={(e) => {
+        field.onChange(e);
+        rest.onChange?.(e);
+      }}
+      onBlur={(e) => {
+        field.onBlur();
+        rest.onBlur?.(e);
+      }}
+      ref={field.ref}
       error={errorProp ?? fieldState.error?.message}
     />
   );
 };
 
-export const PasswordInput = React.forwardRef<InputRef, PasswordInputProps>(({ control, name, ...props }, ref) => {
-  if (control && name) {
-    return <ControlledPasswordInput control={control} name={name} {...props} />;
+export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
+  ({ control, name, ...props }, ref) => {
+    if (control && name) {
+      return <ControlledPasswordInput control={control} name={name} {...props} />;
+    }
+    return <PasswordInputBase ref={ref} name={name} {...props} />;
   }
-  return <PasswordInputBase ref={ref} name={name} {...props} />;
-});
+);
 PasswordInput.displayName = 'PasswordInput';

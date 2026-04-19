@@ -1,8 +1,8 @@
 import type { FC, ReactNode, CSSProperties } from 'react';
 
 export interface StepItem {
-  title: string;
-  description?: string;
+  title: ReactNode;
+  description?: ReactNode;
   status?: 'wait' | 'process' | 'finish' | 'error';
   icon?: ReactNode;
 }
@@ -11,226 +11,180 @@ export interface StepsProps {
   items: StepItem[];
   current?: number;
   direction?: 'horizontal' | 'vertical';
-  size?: 'sm' | 'md' | 'lg' | 'responsive';
-  variant?: 'default' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
   style?: CSSProperties;
-  finishColor?: string;
-  processColor?: string;
-  waitColor?: string;
+
+  // Colors — match the screenshot design by default
+  activeColor?: string;
+  inactiveColor?: string;
   errorColor?: string;
-  lineColor?: string;
+
+  // Structural
+  showConnector?: boolean;
+  connectorColor?: string;
+  gap?: number | string;
+  iconSize?: number;
+  checkSize?: number;
+
+  // Events
+  onStepClick?: (index: number) => void;
 }
+
+const CheckIcon: FC<{ size: number; color: string }> = ({ size, color }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M5 12.5l4.5 4.5L19 7.5"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const XIcon: FC<{ size: number; color: string }> = ({ size, color }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path d="M6 6l12 12M18 6L6 18" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
 
 export const Steps: FC<StepsProps> = ({
   items,
   current = 0,
   direction = 'vertical',
   size = 'md',
-  variant = 'default',
   className = '',
   style,
-  finishColor,
-  processColor,
-  waitColor,
-  errorColor,
-  lineColor,
+  activeColor = '#EC615B',
+  inactiveColor = '#181918',
+  errorColor = '#C21919',
+  showConnector = false,
+  connectorColor,
+  gap,
+  iconSize: iconSizeProp,
+  checkSize: checkSizeProp,
+  onStepClick,
 }) => {
-  const getStepStatus = (index: number, item: StepItem): StepItem['status'] => {
+  const iconSize = iconSizeProp ?? (size === 'sm' ? 28 : size === 'lg' ? 44 : 36);
+  const checkSize = checkSizeProp ?? (size === 'sm' ? 18 : size === 'lg' ? 30 : 24);
+  const iconBorderWidth = 2;
+  const titleSize = size === 'sm' ? 14 : size === 'lg' ? 20 : 18;
+  const descriptionSize = size === 'sm' ? 12 : size === 'lg' ? 14 : 13;
+  const resolvedGap =
+    gap !== undefined ? (typeof gap === 'number' ? `${gap}px` : gap) : direction === 'vertical' ? '28px' : '16px';
+
+  const getStatus = (index: number, item: StepItem): NonNullable<StepItem['status']> => {
     if (item.status) return item.status;
     if (index < current) return 'finish';
     if (index === current) return 'process';
     return 'wait';
   };
 
-  const iconSizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-8 h-8',
-    lg: 'w-10 h-10',
-    responsive: 'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10',
+  const colorForStatus = (status: StepItem['status']): string => {
+    if (status === 'error') return errorColor;
+    if (status === 'finish') return activeColor;
+    if (status === 'process') return inactiveColor;
+    return inactiveColor;
   };
 
-  const textSizeClasses = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
-    responsive: 'text-xs sm:text-sm md:text-base lg:text-lg',
-  };
-
-  const descriptionSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base',
-    responsive: 'text-xs sm:text-xs md:text-sm lg:text-base',
-  };
-
-  const renderIcon = (status: StepItem['status'], icon?: ReactNode) => {
-    if (icon) return icon;
-
-    if (status === 'finish') {
-      return (
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      );
-    }
-
-    if (status === 'error') {
-      return (
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
-      );
-    }
-
+  const renderIcon = (status: StepItem['status'], custom?: ReactNode): ReactNode => {
+    if (custom) return custom;
+    if (status === 'error') return <XIcon size={checkSize} color={errorColor} />;
+    if (status === 'finish') return <CheckIcon size={checkSize} color={activeColor} />;
+    if (status === 'process') return <CheckIcon size={checkSize} color={inactiveColor} />;
     return null;
   };
 
-  const getStatusClasses = (status: StepItem['status']) => {
-    const isOutline = variant === 'outline';
+  const isVertical = direction === 'vertical';
 
-    switch (status) {
-      case 'finish':
-        return {
-          icon: isOutline
-            ? `bg-white text-white border ${finishColor ? `border-[${finishColor}]` : 'border-green-500'}`
-            : `${finishColor ? `bg-[${finishColor}]` : 'bg-green-500'} text-white ${finishColor ? `border-[${finishColor}]` : 'border-green-500'}`,
-          title: 'text-[#181918]',
-          description: 'text-gray-600',
-          line: lineColor ? `bg-[${lineColor}]` : 'bg-green-500',
-          iconColor: finishColor,
-        };
-      case 'process':
-        return {
-          icon: isOutline
-            ? `bg-white text-white border ${processColor ? `border-[${processColor}]` : 'border-[#EC615B]'}`
-            : `${processColor ? `bg-[${processColor}]` : 'bg-[#EC615B]'} text-white ${processColor ? `border-[${processColor}]` : 'border-[#EC615B]'}`,
-          title: 'text-[#181918] font-semibold',
-          description: 'text-gray-700',
-          line: lineColor ? `bg-[${lineColor}]` : 'bg-gray-300',
-          iconColor: processColor,
-        };
-      case 'error':
-        return {
-          icon: isOutline
-            ? `bg-white text-white border ${errorColor ? `border-[${errorColor}]` : 'border-red-500'}`
-            : `${errorColor ? `bg-[${errorColor}]` : 'bg-red-500'} text-white ${errorColor ? `border-[${errorColor}]` : 'border-red-500'}`,
-          title: 'text-red-600',
-          description: 'text-red-500',
-          line: lineColor ? `bg-[${lineColor}]` : 'bg-gray-300',
-          iconColor: errorColor,
-        };
-      default:
-        return {
-          icon: 'bg-white text-gray-400 border-gray-300',
-          title: 'text-gray-500',
-          description: 'text-gray-400',
-          line: lineColor ? `bg-[${lineColor}]` : 'bg-gray-300',
-          iconColor: waitColor,
-        };
-    }
-  };
+  const renderStep = (item: StepItem, index: number) => {
+    const status = getStatus(index, item);
+    const circleColor = colorForStatus(status);
+    const isLast = index === items.length - 1;
+    const clickable = !!onStepClick;
 
-  if (direction === 'horizontal') {
     return (
-      <div className={`flex items-start ${className}`} style={style}>
-        {items.map((item, index) => {
-          const status = getStepStatus(index, item);
-          const statusClasses = getStatusClasses(status);
-          const isLast = index === items.length - 1;
-          const iconStyle: CSSProperties = {};
-          if (statusClasses.iconColor) {
-            iconStyle.color = statusClasses.iconColor;
-          }
-
-          return (
-            <div key={index} className="flex flex-1 items-start">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border transition-all duration-300 ${statusClasses.icon}`}
-                  style={iconStyle}
-                >
-                  {renderIcon(status, item.icon)}
-                </div>
-                <div className="mt-2 text-center">
-                  <div
-                    className={`${textSizeClasses[size]} ${statusClasses.title} transition-colors duration-300`}
-                  >
-                    {item.title}
-                  </div>
-                  {item.description && (
-                    <div
-                      className={`${descriptionSizeClasses[size]} ${statusClasses.description} mt-1 transition-colors duration-300`}
-                    >
-                      {item.description}
-                    </div>
-                  )}
-                </div>
-              </div>
-              {!isLast && (
-                <div
-                  className={`flex-1 h-0.5 mt-4 mx-2 ${statusClasses.line} transition-colors duration-300`}
-                />
-              )}
+      <div
+        key={index}
+        className={`flex ${isVertical ? 'flex-row' : 'flex-col items-center'} ${clickable ? 'cursor-pointer' : ''}`}
+        onClick={clickable ? () => onStepClick!(index) : undefined}
+        style={!isLast ? { marginBottom: isVertical ? resolvedGap : 0, marginRight: !isVertical ? resolvedGap : 0 } : undefined}
+      >
+        <div className={`flex ${isVertical ? 'flex-col items-center' : 'flex-row items-center'} shrink-0`}>
+          <div
+            className="rounded-full flex items-center justify-center transition-colors duration-200 shrink-0"
+            style={{
+              width: iconSize,
+              height: iconSize,
+              border: `${iconBorderWidth}px solid ${circleColor}`,
+              backgroundColor: 'transparent',
+            }}
+          >
+            {renderIcon(status, item.icon)}
+          </div>
+          {showConnector && !isLast && (
+            <div
+              className={isVertical ? 'w-px' : 'h-px'}
+              style={{
+                backgroundColor: connectorColor ?? '#E6E6E6',
+                flex: 1,
+                minHeight: isVertical ? 16 : undefined,
+                minWidth: !isVertical ? 16 : undefined,
+                margin: isVertical ? '6px 0' : '0 6px',
+              }}
+            />
+          )}
+        </div>
+        <div
+          className={isVertical ? 'flex-1 pl-4' : 'pt-2 text-center'}
+          style={{ paddingBottom: isVertical && !isLast ? 2 : 0 }}
+        >
+          <div
+            className="font-medium transition-colors duration-200"
+            style={{
+              fontSize: titleSize,
+              lineHeight: `${iconSize}px`,
+              color: status === 'wait' ? inactiveColor : '#181918',
+            }}
+          >
+            {item.title}
+          </div>
+          {item.description && (
+            <div
+              className="transition-colors duration-200"
+              style={{
+                fontSize: descriptionSize,
+                color: '#8C8C8C',
+                marginTop: 2,
+              }}
+            >
+              {item.description}
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
     );
-  }
+  };
 
   return (
-    <div className={`flex flex-col ${className}`} style={style}>
-      {items.map((item, index) => {
-        const status = getStepStatus(index, item);
-        const statusClasses = getStatusClasses(status);
-        const isLast = index === items.length - 1;
-        const iconStyle: CSSProperties = {};
-        if (statusClasses.iconColor) {
-          iconStyle.color = statusClasses.iconColor;
-        }
-
-        return (
-          <div key={index} className="flex">
-            <div className="flex flex-col items-center mr-4">
-              <div
-                className={`flex items-center justify-center ${iconSizeClasses[size]} rounded-full border transition-all duration-300 ${statusClasses.icon}`}
-                style={iconStyle}
-              >
-                {renderIcon(status, item.icon)}
-              </div>
-              {!isLast && (
-                <div
-                  className={`w-0.5 flex-1 my-1 ${statusClasses.line} transition-colors duration-300`}
-                  style={{ minHeight: '20px' }}
-                />
-              )}
-            </div>
-            <div className="flex-1 pb-6">
-              <div
-                className={`${textSizeClasses[size]} ${statusClasses.title} transition-colors duration-300`}
-              >
-                {item.title}
-              </div>
-              {item.description && (
-                <div
-                  className={`${descriptionSizeClasses[size]} ${statusClasses.description} mt-1 transition-colors duration-300`}
-                >
-                  {item.description}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
+    <div
+      className={`flex ${isVertical ? 'flex-col' : 'flex-row items-start'} ${className}`}
+      style={style}
+    >
+      {items.map(renderStep)}
     </div>
   );
 };

@@ -1,176 +1,207 @@
 import React, { useState, useEffect } from 'react';
-import { Input as AntInput, InputRef } from 'antd';
-import type { InputProps as AntInputProps } from 'antd';
 import { useController } from 'react-hook-form';
 import type { Control } from 'react-hook-form';
+import { ErrorIcon } from './_theme';
 
-export interface CurrencyInputProps extends Omit<AntInputProps, 'onChange'> {
-  label?: string;
+type NativeInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'prefix' | 'value' | 'onChange'
+>;
+
+export interface CurrencyInputProps extends NativeInputProps {
+  label?: React.ReactNode;
+  labelClassName?: string;
+  labelStyle?: React.CSSProperties;
+  labelExtra?: React.ReactNode;
+  requiredMark?: React.ReactNode;
   error?: string;
   helperText?: string;
   currencySymbol?: string;
   formatAmount?: boolean;
+  value?: string | number;
   onChange?: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
   control?: Control<any>;
+  wrapperClassName?: string;
+  addonAfter?: React.ReactNode;
+  addonBefore?: React.ReactNode;
+  currencyPillBgColor?: string;
+  currencyPillColor?: string;
+  hideCurrencyPill?: boolean;
 }
 
-const CurrencyInputBase = React.forwardRef<InputRef, Omit<CurrencyInputProps, 'control'>>(({
-  label,
-  error,
-  helperText,
-  className = '',
-  status,
-  currencySymbol = '₦',
-  formatAmount = false,
-  onChange,
-  value: externalValue,
-  ...props
-}, ref) => {
-  const errorClass = error ? 'currency-input-error-state' : '';
-  const [displayValue, setDisplayValue] = useState<string>('');
+const formatNumber = (num: string): string => {
+  const cleanNum = num.replace(/[^\d.]/g, '');
+  const parts = cleanNum.split('.');
+  const integerPart = parts[0] ?? '';
+  const decimalPart = parts[1];
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+};
 
-  const formatNumber = (num: string): string => {
-    const cleanNum = num.replace(/[^\d.]/g, '');
-    const parts = cleanNum.split('.');
-    const integerPart = parts[0];
-    const decimalPart = parts[1];
-    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
-  };
+const unformatNumber = (formatted: string): string => formatted.replace(/,/g, '');
 
-  const unformatNumber = (formatted: string): string => {
-    return formatted.replace(/,/g, '');
-  };
+const CurrencyInputBase = React.forwardRef<HTMLInputElement, Omit<CurrencyInputProps, 'control'>>(
+  (
+    {
+      label,
+      labelClassName = '',
+      labelStyle,
+      labelExtra,
+      requiredMark,
+      error,
+      helperText,
+      currencySymbol = '₦',
+      formatAmount = false,
+      value: externalValue,
+      onChange,
+      required,
+      disabled,
+      id,
+      className = '',
+      style,
+      wrapperClassName = '',
+      addonAfter,
+      addonBefore,
+      currencyPillBgColor = '#F0F2F4',
+      currencyPillColor = '#000000',
+      hideCurrencyPill = false,
+      ...rest
+    },
+    ref
+  ) => {
+    const [displayValue, setDisplayValue] = useState<string>('');
+    const reactId = React.useId();
+    const inputId = id ?? reactId;
 
-  useEffect(() => {
-    if (externalValue !== undefined) {
-      const stringValue = String(externalValue);
-      setDisplayValue(formatAmount ? formatNumber(stringValue) : stringValue);
-    }
-  }, [externalValue, formatAmount]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-
-    if (formatAmount) {
-      const rawValue = unformatNumber(inputValue);
-      const formatted = formatNumber(rawValue);
-      setDisplayValue(formatted);
-      if (onChange) {
-        onChange(rawValue, e);
+    useEffect(() => {
+      if (externalValue !== undefined) {
+        const stringValue = String(externalValue);
+        setDisplayValue(formatAmount ? formatNumber(stringValue) : stringValue);
       }
-    } else {
-      setDisplayValue(inputValue);
-      if (onChange) {
-        onChange(inputValue, e);
-      }
-    }
-  };
+    }, [externalValue, formatAmount]);
 
-  return (
-    <div className="w-full">
-      {label && (
-        <label
-          className="block text-sm font-medium mb-2"
-          style={{ color: error ? '#C21919' : '#181918' }}
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = e.target.value;
+      if (formatAmount) {
+        const rawValue = unformatNumber(inputValue);
+        const formatted = formatNumber(rawValue);
+        setDisplayValue(formatted);
+        onChange?.(rawValue, e);
+      } else {
+        setDisplayValue(inputValue);
+        onChange?.(inputValue, e);
+      }
+    };
+
+    const isError = !!error;
+    const hasValue = displayValue !== '' && displayValue !== undefined;
+    const resolvedRequiredMark =
+      requiredMark === undefined ? <span style={{ color: '#C21919' }}>*</span> : requiredMark;
+
+    const borderClass = isError
+      ? 'border-[#C21919] focus-within:shadow-[0_0_0_2px_rgba(194,25,25,0.1)]'
+      : hasValue
+        ? 'border-[#181918] hover:border-[#EC615B] focus-within:border-[#EC615B] focus-within:shadow-[0_0_0_2px_rgba(236,97,91,0.2)]'
+        : 'border-[#D9D9D9] hover:border-[#EC615B] focus-within:border-[#EC615B] focus-within:shadow-[0_0_0_2px_rgba(236,97,91,0.2)]';
+
+    return (
+      <div className="w-full">
+        {label && (
+          <div className="flex items-center justify-between mb-2 gap-2">
+            <label
+              htmlFor={inputId}
+              className={`block text-sm font-medium ${labelClassName}`}
+              style={{ color: isError ? '#C21919' : '#181918', ...labelStyle }}
+            >
+              {label}
+              {required && resolvedRequiredMark}
+            </label>
+            {labelExtra && <div className="shrink-0">{labelExtra}</div>}
+          </div>
+        )}
+        <div
+          className={`flex items-stretch w-full border rounded-[12px] transition-all duration-200 overflow-hidden ${borderClass} ${
+            disabled ? 'opacity-60 cursor-not-allowed bg-[#F5F5F5]' : 'bg-white'
+          } ${wrapperClassName}`}
+          style={{ height: 44 }}
         >
-          {label}
-          {props.required && <span style={{ color: '#C21919' }}>*</span>}
-        </label>
-      )}
-      <style>
-        {`
-          .currency-input-wrapper.ant-input-affix-wrapper {
-            display: flex;
-            align-items: center;
-            padding: 0;
-            height: 44px;
-            border-radius: 12px;
-          }
-
-          .currency-input-wrapper .ant-input-prefix {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 37px;
-            height: 41px;
-            background-color: #F0F2F4;
-            margin: 0;
-            border-radius: 12px 0 0 12px;
-            color: #000000;
-            flex-shrink: 0;
-            margin-right: 10px;
-          }
-
-          .currency-input-wrapper .ant-input {
-            padding: 11px 16px 11px 20px;
-            height: 44px;
-          }
-
-          .currency-input-error-state.ant-input-affix-wrapper {
-            border-color: #C21919 !important;
-          }
-
-          .currency-input-error-state.ant-input-affix-wrapper:focus,
-          .currency-input-error-state.ant-input-affix-wrapper-focused {
-            border-color: #C21919 !important;
-            box-shadow: 0 0 0 2px rgba(194, 25, 25, 0.1) !important;
-          }
-        `}
-      </style>
-      <AntInput
-        ref={ref}
-        className={`currency-input-wrapper ${className} ${errorClass}`}
-        status={error ? 'error' : status}
-        prefix={<span>{currencySymbol}</span>}
-        {...props}
-        value={formatAmount ? displayValue : externalValue}
-        onChange={handleChange}
-        style={{
-          borderColor: error ? '#C21919' : '#D1D1D1',
-          ...props.style,
-        }}
-      />
-      {error && (
-        <div className="flex items-center mt-1 text-xs text-[#C21919]">
-          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-          {error}
+          {addonBefore && (
+            <div
+              className="flex items-center justify-center shrink-0 px-3 text-sm font-medium"
+              style={{ backgroundColor: currencyPillBgColor, color: currencyPillColor }}
+            >
+              {addonBefore}
+            </div>
+          )}
+          {!hideCurrencyPill && (
+            <div
+              className="flex items-center justify-center shrink-0 font-medium"
+              style={{
+                width: 37,
+                backgroundColor: currencyPillBgColor,
+                color: currencyPillColor,
+              }}
+            >
+              {currencySymbol}
+            </div>
+          )}
+          <input
+            ref={ref}
+            id={inputId}
+            required={required}
+            disabled={disabled}
+            value={displayValue}
+            onChange={handleChange}
+            inputMode={formatAmount ? 'decimal' : rest.inputMode}
+            className={`flex-1 min-w-0 h-full bg-transparent outline-none text-sm text-[#181918] placeholder:text-[#8C8C8C] ${className}`}
+            style={{ padding: '4px 16px', ...style }}
+            {...rest}
+          />
+          {addonAfter && (
+            <div
+              className="flex items-center justify-center shrink-0 px-3"
+              style={{ backgroundColor: currencyPillBgColor }}
+            >
+              {addonAfter}
+            </div>
+          )}
         </div>
-      )}
-      {!error && helperText && <div className="mt-1 text-xs text-gray-500">{helperText}</div>}
-    </div>
-  );
-});
+        {error && (
+          <div className="flex items-center mt-1 text-xs gap-1" style={{ color: '#C21919' }}>
+            <ErrorIcon color="#C21919" size={14} />
+            {error}
+          </div>
+        )}
+        {!error && helperText && <div className="mt-1 text-xs text-gray-500">{helperText}</div>}
+      </div>
+    );
+  }
+);
 CurrencyInputBase.displayName = 'CurrencyInputBase';
 
-const ControlledCurrencyInput: React.FC<CurrencyInputProps & { control: NonNullable<CurrencyInputProps['control']>; name: string }> = ({
-  control,
-  name,
-  error: errorProp,
-  ...rest
-}) => {
+const ControlledCurrencyInput: React.FC<
+  CurrencyInputProps & { control: NonNullable<CurrencyInputProps['control']>; name: string }
+> = ({ control, name, error: errorProp, ...rest }) => {
   const { field, fieldState } = useController({ control, name });
   return (
     <CurrencyInputBase
       {...rest}
-      value={field.value}
+      name={name}
+      value={field.value ?? ''}
       onChange={(value) => field.onChange(value)}
-      onBlur={field.onBlur}
+      onBlur={() => field.onBlur()}
+      ref={field.ref}
       error={errorProp ?? fieldState.error?.message}
     />
   );
 };
 
-export const CurrencyInput = React.forwardRef<InputRef, CurrencyInputProps>(({ control, name, ...props }, ref) => {
-  if (control && name) {
-    return <ControlledCurrencyInput control={control} name={name} {...props} />;
+export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
+  ({ control, name, ...props }, ref) => {
+    if (control && name) {
+      return <ControlledCurrencyInput control={control} name={name} {...props} />;
+    }
+    return <CurrencyInputBase ref={ref} name={name} {...props} />;
   }
-  return <CurrencyInputBase ref={ref} name={name} {...props} />;
-});
+);
 CurrencyInput.displayName = 'CurrencyInput';

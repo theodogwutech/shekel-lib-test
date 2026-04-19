@@ -19,13 +19,12 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime', 'antd', /^antd\//, '@ant-design/icons', /^@ant-design\//],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'react-hook-form'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           'react/jsx-runtime': 'React',
-          antd: 'antd',
         },
         assetFileNames: 'shekel-fe-shared-lib.[ext]',
       },
