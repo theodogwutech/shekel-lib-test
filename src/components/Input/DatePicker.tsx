@@ -176,6 +176,7 @@ const DatePickerBase = React.forwardRef<HTMLDivElement, Omit<DatePickerProps, 'c
     const [open, setOpen] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [viewDate, setViewDate] = useState<Date>(resolvedValue ?? new Date());
+    const [mode, setMode] = useState<'date' | 'month' | 'year'>('date');
 
     const reactId = React.useId();
     const inputId = id ?? reactId;
@@ -264,7 +265,10 @@ const DatePickerBase = React.forwardRef<HTMLDivElement, Omit<DatePickerProps, 'c
       const next = !open;
       setOpen(next);
       onOpenChange?.(next);
-      if (next && resolvedValue) setViewDate(resolvedValue);
+      if (next) {
+        setMode('date');
+        if (resolvedValue) setViewDate(resolvedValue);
+      }
     };
 
     const handleDayClick = (day: Date) => {
@@ -324,6 +328,31 @@ const DatePickerBase = React.forwardRef<HTMLDivElement, Omit<DatePickerProps, 'c
     };
     const goYear = (delta: number) => {
       setViewDate(new Date(viewDate.getFullYear() + delta, viewDate.getMonth(), 1));
+    };
+    const goDecade = (delta: number) => {
+      setViewDate(new Date(viewDate.getFullYear() + delta * 10, viewDate.getMonth(), 1));
+    };
+
+    const decadeStart = Math.floor(viewDate.getFullYear() / 10) * 10;
+    const yearCells = useMemo(() => {
+      const cells: { year: number; outside: boolean }[] = [];
+      for (let y = decadeStart - 1; y <= decadeStart + 10; y++) {
+        cells.push({ year: y, outside: y < decadeStart || y > decadeStart + 9 });
+      }
+      return cells;
+    }, [decadeStart]);
+
+    const isDisabledMonth = (year: number, month: number): boolean => {
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      if (min && last < min) return true;
+      if (max && first > max) return true;
+      return false;
+    };
+    const isDisabledYear = (year: number): boolean => {
+      if (min && new Date(year, 11, 31) < min) return true;
+      if (max && new Date(year, 0, 1) > max) return true;
+      return false;
     };
 
     const displayText = resolvedValue ? formatDate(resolvedValue, format) : '';
@@ -425,95 +454,221 @@ const DatePickerBase = React.forwardRef<HTMLDivElement, Omit<DatePickerProps, 'c
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => goYear(-1)}
-                    aria-label="Previous year"
+                    onClick={() => (mode === 'year' ? goDecade(-1) : goYear(-1))}
+                    aria-label={mode === 'year' ? 'Previous decade' : 'Previous year'}
                     className="w-7 h-7 flex items-center justify-center text-[#595959] hover:text-[color:var(--shekel-accent)] rounded transition-colors"
                   >
                     <DoubleChevronLeft />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => goMonth(-1)}
-                    aria-label="Previous month"
-                    className="w-7 h-7 flex items-center justify-center text-[#595959] hover:text-[color:var(--shekel-accent)] rounded transition-colors"
-                  >
-                    <ChevronLeft />
-                  </button>
+                  {mode === 'date' && (
+                    <button
+                      type="button"
+                      onClick={() => goMonth(-1)}
+                      aria-label="Previous month"
+                      className="w-7 h-7 flex items-center justify-center text-[#595959] hover:text-[color:var(--shekel-accent)] rounded transition-colors"
+                    >
+                      <ChevronLeft />
+                    </button>
+                  )}
                 </div>
-                <div className="text-sm font-medium text-[#181918]">
-                  {MONTH_NAMES[viewDate.getMonth()]} {viewDate.getFullYear()}
+                <div className="text-sm font-medium text-[#181918] flex items-center gap-1">
+                  {mode === 'date' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setMode('month')}
+                        className="px-1 hover:text-[color:var(--shekel-accent)] transition-colors"
+                      >
+                        {MONTH_NAMES[viewDate.getMonth()]}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMode('year')}
+                        className="px-1 hover:text-[color:var(--shekel-accent)] transition-colors"
+                      >
+                        {viewDate.getFullYear()}
+                      </button>
+                    </>
+                  )}
+                  {mode === 'month' && (
+                    <button
+                      type="button"
+                      onClick={() => setMode('year')}
+                      className="px-1 hover:text-[color:var(--shekel-accent)] transition-colors"
+                    >
+                      {viewDate.getFullYear()}
+                    </button>
+                  )}
+                  {mode === 'year' && (
+                    <span className="px-1">
+                      {decadeStart}-{decadeStart + 9}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
+                  {mode === 'date' && (
+                    <button
+                      type="button"
+                      onClick={() => goMonth(1)}
+                      aria-label="Next month"
+                      className="w-7 h-7 flex items-center justify-center text-[#595959] hover:text-[color:var(--shekel-accent)] rounded transition-colors"
+                    >
+                      <ChevronRight />
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => goMonth(1)}
-                    aria-label="Next month"
-                    className="w-7 h-7 flex items-center justify-center text-[#595959] hover:text-[color:var(--shekel-accent)] rounded transition-colors"
-                  >
-                    <ChevronRight />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => goYear(1)}
-                    aria-label="Next year"
+                    onClick={() => (mode === 'year' ? goDecade(1) : goYear(1))}
+                    aria-label={mode === 'year' ? 'Next decade' : 'Next year'}
                     className="w-7 h-7 flex items-center justify-center text-[#595959] hover:text-[color:var(--shekel-accent)] rounded transition-colors"
                   >
                     <DoubleChevronRight />
                   </button>
                 </div>
               </div>
-              <div className="grid grid-cols-7 gap-0 px-1 pt-2 pb-1">
-                {dayNames.map((d) => (
-                  <div
-                    key={d}
-                    className="text-xs text-[#8C8C8C] text-center py-1"
-                    style={{ height: 28 }}
-                  >
-                    {d}
+              {mode === 'date' && (
+                <>
+                  <div className="grid grid-cols-7 gap-0 px-1 pt-2 pb-1">
+                    {dayNames.map((d) => (
+                      <div
+                        key={d}
+                        className="text-xs text-[#8C8C8C] text-center py-1"
+                        style={{ height: 28 }}
+                      >
+                        {d}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-0 px-1">
-                {calendarGrid.map(({ date, outside }, i) => {
-                  const selected = resolvedValue && isSameDay(date, resolvedValue);
-                  const isToday = isSameDay(date, today);
-                  const disabledDay = isDisabledDate(date);
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      disabled={disabledDay}
-                      onClick={() => handleDayClick(date)}
-                      className="flex items-center justify-center text-sm transition-colors"
-                      style={{
-                        height: 32,
-                        margin: '1px 0',
-                      }}
-                    >
-                      <span
-                        className={`flex items-center justify-center rounded-full transition-colors ${
-                          disabledDay
-                            ? 'text-[#D9D9D9] cursor-not-allowed'
-                            : outside
-                              ? 'text-[#BFBFBF] hover:bg-[#F5F5F5]'
-                              : 'text-[#181918] hover:bg-[#F5F5F5]'
-                        }`}
+                  <div className="grid grid-cols-7 gap-0 px-1">
+                    {calendarGrid.map(({ date, outside }, i) => {
+                      const selected = resolvedValue && isSameDay(date, resolvedValue);
+                      const isToday = isSameDay(date, today);
+                      const disabledDay = isDisabledDate(date);
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          disabled={disabledDay}
+                          onClick={() => handleDayClick(date)}
+                          className="flex items-center justify-center text-sm transition-colors"
+                          style={{
+                            height: 32,
+                            margin: '1px 0',
+                          }}
+                        >
+                          <span
+                            className={`flex items-center justify-center rounded-full transition-colors ${
+                              disabledDay
+                                ? 'text-[#D9D9D9] cursor-not-allowed'
+                                : outside
+                                  ? 'text-[#BFBFBF] hover:bg-[#F5F5F5]'
+                                  : 'text-[#181918] hover:bg-[#F5F5F5]'
+                            }`}
+                            style={{
+                              width: 28,
+                              height: 28,
+                              backgroundColor: selected ? accentColor : undefined,
+                              color: selected ? '#FFFFFF' : undefined,
+                              fontWeight: selected ? 600 : 400,
+                              border: isToday && !selected ? `1px solid ${accentColor}` : undefined,
+                            }}
+                          >
+                            {date.getDate()}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+              {mode === 'month' && (
+                <div className="grid grid-cols-3 gap-1 px-1 pt-2 pb-1">
+                  {MONTH_NAMES.map((m, mi) => {
+                    const isCurrent =
+                      resolvedValue &&
+                      resolvedValue.getFullYear() === viewDate.getFullYear() &&
+                      resolvedValue.getMonth() === mi;
+                    const monthDisabled = isDisabledMonth(viewDate.getFullYear(), mi);
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        disabled={monthDisabled}
+                        onClick={() => {
+                          setViewDate(new Date(viewDate.getFullYear(), mi, 1));
+                          setMode('date');
+                        }}
+                        className="flex items-center justify-center text-sm rounded transition-colors"
                         style={{
-                          width: 28,
-                          height: 28,
-                          backgroundColor: selected ? accentColor : undefined,
-                          color: selected ? '#FFFFFF' : undefined,
-                          fontWeight: selected ? 600 : 400,
-                          border: isToday && !selected ? `1px solid ${accentColor}` : undefined,
+                          height: 52,
+                          backgroundColor: isCurrent ? accentColor : undefined,
+                          color: monthDisabled
+                            ? '#D9D9D9'
+                            : isCurrent
+                              ? '#FFFFFF'
+                              : '#181918',
+                          fontWeight: isCurrent ? 600 : 400,
+                          cursor: monthDisabled ? 'not-allowed' : 'pointer',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isCurrent && !monthDisabled)
+                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#F5F5F5';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isCurrent)
+                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = '';
                         }}
                       >
-                        {date.getDate()}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              {showToday && (
+                        {m.slice(0, 3)}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {mode === 'year' && (
+                <div className="grid grid-cols-3 gap-1 px-1 pt-2 pb-1">
+                  {yearCells.map(({ year, outside }) => {
+                    const isCurrent = resolvedValue && resolvedValue.getFullYear() === year;
+                    const yearDisabled = isDisabledYear(year);
+                    return (
+                      <button
+                        key={year}
+                        type="button"
+                        disabled={yearDisabled}
+                        onClick={() => {
+                          setViewDate(new Date(year, viewDate.getMonth(), 1));
+                          setMode('month');
+                        }}
+                        className="flex items-center justify-center text-sm rounded transition-colors"
+                        style={{
+                          height: 52,
+                          backgroundColor: isCurrent ? accentColor : undefined,
+                          color: yearDisabled
+                            ? '#D9D9D9'
+                            : isCurrent
+                              ? '#FFFFFF'
+                              : outside
+                                ? '#BFBFBF'
+                                : '#181918',
+                          fontWeight: isCurrent ? 600 : 400,
+                          cursor: yearDisabled ? 'not-allowed' : 'pointer',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isCurrent && !yearDisabled)
+                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#F5F5F5';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isCurrent)
+                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = '';
+                        }}
+                      >
+                        {year}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {mode === 'date' && showToday && (
                 <div className="border-t border-[#F0F0F0] mt-2 pt-2 text-center">
                   <button
                     type="button"

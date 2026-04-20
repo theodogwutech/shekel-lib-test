@@ -62,6 +62,7 @@ export interface FileUploadProps {
   showPreview?: boolean;
   previewLayout?: 'list' | 'grid';
   keepInputOnUpload?: boolean;
+  showCount?: boolean;
 
   className?: string;
   style?: React.CSSProperties;
@@ -227,6 +228,7 @@ const FileUploadBase: React.FC<Omit<FileUploadProps, 'control'>> = (props) => {
     showPreview = true,
     previewLayout = 'list',
     keepInputOnUpload = true,
+    showCount = true,
     className = '',
     style,
     dropzoneClassName = '',
@@ -381,6 +383,8 @@ const FileUploadBase: React.FC<Omit<FileUploadProps, 'control'>> = (props) => {
   }, []);
 
   const anyUploading = files.some((f) => f.status === 'uploading');
+  const doneCount = files.filter((f) => f.status === 'done').length;
+  const totalCount = files.length;
   const isBusy = !!loading || anyUploading;
   const zoneDisabled = disabled || isBusy;
 
@@ -397,6 +401,12 @@ const FileUploadBase: React.FC<Omit<FileUploadProps, 'control'>> = (props) => {
     ? hexWithAlpha(accentColor, 0.02)
     : dropzoneBgColor;
 
+  const busyText = isBusy
+    ? anyUploading && multiple && totalCount > 1 && showCount
+      ? `Uploading ${doneCount + 1} of ${totalCount}…`
+      : loadingText
+    : null;
+
   const shouldHideDropzone =
     !multiple && files.length > 0 && showPreview && previewLayout === 'list';
 
@@ -405,6 +415,25 @@ const FileUploadBase: React.FC<Omit<FileUploadProps, 'control'>> = (props) => {
       <style>{`
         @keyframes shekel-spin { to { transform: rotate(360deg); } }
         .shekel-spin { animation: shekel-spin 0.8s linear infinite; transform-origin: center; }
+        @keyframes shekel-file-in {
+          from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .shekel-file-item {
+          animation: shekel-file-in 220ms cubic-bezier(0.23, 1, 0.32, 1);
+          transition: box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease;
+        }
+        .shekel-file-item:hover {
+          box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+          transform: translateY(-1px);
+        }
+        .shekel-progress-bar {
+          transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1), background-color 200ms ease;
+        }
+        .shekel-dropzone-dragging {
+          transform: scale(1.01);
+          box-shadow: 0 6px 20px rgba(17, 24, 39, 0.08);
+        }
       `}</style>
       {label && (
         <div className="flex items-center justify-between mb-2 gap-2">
@@ -432,7 +461,7 @@ const FileUploadBase: React.FC<Omit<FileUploadProps, 'control'>> = (props) => {
           aria-busy={isBusy}
           className={`flex flex-col sm:flex-row items-center gap-4 sm:gap-6 px-4 sm:px-6 py-5 sm:py-6 rounded-[12px] transition-all duration-200 ${
             zoneDisabled ? 'cursor-not-allowed' : 'cursor-pointer'
-          } ${disabled ? 'opacity-60' : ''} ${dropzoneClassName}`}
+          } ${disabled ? 'opacity-60' : ''} ${isDragging ? 'shekel-dropzone-dragging' : ''} ${dropzoneClassName}`}
           style={{
             border: `1.5px dashed ${dropzoneBorder}`,
             backgroundColor: dropzoneBg,
@@ -451,7 +480,7 @@ const FileUploadBase: React.FC<Omit<FileUploadProps, 'control'>> = (props) => {
           <div className="flex-1 min-w-0 text-center">
             {isBusy ? (
               <div className="text-[#181918] text-sm" style={{ color: accentColor }}>
-                {loadingText}
+                {busyText}
               </div>
             ) : (
               <div className="text-[#181918] text-sm">
@@ -488,6 +517,20 @@ const FileUploadBase: React.FC<Omit<FileUploadProps, 'control'>> = (props) => {
         </div>
       )}
 
+      {showPreview && showCount && files.length > 0 && multiple && totalCount > 1 && (
+        <div className="flex items-center justify-between mt-3 mb-1 text-xs text-[#616161]">
+          <span>
+            {anyUploading
+              ? `Uploading ${doneCount} of ${totalCount}`
+              : `${totalCount} ${totalCount === 1 ? 'file' : 'files'}`}
+          </span>
+          {maxFiles && (
+            <span className="text-[#8C8C8C]">
+              {totalCount} / {maxFiles}
+            </span>
+          )}
+        </div>
+      )}
       {showPreview && files.length > 0 && (
         <div
           className={
@@ -585,7 +628,7 @@ const ListPreviewItem: React.FC<PreviewItemProps> = ({
   const canPreview = !!(onPreview || file.url || file.thumbnailUrl);
 
   return (
-    <div className="flex items-center gap-3 border border-[#E6E6E6] rounded-[12px] px-3 py-2 bg-white">
+    <div className="shekel-file-item flex items-center gap-3 border border-[#E6E6E6] rounded-[12px] px-3 py-2 bg-white">
       <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-[#F5F5F5] overflow-hidden">
         {isImg && file.thumbnailUrl ? (
           <img src={file.thumbnailUrl} alt="" className="w-full h-full object-cover" />
@@ -604,7 +647,7 @@ const ListPreviewItem: React.FC<PreviewItemProps> = ({
         {isUploading && (
           <div className="mt-1 h-1 bg-[#F0F0F0] rounded overflow-hidden">
             <div
-              className="h-full transition-all duration-200"
+              className="h-full shekel-progress-bar"
               style={{ width: `${file.progress}%`, backgroundColor: accentColor }}
             />
           </div>
@@ -674,7 +717,7 @@ const GridPreviewItem: React.FC<PreviewItemProps> = ({
   const canPreview = !!(onPreview || file.url || file.thumbnailUrl);
 
   return (
-    <div className="relative border border-[#E6E6E6] rounded-[12px] overflow-hidden bg-white group">
+    <div className="shekel-file-item relative border border-[#E6E6E6] rounded-[12px] overflow-hidden bg-white group">
       <div className="aspect-square flex items-center justify-center bg-[#F5F5F5]">
         {isImg && file.thumbnailUrl ? (
           <img src={file.thumbnailUrl} alt="" className="w-full h-full object-cover" />
@@ -692,7 +735,7 @@ const GridPreviewItem: React.FC<PreviewItemProps> = ({
         {file.status === 'uploading' && (
           <div className="mt-1 h-1 bg-[#F0F0F0] rounded overflow-hidden">
             <div
-              className="h-full transition-all duration-200"
+              className="h-full shekel-progress-bar"
               style={{ width: `${file.progress}%`, backgroundColor: accentColor }}
             />
           </div>

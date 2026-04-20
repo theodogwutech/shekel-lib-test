@@ -8,10 +8,10 @@ export const SelectInputSection: React.FC = () => (
   <Section
     id="select-input"
     title="SelectInput"
-    description="Dropdown select with built-in search, rich options (title + description), multiple-select with tags, keyboard navigation, and antd-style dropdown animation."
+    description="Dropdown select with built-in search, rich options (title + description), multiple-select with tags, keyboard navigation, and antd-style dropdown animation. The panel auto-flips above the trigger when there isn't enough room below — useful for selects placed near the bottom of a modal or viewport."
     importStatement={`import { SelectInput } from 'shekel-fe-shared-lib';`}
     props={[
-      { name: 'options', type: '{ value, label, description?, disabled? }[]', description: 'List of options. `description` renders as a subtitle line under the label.' },
+      { name: 'options', type: '{ value, label, description?, disabled? }[]', description: '`label` and `description` both accept ReactNode, so you can render flags, chips, or any custom markup alongside plain strings.' },
       { name: 'value / defaultValue', type: 'string | number | any[]', description: 'Controlled or uncontrolled.' },
       { name: 'mode', type: 'single | multiple', default: 'single', description: 'Multiple enables tag-style selection.' },
       { name: 'showSearch', type: 'boolean', default: 'true', description: 'Shows a search input at the top of the dropdown + allows inline typing in the trigger.' },
@@ -90,6 +90,63 @@ export const SelectInputSection: React.FC = () => (
         helperText="Backspace removes the last tag"
       />
     </Example>
+
+    <Example
+      title="Custom suffix icon (calendar)"
+      code={`<SelectInput
+  label="Year"
+  required
+  showSearch={false}
+  defaultValue={2019}
+  suffixIcon={
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  }
+  options={[2019, 2020, 2021, 2022, 2023].map((y) => ({ value: y, label: String(y) }))}
+/>`}
+    >
+      <SelectInput
+        label="Year"
+        required
+        showSearch={false}
+        defaultValue={2019}
+        suffixIcon={
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <path d="M16 2v4M8 2v4M3 10h18" />
+          </svg>
+        }
+        options={[2019, 2020, 2021, 2022, 2023].map((y) => ({ value: y, label: String(y) }))}
+      />
+    </Example>
+
+    <Example
+      title="ReactNode labels (flags + custom markup)"
+      code={`<SelectInput
+  label="Country"
+  optionFilterProp="value"
+  options={[
+    { value: 'NG', label: <span>🇳🇬 Nigeria</span> },
+    { value: 'GH', label: <span>🇬🇭 Ghana</span> },
+    { value: 'KE', label: <span>🇰🇪 Kenya</span> },
+  ]}
+/>`}
+    >
+      <SelectInput
+        label="Country"
+        placeholder="Select a country"
+        optionFilterProp="value"
+        options={[
+          { value: 'NG', label: <span>🇳🇬 Nigeria</span> },
+          { value: 'GH', label: <span>🇬🇭 Ghana</span> },
+          { value: 'KE', label: <span>🇰🇪 Kenya</span> },
+          { value: 'ZA', label: <span>🇿🇦 South Africa</span> },
+        ]}
+        helperText="When label is not a string, either pass optionFilterProp='value' or a custom filterOption."
+      />
+    </Example>
   </Section>
 );
 
@@ -97,7 +154,7 @@ export const DatePickerSection: React.FC = () => (
   <Section
     id="date-picker"
     title="DatePicker"
-    description="Single-date picker with month/year navigation, min/max bounds, disabled-date callback, and Today shortcut. No external date library required."
+    description="Single-date picker with quick year/month traversal (antd-style — click the month or year in the header to jump to a 12-month grid or a decade year grid), min/max bounds, disabled-date callback, and Today shortcut. No external date library required."
     importStatement={`import { DatePicker } from 'shekel-fe-shared-lib';`}
     props={[
       { name: 'value / defaultValue', type: 'Date | string | number | null', description: 'Accepts ISO strings, timestamps, or Date objects.' },

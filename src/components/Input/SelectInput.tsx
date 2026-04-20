@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useController } from 'react-hook-form';
 import type { Control } from 'react-hook-form';
@@ -192,11 +192,18 @@ const SelectInputBase = React.forwardRef<HTMLDivElement, Omit<SelectInputProps, 
       width: 0,
     });
 
-    const updatePanelPos = () => {
+    const updatePanelPos = useCallback(() => {
       if (!triggerRef.current) return;
       const r = triggerRef.current.getBoundingClientRect();
-      setPanelPos({ top: r.bottom + 4, left: r.left, width: r.width });
-    };
+      const measured = panelRef.current?.offsetHeight ?? 0;
+      const fallbackMaxHeight = 300;
+      const panelH = measured || fallbackMaxHeight;
+      const spaceBelow = window.innerHeight - r.bottom;
+      const spaceAbove = r.top;
+      const openUpward = spaceBelow < panelH && spaceAbove > spaceBelow;
+      const top = openUpward ? r.top - panelH - 4 : r.bottom + 4;
+      setPanelPos({ top: Math.max(4, top), left: r.left, width: r.width });
+    }, []);
 
     useEffect(() => {
       if (!open) return;
@@ -208,7 +215,8 @@ const SelectInputBase = React.forwardRef<HTMLDivElement, Omit<SelectInputProps, 
         window.removeEventListener('resize', h);
         window.removeEventListener('scroll', h, true);
       };
-    }, [open]);
+    }, [open, updatePanelPos]);
+
     const searchInputRef = useRef<HTMLInputElement>(null);
     const inlineInputRef = useRef<HTMLInputElement>(null);
 
@@ -232,6 +240,11 @@ const SelectInputBase = React.forwardRef<HTMLDivElement, Omit<SelectInputProps, 
       if (!showSearch || !searchQuery) return options;
       return options.filter((o) => filterFn(searchQuery, o));
     }, [options, searchQuery, showSearch, filterFn]);
+
+    useLayoutEffect(() => {
+      if (!open) return;
+      updatePanelPos();
+    }, [open, filteredOptions.length, updatePanelPos]);
 
     const isMultiple = mode === 'multiple';
     const selectedValues: (string | number)[] = isMultiple

@@ -10,7 +10,7 @@ export const FileUploadSection: React.FC = () => (
   <Section
     id="file-upload"
     title="FileUpload"
-    description="Drag-and-drop dropzone with browse, file type + size validation, async upload with progress, and list/grid previews with optional Preview + Delete actions."
+    description="Drag-and-drop dropzone with browse, file type + size validation, async upload with progress, and list/grid previews with optional Preview + Delete actions. Multi-file uploads show a running count (“Uploading 2 of 5…”) and the preview list animates items in/out with a subtle hover lift."
     importStatement={`import { FileUpload } from 'shekel-fe-shared-lib';`}
     props={[
       { name: 'accept', type: 'string', description: '.pdf,.jpg or image/* syntax.' },
@@ -26,6 +26,7 @@ export const FileUploadSection: React.FC = () => (
       { name: 'previewButtonVariant', type: 'pill | text', default: 'pill', description: 'Pill = gray button with eye icon; text = red link.' },
       { name: 'showRemove', type: 'boolean', default: 'true', description: 'Show the trash icon.' },
       { name: 'previewLayout', type: 'list | grid', default: 'list', description: 'Grid tiles or a vertical list.' },
+      { name: 'showCount', type: 'boolean', default: 'true', description: 'Show the "Uploading X of Y" busy line and the preview-section count header for multi-file uploads. Set `false` to hide both.' },
       { name: 'loading', type: 'boolean', description: 'Lock the dropzone (e.g. during form submission).' },
     ]}
   >
@@ -101,6 +102,39 @@ export const FileUploadSection: React.FC = () => (
         }}
       />
     </Example>
+
+    <Example
+      title="Multiple upload with running count"
+      code={`<FileUpload
+  label="Gallery images"
+  multiple
+  maxFiles={5}
+  accept="image/*,.pdf"
+  fileTypesLabel="JPG, PNG, PDF"
+  onUpload={async (file, { onProgress }) => {
+    for (let i = 0; i <= 100; i += 20) {
+      await new Promise(r => setTimeout(r, 150));
+      onProgress(i);
+    }
+    return { url: '/uploaded/' + file.name };
+  }}
+/>`}
+    >
+      <FileUpload
+        label="Gallery images"
+        multiple
+        maxFiles={5}
+        accept="image/*,.pdf"
+        fileTypesLabel="JPG, PNG, PDF"
+        onUpload={async (file, { onProgress }) => {
+          for (let i = 0; i <= 100; i += 20) {
+            await new Promise((r) => setTimeout(r, 150));
+            onProgress(i);
+          }
+          return { url: '/uploaded/' + file.name };
+        }}
+      />
+    </Example>
   </Section>
 );
 
@@ -108,7 +142,7 @@ export const RadioCardGroupSection: React.FC = () => (
   <Section
     id="radio-card-group"
     title="RadioCardGroup"
-    description="Card-based radio group. Each card shows optional icon, title, and description; selected card has a red glow and filled radio on the right."
+    description="Card-based radio group. Each card shows optional icon, title, and description; selected card has a glow/border/shadow and a filled radio on the right. Fully themable — colors, typography, borders, and shadows can all be overridden."
     importStatement={`import { RadioCardGroup } from 'shekel-fe-shared-lib';`}
     props={[
       { name: 'options', type: '{ value, label, description?, icon?, disabled? }[]', description: 'One card per option.' },
@@ -120,8 +154,26 @@ export const RadioCardGroupSection: React.FC = () => (
       { name: 'titleSize', type: 'number', default: '12', description: 'Title font size in px.' },
       { name: 'descriptionSize', type: 'number', default: '12', description: 'Description font size.' },
       { name: 'radioSize', type: 'number', default: '24', description: 'Radio circle diameter.' },
+      { name: 'variant', type: 'border | shadow | both', default: 'border', description: 'Card emphasis style. `border` = outline + glow on select; `shadow` = no border on unselected cards, selected card keeps its border + soft shadow; `both` = border plus soft shadow on every card.' },
       { name: 'accentColor', type: 'string', default: '#EC615B', description: 'Selected color + glow.' },
+      { name: 'errorColor', type: 'string', default: '#EF4444', description: 'Border/text color when in error state.' },
+      { name: 'borderColor', type: 'string', default: '#EEEEEE', description: 'Default card border color.' },
+      { name: 'selectedBorderColor', type: 'string', description: 'Border color when selected (defaults to `accentColor`).' },
       { name: 'selectedGlowColor', type: 'string', description: 'Override the outer halo color.' },
+      { name: 'textColor', type: 'string', default: '#131413', description: 'Title + icon color.' },
+      { name: 'descriptionColor', type: 'string', default: '#8C8C8C', description: 'Description text color.' },
+      { name: 'cardBgColor', type: 'string', default: 'white', description: 'Default card background.' },
+      { name: 'selectedCardBgColor', type: 'string', description: 'Background when selected (defaults to `cardBgColor`).' },
+      { name: 'radioBorderWidth', type: 'number', default: '1.5', description: 'Radio circle border thickness.' },
+      { name: 'radioBorderColor', type: 'string', default: '#D1D1D1', description: 'Radio circle border color (unselected).' },
+      { name: 'cardBorderWidth', type: 'number', default: '1.5', description: 'Card border thickness.' },
+      { name: 'cardBorderRadius', type: 'number', default: '16', description: 'Card corner radius in px.' },
+      { name: 'cardShadow', type: 'string', description: 'Custom box-shadow for unselected cards — pass any valid box-shadow (e.g. "0 2px 8px rgba(0,0,0,0.1)") to tune intensity/spread. Overrides the variant default.' },
+      { name: 'selectedCardShadow', type: 'string', description: 'Custom box-shadow for the selected card — e.g. "0 6px 24px rgba(236,97,91,0.35)". Overrides the variant default.' },
+      { name: 'titleWeight', type: 'number | string', default: '600', description: 'Title font weight.' },
+      { name: 'descriptionWeight', type: 'number | string', default: '400', description: 'Description font weight.' },
+      { name: 'titleLineHeight', type: 'number', default: '1.3', description: 'Title line height.' },
+      { name: 'descriptionLineHeight', type: 'number', default: '1.3', description: 'Description line height.' },
     ]}
   >
     <Example
@@ -159,6 +211,89 @@ export const RadioCardGroupSection: React.FC = () => (
           { value: 'monthly', label: 'Monthly', description: '₦5,000 / month' },
           { value: 'yearly', label: 'Yearly', description: '₦50,000 / year' },
           { value: 'lifetime', label: 'Lifetime', description: 'One-time payment' },
+        ]}
+      />
+    </Example>
+
+    <Example
+      title="Shadow variant (border only on the selected card)"
+      code={`<RadioCardGroup
+  variant="shadow"
+  defaultValue="dealership"
+  options={[
+    { value: 'dealership', label: 'Dealership' },
+    { value: 'auction',    label: 'Auction Centre' },
+  ]}
+/>`}
+    >
+      <RadioCardGroup
+        variant="shadow"
+        defaultValue="dealership"
+        options={[
+          { value: 'dealership', label: 'Dealership' },
+          { value: 'auction', label: 'Auction Centre' },
+        ]}
+      />
+    </Example>
+
+    <Example
+      title="Shadow variant — custom shadow via cardShadow / selectedCardShadow"
+      code={`<RadioCardGroup
+  variant="shadow"
+  defaultValue="dealership"
+  cardShadow="0 2px 10px rgba(17, 24, 39, 0.06)"
+  selectedCardShadow="0 6px 24px rgba(236, 97, 91, 0.35)"
+  options={[
+    { value: 'dealership', label: 'Dealership' },
+    { value: 'auction',    label: 'Auction Centre' },
+  ]}
+/>`}
+    >
+      <RadioCardGroup
+        variant="shadow"
+        defaultValue="dealership"
+        cardShadow="0 2px 10px rgba(17, 24, 39, 0.06)"
+        selectedCardShadow="0 6px 24px rgba(236, 97, 91, 0.35)"
+        options={[
+          { value: 'dealership', label: 'Dealership' },
+          { value: 'auction', label: 'Auction Centre' },
+        ]}
+      />
+    </Example>
+
+    <Example
+      title="Custom theming (colors, radius, typography)"
+      code={`<RadioCardGroup
+  defaultValue="card"
+  accentColor="#0F766E"
+  cardBgColor="#F8FAFC"
+  selectedCardBgColor="#ECFDF5"
+  textColor="#0F172A"
+  descriptionColor="#475569"
+  cardBorderRadius={8}
+  cardBorderWidth={2}
+  titleWeight={700}
+  titleLineHeight={1.4}
+  options={[
+    { value: 'card',     label: 'Card',     description: 'Pay with debit or credit card' },
+    { value: 'transfer', label: 'Transfer', description: 'Pay via bank transfer' },
+  ]}
+/>`}
+    >
+      <RadioCardGroup
+        defaultValue="card"
+        accentColor="#0F766E"
+        cardBgColor="#F8FAFC"
+        selectedCardBgColor="#ECFDF5"
+        textColor="#0F172A"
+        descriptionColor="#475569"
+        cardBorderRadius={8}
+        cardBorderWidth={2}
+        titleWeight={700}
+        titleLineHeight={1.4}
+        options={[
+          { value: 'card', label: 'Card', description: 'Pay with debit or credit card' },
+          { value: 'transfer', label: 'Transfer', description: 'Pay via bank transfer' },
         ]}
       />
     </Example>
@@ -240,6 +375,8 @@ export const StepsSection: React.FC = () => (
       { name: 'gap', type: 'number | string', default: '28', description: 'Spacing between items.' },
       { name: 'onStepClick', type: '(index) => void', description: 'Click handler; makes items focusable.' },
       { name: 'activeColor / inactiveColor / errorColor', type: 'string', description: 'Override status colors.' },
+      { name: 'borderWidth', type: 'number', default: '2', description: 'Circle border thickness.' },
+      { name: 'checkStrokeWidth', type: 'number', default: '2', description: 'Checkmark/X stroke thickness.' },
     ]}
   >
     <Example
@@ -255,6 +392,34 @@ export const StepsSection: React.FC = () => (
     >
       <Steps
         current={0}
+        items={[
+          { title: 'Dealer Information' },
+          { title: 'Verification Document' },
+          { title: 'Lot Registration' },
+        ]}
+      />
+    </Example>
+    <Example
+      title="Small size"
+      code={`<Steps
+  current={1}
+  size="sm"
+  borderWidth={1.5}
+  checkStrokeWidth={2.5}
+  gap={20}
+  items={[
+    { title: 'Dealer Information' },
+    { title: 'Verification Document' },
+    { title: 'Lot Registration' },
+  ]}
+/>`}
+    >
+      <Steps
+        current={1}
+        size="sm"
+        borderWidth={1.5}
+        checkStrokeWidth={2.5}
+        gap={20}
         items={[
           { title: 'Dealer Information' },
           { title: 'Verification Document' },

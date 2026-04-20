@@ -15,10 +15,12 @@ export interface StepsProps {
   className?: string;
   style?: CSSProperties;
 
-  // Colors — match the screenshot design by default
+  // Colors
   activeColor?: string;
   inactiveColor?: string;
   errorColor?: string;
+  textColor?: string;
+  activeTextColor?: string;
 
   // Structural
   showConnector?: boolean;
@@ -26,12 +28,14 @@ export interface StepsProps {
   gap?: number | string;
   iconSize?: number;
   checkSize?: number;
+  borderWidth?: number;
+  checkStrokeWidth?: number;
 
   // Events
   onStepClick?: (index: number) => void;
 }
 
-const CheckIcon: FC<{ size: number; color: string }> = ({ size, color }) => (
+const CheckIcon: FC<{ size: number; color: string; strokeWidth?: number }> = ({ size, color, strokeWidth = 2 }) => (
   <svg
     width={size}
     height={size}
@@ -42,14 +46,14 @@ const CheckIcon: FC<{ size: number; color: string }> = ({ size, color }) => (
     <path
       d="M5 12.5l4.5 4.5L19 7.5"
       stroke={color}
-      strokeWidth="2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
   </svg>
 );
 
-const XIcon: FC<{ size: number; color: string }> = ({ size, color }) => (
+const XIcon: FC<{ size: number; color: string; strokeWidth?: number }> = ({ size, color, strokeWidth = 2 }) => (
   <svg
     width={size}
     height={size}
@@ -57,7 +61,7 @@ const XIcon: FC<{ size: number; color: string }> = ({ size, color }) => (
     fill="none"
     aria-hidden="true"
   >
-    <path d="M6 6l12 12M18 6L6 18" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <path d="M6 6l12 12M18 6L6 18" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
   </svg>
 );
 
@@ -69,18 +73,23 @@ export const Steps: FC<StepsProps> = ({
   className = '',
   style,
   activeColor = '#EC615B',
-  inactiveColor = '#181918',
+  inactiveColor = '#101828',
   errorColor = '#C21919',
+  textColor = '#494B4D',
+  activeTextColor = '#181918',
   showConnector = false,
   connectorColor,
   gap,
   iconSize: iconSizeProp,
   checkSize: checkSizeProp,
+  borderWidth: borderWidthProp,
+  checkStrokeWidth: checkStrokeWidthProp,
   onStepClick,
 }) => {
   const iconSize = iconSizeProp ?? (size === 'sm' ? 28 : size === 'lg' ? 44 : 36);
   const checkSize = checkSizeProp ?? (size === 'sm' ? 18 : size === 'lg' ? 30 : 24);
-  const iconBorderWidth = 2;
+  const iconBorderWidth = borderWidthProp ?? 2;
+  const checkStrokeWidth = checkStrokeWidthProp ?? 2;
   const titleSize = size === 'sm' ? 14 : size === 'lg' ? 20 : 18;
   const descriptionSize = size === 'sm' ? 12 : size === 'lg' ? 14 : 13;
   const resolvedGap =
@@ -102,9 +111,9 @@ export const Steps: FC<StepsProps> = ({
 
   const renderIcon = (status: StepItem['status'], custom?: ReactNode): ReactNode => {
     if (custom) return custom;
-    if (status === 'error') return <XIcon size={checkSize} color={errorColor} />;
-    if (status === 'finish') return <CheckIcon size={checkSize} color={activeColor} />;
-    if (status === 'process') return <CheckIcon size={checkSize} color={inactiveColor} />;
+    if (status === 'error') return <XIcon size={checkSize} color={errorColor} strokeWidth={checkStrokeWidth} />;
+    if (status === 'finish') return <CheckIcon size={checkSize} color={activeColor} strokeWidth={checkStrokeWidth} />;
+    if (status === 'process') return <CheckIcon size={checkSize} color={inactiveColor} strokeWidth={checkStrokeWidth} />;
     return null;
   };
 
@@ -157,7 +166,7 @@ export const Steps: FC<StepsProps> = ({
             style={{
               fontSize: titleSize,
               lineHeight: `${iconSize}px`,
-              color: status === 'wait' ? inactiveColor : '#181918',
+              color: status === 'wait' ? textColor : activeTextColor,
             }}
           >
             {item.title}

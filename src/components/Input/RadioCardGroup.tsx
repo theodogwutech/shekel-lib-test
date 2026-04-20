@@ -42,11 +42,33 @@ export interface RadioCardGroupProps<V extends string | number = string> {
   cardClassName?: string;
   cardStyle?: React.CSSProperties;
 
+  // Colors
   accentColor?: string;
   errorColor?: string;
   borderColor?: string;
   selectedBorderColor?: string;
   selectedGlowColor?: string;
+  textColor?: string;
+  descriptionColor?: string;
+  cardBgColor?: string;
+  selectedCardBgColor?: string;
+
+  // Radio button
+  radioBorderWidth?: number;
+  radioBorderColor?: string;
+
+  // Card border / shadow
+  variant?: 'border' | 'shadow' | 'both';
+  cardBorderWidth?: number;
+  cardBorderRadius?: number;
+  cardShadow?: string;
+  selectedCardShadow?: string;
+
+  // Typography
+  titleWeight?: number | string;
+  descriptionWeight?: number | string;
+  titleLineHeight?: number;
+  descriptionLineHeight?: number;
 
   name?: string;
   control?: Control<any>;
@@ -58,7 +80,9 @@ const RadioIcon: React.FC<{
   disabled?: boolean;
   accentColor: string;
   size?: number;
-}> = ({ selected, disabled, accentColor, size = 24 }) => {
+  borderWidth?: number;
+  borderColor?: string;
+}> = ({ selected, disabled, accentColor, size = 24, borderWidth = 1.5, borderColor = '#D1D1D1' }) => {
   if (selected) {
     return (
       <span
@@ -66,7 +90,7 @@ const RadioIcon: React.FC<{
         style={{
           width: size,
           height: size,
-          border: `2px solid ${accentColor}`,
+          border: `${borderWidth}px solid ${accentColor}`,
         }}
       >
         <span
@@ -86,7 +110,7 @@ const RadioIcon: React.FC<{
       style={{
         width: size,
         height: size,
-        border: `2px solid ${disabled ? '#D9D9D9' : '#181918'}`,
+        border: `${borderWidth}px solid ${disabled ? '#D9D9D9' : borderColor}`,
         backgroundColor: 'transparent',
       }}
     />
@@ -129,6 +153,21 @@ function RadioCardGroupBase<V extends string | number = string>({
   borderColor = '#EEEEEE',
   selectedBorderColor,
   selectedGlowColor,
+  textColor = '#131413',
+  descriptionColor = '#8C8C8C',
+  cardBgColor = 'white',
+  selectedCardBgColor,
+  radioBorderWidth = 1.5,
+  radioBorderColor = '#D1D1D1',
+  variant = 'border',
+  cardBorderWidth = 1.5,
+  cardBorderRadius = 16,
+  cardShadow,
+  selectedCardShadow,
+  titleWeight = 600,
+  descriptionWeight = 400,
+  titleLineHeight = 1.3,
+  descriptionLineHeight = 1.3,
 
   name,
   id,
@@ -201,15 +240,21 @@ function RadioCardGroupBase<V extends string | number = string>({
                   handleSelect(opt);
                 }
               }}
-              className={`relative bg-white transition-all duration-200 ${
+              className={`relative transition-all duration-200 ${
                 optDisabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
               } ${cardClassName}`}
               style={{
                 height: typeof cardHeight === 'number' ? `${cardHeight}px` : cardHeight,
                 padding: '14px 16px',
-                borderRadius: 16,
-                border: `1.5px solid ${selected ? resolvedSelectedBorder : borderColor}`,
-                boxShadow: selected ? `0 0 0 4px ${resolvedGlow}` : 'none',
+                borderRadius: cardBorderRadius,
+                backgroundColor: selected && selectedCardBgColor ? selectedCardBgColor : cardBgColor,
+                border:
+                  variant === 'shadow' && !selected
+                    ? `${cardBorderWidth}px solid transparent`
+                    : `${cardBorderWidth}px solid ${selected ? resolvedSelectedBorder : borderColor}`,
+                boxShadow: selected
+                  ? selectedCardShadow ?? (variant === 'shadow' ? `0 4px 16px ${resolvedGlow}` : `0 0 0 4px ${resolvedGlow}`)
+                  : cardShadow ?? (variant === 'shadow' || variant === 'both' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none'),
                 ...cardStyle,
               }}
             >
@@ -217,8 +262,8 @@ function RadioCardGroupBase<V extends string | number = string>({
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                   {opt.icon && (
                     <div
-                      className="shrink-0 text-[#181918] flex items-center"
-                      style={{ height: iconSize }}
+                      className="shrink-0 flex items-center"
+                      style={{ color: textColor, height: iconSize }}
                     >
                       <span
                         className="inline-flex items-center justify-center"
@@ -229,15 +274,15 @@ function RadioCardGroupBase<V extends string | number = string>({
                     </div>
                   )}
                   <div
-                    className="font-semibold text-[#181918] truncate"
-                    style={{ fontSize: titleSize, marginTop: opt.icon ? 6 : 0, lineHeight: 1.3 }}
+                    className="truncate"
+                    style={{ color: textColor, fontSize: titleSize, fontWeight: titleWeight, marginTop: opt.icon ? 6 : 0, lineHeight: titleLineHeight }}
                   >
                     {opt.label}
                   </div>
                   {opt.description && (
                     <div
-                      className="text-[#8C8C8C] truncate"
-                      style={{ fontSize: descriptionSize, marginTop: 2, lineHeight: 1.3 }}
+                      className="truncate"
+                      style={{ color: descriptionColor, fontSize: descriptionSize, fontWeight: descriptionWeight, marginTop: 2, lineHeight: descriptionLineHeight }}
                     >
                       {opt.description}
                     </div>
@@ -249,6 +294,8 @@ function RadioCardGroupBase<V extends string | number = string>({
                     disabled={optDisabled}
                     accentColor={accentColor}
                     size={radioSize}
+                    borderWidth={radioBorderWidth}
+                    borderColor={radioBorderColor}
                   />
                 </div>
               </div>
